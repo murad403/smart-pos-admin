@@ -1,20 +1,44 @@
-import React from 'react'
-import SalesOverTime from './SalesOverTime'
-import DashboardStats from './DashboardStats'
-import Alerts from './Alerts'
-import TopSellingItems from './TopSellingItems'
-import OrdersPerHour from './OrdersPerHour'
+"use client";
+import { useState } from "react";
+import DashboardStats from "./DashboardStats";
+import SalesOverTime from "./SalesOverTime";
+import OrdersPerHour from "./OrdersPerHour";
+import TopSellingItems from "./TopSellingItems";
+import Alerts from "./Alerts";
+import DateRangePicker from "@/components/shared/DateRangePicker";
 
-const page = () => {
+const DashboardPage = () => {
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+
   return (
-    <div>
-      <DashboardStats />
-      <Alerts />
-      <TopSellingItems />
-      <OrdersPerHour />
-      <SalesOverTime />
-    </div>
-  )
-}
+    <div className="bg-slate-50">
+      {/* Page Header */}
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
+        <DateRangePicker
+          startDate={startDate}
+          endDate={endDate}
+          onChange={(s, e) => { setStartDate(s); setEndDate(e); }}
+        />
+      </div>
 
-export default page
+      {/* Stats Row */}
+      <DashboardStats />
+
+      {/* Charts Row */}
+      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <SalesOverTime />
+        <OrdersPerHour />
+      </div>
+
+      {/* Bottom Row */}
+      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <TopSellingItems />
+        <Alerts />
+      </div>
+    </div>
+  );
+};
+
+export default DashboardPage;

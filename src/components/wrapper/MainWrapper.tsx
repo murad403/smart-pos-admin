@@ -101,9 +101,9 @@ function Topbar() {
 
 function SidebarBrand() {
   return (
-    <div className="flex items-center gap-3 px-3 py-2.5">
-      <div className="flex size-11 items-center justify-center rounded-2xl bg-[#F7F7F7] shadow-sm ring-1 ring-slate-200">
-        <Image src={brandLogo} alt="SmartPOS" className="h-7 w-7 object-contain" priority />
+    <div className="flex items-center gap-3 px-3 py-2.5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:px-1">
+      <div className="flex size-11 items-center justify-center rounded-2xl bg-[#F7F7F7] shadow-sm ring-1 ring-slate-200 group-data-[collapsible=icon]:size-9">
+        <Image src={brandLogo} alt="SmartPOS" className="h-7 w-7 object-contain group-data-[collapsible=icon]:h-6 group-data-[collapsible=icon]:w-6" priority />
       </div>
       <div className="min-w-0 group-data-[collapsible=icon]:hidden">
         <p className="text-lg font-semibold tracking-tight text-slate-950">SmartPOS</p>
@@ -115,7 +115,7 @@ function SidebarBrand() {
 
 function AppSidebar() {
   return (
-    <Sidebar collapsible="icon" className="border-r border-slate-200/80 bg-[#F7F7F7]">
+    <Sidebar collapsible="icon" className="border-r border-slate-200/80 bg-white">
       <SidebarHeader className="border-b border-slate-200/70 px-2 py-1">
         <SidebarBrand />
       </SidebarHeader>
@@ -131,15 +131,15 @@ function AppSidebar() {
                     isActive={item.active}
                     tooltip={item.label}
                     className={cn(
-                      "h-11 rounded-lg px-3 text-sm font-medium text-slate-600 transition-colors",
+                      "h-11 rounded-lg px-3 text-sm font-medium text-slate-600 transition-colors group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:rounded-xl group-data-[collapsible=icon]:px-0",
                       item.active
                         ? "bg-[#1A56DB] text-white shadow-lg shadow-[#1A56DB]/20 hover:bg-[#1A56DB] hover:text-white"
                         : "hover:bg-slate-100 hover:text-slate-950"
                     )}
                   >
-                    <a href={item.href} className="flex items-center gap-3">
+                    <a href={item.href} className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0">
                       <item.icon className="size-4" />
-                      <span>{item.label}</span>
+                      <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                     </a>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -169,12 +169,12 @@ function AppSidebar() {
 const MainWrapper = ({ children }: { children: React.ReactNode }) => {
   return (
     <SidebarProvider defaultOpen>
-      <div className="flex min-h-screen w-full bg-[#f4f7fb] text-slate-900">
+      <div className="flex min-h-screen w-full bg-[#F7F7F7] text-slate-900">
         <AppSidebar />
 
-        <SidebarInset className="flex min-h-screen flex-col bg-[#f4f7fb]">
+        <SidebarInset className="flex min-h-screen flex-col bg-[#F7F7F7]">
           <Topbar />
-          <main className="flex flex-1 flex-col px-4 py-4 sm:px-6 lg:px-8">
+          <main className="flex flex-1 flex-col p-4 md:p-6 lg:p-8">
             {children}
           </main>
         </SidebarInset>
