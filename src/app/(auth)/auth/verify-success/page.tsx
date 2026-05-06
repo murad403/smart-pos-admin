@@ -1,6 +1,6 @@
 import React from 'react'
 
-const VerifyOtp = () => {
+const VerifySuccess = () => {
   return (
     <div>
       
@@ -8,4 +8,4 @@ const VerifyOtp = () => {
   )
 }
 
-export default VerifyOtp
+export default VerifySuccess
