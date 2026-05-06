@@ -13,11 +13,12 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
+import { usePathname } from "next/navigation"
 
 
 
 const navigationItems = [
-  { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard", active: true },
+  { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
   { label: "Reports", icon: ReceiptText, href: "/reports" },
   { label: "Payment Proof", icon: CreditCard, href: "/payment-proof" },
   { label: "Inventory Report", icon: Package, href: "/inventory-report" },
@@ -114,6 +115,7 @@ function SidebarBrand() {
 }
 
 function AppSidebar() {
+  const pathName = usePathname();
   return (
     <Sidebar collapsible="icon" className="border-r border-slate-200/80 bg-white">
       <SidebarHeader className="border-b border-slate-200/70 px-2 py-1">
@@ -128,11 +130,10 @@ function AppSidebar() {
                 <SidebarMenuItem key={item.label}>
                   <SidebarMenuButton
                     asChild
-                    isActive={item.active}
                     tooltip={item.label}
                     className={cn(
                       "h-11 rounded-lg px-3 text-sm font-medium text-slate-600 transition-colors group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:rounded-xl group-data-[collapsible=icon]:px-0",
-                      item.active
+                      item.href === pathName
                         ? "bg-[#1A56DB] text-white shadow-lg shadow-[#1A56DB]/20 hover:bg-[#1A56DB] hover:text-white"
                         : "hover:bg-slate-100 hover:text-slate-950"
                     )}

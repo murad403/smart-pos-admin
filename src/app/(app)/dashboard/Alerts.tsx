@@ -15,8 +15,8 @@ const alerts = [
 
 const Alerts = () => {
     return (
-        <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-            <div className="mb-5 flex items-center gap-2 border-l-4 border-red-500 pl-3">
+        <div className="rounded-xl bg-white p-5 border-l-4 border-red-500 shadow-sm">
+            <div className="mb-5 flex items-center gap-2  pl-3">
                 <AlertCircle className="size-4 text-red-500" />
                 <h3 className="text-base font-semibold text-slate-800">Alerts</h3>
             </div>

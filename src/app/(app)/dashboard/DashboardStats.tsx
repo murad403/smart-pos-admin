@@ -41,7 +41,7 @@ const DashboardStats = () => {
                     return (
                         <div
                             key={i}
-                            className="relative overflow-hidden rounded-2xl bg-blue-600 p-5 text-white shadow-lg"
+                            className="relative overflow-hidden rounded-xl bg-blue-600 p-5 text-white shadow-lg"
                         >
                             <div className="mb-3 flex items-center justify-between">
                                 <span className="text-sm font-medium text-blue-100">{stat.label}</span>
@@ -63,7 +63,7 @@ const DashboardStats = () => {
                     return (
                         <div
                             key={i}
-                            className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm"
+                            className="rounded-xl border border-slate-100 bg-white p-5 shadow-sm"
                         >
                             <div className="mb-3 flex items-center justify-between">
                                 <span className="text-sm font-medium text-slate-500">{stat.label}</span>
@@ -88,7 +88,7 @@ const DashboardStats = () => {
                 return (
                     <div
                         key={i}
-                        className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm"
+                        className="rounded-xl border border-slate-100 bg-white p-5 shadow-sm"
                     >
                         <span className="text-sm font-medium text-slate-500">{stat.label}</span>
                         <div className="mt-4 space-y-3">

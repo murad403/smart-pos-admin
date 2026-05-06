@@ -30,7 +30,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 const SalesOverTime = () => {
     return (
-        <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+        <div className="rounded-xl border border-slate-100 bg-white p-5 shadow-sm">
             <h3 className="mb-5 text-base font-semibold text-slate-800">Sales Over Time</h3>
             <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={data} barSize={40} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
@@ -43,7 +43,6 @@ const SalesOverTime = () => {
                     />
                     <YAxis
                         ticks={yTicks}
-                        tickFormatter={(v) => (v === 0 ? "0" : `${v / 1000}0000`.slice(0, v.toString().length > 4 ? -3 : undefined))}
                         axisLine={false}
                         tickLine={false}
                         tick={{ fontSize: 11, fill: "#94a3b8" }}

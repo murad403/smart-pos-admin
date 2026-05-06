@@ -6,7 +6,7 @@ const items = [
 
 const TopSellingItems = () => {
     return (
-        <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+        <div className="rounded-xl border border-slate-100 bg-white p-5 shadow-sm">
             <h3 className="mb-5 text-base font-semibold text-slate-800">Top Selling Items</h3>
             <div className="space-y-4">
                 {items.map((item) => (
