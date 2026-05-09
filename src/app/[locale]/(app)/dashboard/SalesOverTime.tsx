@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer} from "recharts";
+import { useTranslations } from "next-intl";
 
 const data = [
     { day: "Mon", sales: 42000 },
@@ -29,11 +30,19 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 const SalesOverTime = () => {
+    const t = useTranslations("Dashboard");
+    const td = useTranslations("Days");
+    
+    const localizedData = data.map(item => ({
+        ...item,
+        day: td(item.day.toLowerCase() as any)
+    }));
+
     return (
         <div className="rounded-xl border border-slate-100 bg-white p-5 shadow-sm">
-            <h3 className="mb-5 text-base font-semibold text-slate-800">Sales Over Time</h3>
+            <h3 className="mb-5 text-base font-semibold text-slate-800">{t("salesOverTime")}</h3>
             <ResponsiveContainer width="100%" height={260}>
-                <BarChart data={data} barSize={40} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+                <BarChart data={localizedData} barSize={40} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
                     <CartesianGrid vertical={false} stroke="#f1f5f9" />
                     <XAxis
                         dataKey="day"

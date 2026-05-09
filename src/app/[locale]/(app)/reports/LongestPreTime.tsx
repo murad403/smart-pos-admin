@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+
 const items = [
     { name: "Soto Ayam Special",   minutes: 12, max: 12 },
     { name: "Ayam Bakar Taliwang", minutes: 8,  max: 12 },
@@ -7,9 +9,10 @@ const items = [
 ];
 
 const LongestPreTime = () => {
+    const t = useTranslations("Reports");
     return (
         <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
-            <h3 className="mb-5 text-base font-semibold text-slate-800">Items with Longest Prep Time</h3>
+            <h3 className="mb-5 text-base font-semibold text-slate-800">{t("longestPrepTime")}</h3>
             <div className="space-y-4">
                 {items.map((item, i) => (
                     <div key={i} className="flex items-center gap-4">
@@ -22,7 +25,7 @@ const LongestPreTime = () => {
                                 />
                             </div>
                             <span className="w-10 shrink-0 text-right text-sm font-semibold text-slate-700">
-                                {item.minutes} m
+                                {item.minutes} {t("m")}
                             </span>
                         </div>
                     </div>

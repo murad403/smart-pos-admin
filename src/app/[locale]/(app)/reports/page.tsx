@@ -7,8 +7,10 @@ import OrderBreakdown from "./OrderBreakdown";
 import ProductionPerformance from "./ProductionPerformance";
 import LongestPreTime from "./LongestPreTime";
 import DateRangePicker from "@/components/shared/DateRangePicker";
+import { useTranslations } from "next-intl";
 
 const ReportsPage = () => {
+  const t = useTranslations("Reports");
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [quickFilter, setQuickFilter] = useState<"0Days" | "7Days" | "30Days">("0Days");
@@ -17,7 +19,7 @@ const ReportsPage = () => {
     <div >
       {/* Header */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold text-slate-900">Reports</h1>
+        <h1 className="text-2xl font-bold text-slate-900">{t("title")}</h1>
 
         <div className="flex flex-wrap items-center gap-2">
           {/* Date range */}
@@ -37,7 +39,7 @@ const ReportsPage = () => {
                   : "border border-slate-200 bg-white text-slate-600 hover:border-slate-300"
                 }`}
             >
-              {f}
+              {f === "0Days" ? t("zeroDays") : f === "7Days" ? t("sevenDays") : t("thirtyDays")}
             </button>
           ))}
         </div>

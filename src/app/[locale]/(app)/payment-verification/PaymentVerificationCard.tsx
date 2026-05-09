@@ -1,4 +1,5 @@
 import Image, { StaticImageData } from "next/image";
+import { useTranslations } from "next-intl";
 
 export interface PaymentVerificationItem {
   id: string;
@@ -21,6 +22,8 @@ interface PaymentVerificationCardProps {
 const formatCurrency = (value: number) => `Rp ${value.toLocaleString("en-US")}`;
 
 const PaymentVerificationCard = ({ item, onViewDetails }: PaymentVerificationCardProps) => {
+  const t = useTranslations("Payment");
+  
   return (
     <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
       <div className="relative mb-3 overflow-hidden rounded-lg">
@@ -34,21 +37,21 @@ const PaymentVerificationCard = ({ item, onViewDetails }: PaymentVerificationCar
             item.status === "mismatch" ? "bg-red-500 text-white" : "bg-emerald-500 text-white"
           }`}
         >
-          {item.status === "mismatch" ? "Mismatch" : "Match"}
+          {item.status === "mismatch" ? t("mismatch") : t("match")}
         </span>
       </div>
 
       <div className="space-y-1.5 border-b border-slate-100 pb-3 text-sm">
         <div className="flex items-center justify-between gap-2 text-slate-500">
-          <span>Order #</span>
+          <span>{t("orderNumber")}</span>
           <span className="font-semibold text-slate-800">#{item.orderNumber}</span>
         </div>
         <div className="flex items-center justify-between gap-2 text-slate-500">
-          <span>Amount</span>
+          <span>{t("amount")}</span>
           <span className="font-semibold text-blue-700">{formatCurrency(item.amount)}</span>
         </div>
         <div className="flex items-center justify-between gap-2 text-slate-500">
-          <span>Payment Method</span>
+          <span>{t("paymentMethod")}</span>
           <span className="font-medium text-slate-700 border border-gray-300 px-1 rounded-xl">{item.paymentMethod}</span>
         </div>
         <div className="flex items-center justify-between gap-2 text-slate-500">
@@ -64,7 +67,7 @@ const PaymentVerificationCard = ({ item, onViewDetails }: PaymentVerificationCar
           onClick={() => onViewDetails(item)}
           className="w-full rounded-md border border-slate-200 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
         >
-          View Details
+          {t("viewDetails")}
         </button>
       </div>
     </article>

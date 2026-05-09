@@ -1,18 +1,13 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { Calendar } from "lucide-react";
+import { useTranslations, useLocale } from "next-intl";
 
 interface DateRangePickerProps {
     startDate: Date | null;
     endDate: Date | null;
     onChange: (start: Date | null, end: Date | null) => void;
 }
-
-const MONTHS = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December",
-];
-const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
 function getDaysInMonth(year: number, month: number) {
     return new Date(year, month + 1, 0).getDate();
@@ -30,6 +25,17 @@ function isBetween(date: Date, start: Date, end: Date) {
 }
 
 const DateRangePicker = ({ startDate, endDate, onChange }: DateRangePickerProps) => {
+    const t = useTranslations("DatePicker");
+    const tm = useTranslations("Months");
+    const td = useTranslations("Days");
+    const locale = useLocale();
+
+    const MONTHS = [
+        tm("january"), tm("february"), tm("march"), tm("april"), tm("may"), tm("june"),
+        tm("july"), tm("august"), tm("september"), tm("october"), tm("november"), tm("december"),
+    ];
+    const DAYS = [td("sun"), td("mon"), td("tue"), td("wed"), td("thu"), td("fri"), td("sat")];
+
     const today = new Date();
     const [open, setOpen] = useState(false);
     const [viewYear, setViewYear] = useState(today.getFullYear());
@@ -67,7 +73,7 @@ const DateRangePicker = ({ startDate, endDate, onChange }: DateRangePickerProps)
 
     const formatDate = (d: Date | null) => {
         if (!d) return "";
-        return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+        return d.toLocaleDateString(locale === "id" ? "id-ID" : "en-GB", { day: "2-digit", month: "short", year: "numeric" });
     };
 
     const daysInMonth = getDaysInMonth(viewYear, viewMonth);
@@ -83,7 +89,7 @@ const DateRangePicker = ({ startDate, endDate, onChange }: DateRangePickerProps)
                 onClick={() => setOpen(o => !o)}
                 className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 shadow-sm transition hover:border-blue-400 hover:text-blue-600"
             >
-                <span className="text-slate-400 text-xs font-medium">Start Date</span>
+                <span className="text-slate-400 text-xs font-medium">{t("startDate")}</span>
                 {startDate && <span className="font-medium text-slate-700">{formatDate(startDate)}</span>}
                 <Calendar className="size-4 text-slate-400" />
             </button>
@@ -93,7 +99,7 @@ const DateRangePicker = ({ startDate, endDate, onChange }: DateRangePickerProps)
                 onClick={() => setOpen(o => !o)}
                 className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 shadow-sm transition hover:border-blue-400 hover:text-blue-600"
             >
-                <span className="text-slate-400 text-xs font-medium">End Date</span>
+                <span className="text-slate-400 text-xs font-medium">{t("endDate")}</span>
                 {endDate && <span className="font-medium text-slate-700">{formatDate(endDate)}</span>}
                 <Calendar className="size-4 text-slate-400" />
             </button>
@@ -160,13 +166,13 @@ const DateRangePicker = ({ startDate, endDate, onChange }: DateRangePickerProps)
                             onClick={() => { onChange(null, null); }}
                             className="text-xs text-slate-400 hover:text-slate-600"
                         >
-                            Clear
+                            {t("clear")}
                         </button>
                         <button
                             onClick={() => setOpen(false)}
                             className="rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-blue-700"
                         >
-                            Apply
+                            {t("apply")}
                         </button>
                     </div>
                 </div>

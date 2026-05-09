@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+
 const items = [
     { rank: 1, name: "Nasi Goreng Special", sold: 245 },
     { rank: 2, name: "Ayam Bakar", sold: 198 },
@@ -5,9 +7,10 @@ const items = [
 ];
 
 const TopSellingItems = () => {
+    const t = useTranslations("Dashboard");
     return (
         <div className="rounded-xl border border-slate-100 bg-white p-5 shadow-sm">
-            <h3 className="mb-5 text-base font-semibold text-slate-800">Top Selling Items</h3>
+            <h3 className="mb-5 text-base font-semibold text-slate-800">{t("topSellingItems")}</h3>
             <div className="space-y-4">
                 {items.map((item) => (
                     <div
@@ -20,7 +23,7 @@ const TopSellingItems = () => {
                             </span>
                             <span className="text-sm font-medium text-slate-700">{item.name}</span>
                         </div>
-                        <span className="shrink-0 text-sm text-slate-500">{item.sold} sold</span>
+                        <span className="shrink-0 text-sm text-slate-500">{item.sold} {t("sold")}</span>
                     </div>
                 ))}
             </div>

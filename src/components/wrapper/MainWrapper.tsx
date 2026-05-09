@@ -25,7 +25,7 @@ function SidebarBrand() {
 
 function AppSidebar() {
   const pathName = usePathname();
-  const [profileOpen, setProfileOpen] = React.useState(true);
+  const [profileOpen, setProfileOpen] = React.useState(pathName.startsWith("/profile"));
   const t = useTranslations("Common");
 
   const navigationItems = [
@@ -155,13 +155,19 @@ function Topbar() {
         <div className="flex items-center gap-4 sm:gap-6">
           <div className="flex items-center rounded-2xl border border-slate-200 bg-[#f3f4f6] p-1 shadow-sm">
             <button
-              onClick={() => handleLocaleChange("en")}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleLocaleChange("en");
+              }}
               className={`rounded-xl px-3 py-1.5 text-sm font-medium transition-all ${locale === "en" ? "bg-white text-[#1A56DB] shadow-[0_1px_3px_rgba(15,23,42,0.12)]" : "text-slate-500 hover:text-slate-700"}`}
             >
               EN
             </button>
             <button
-              onClick={() => handleLocaleChange("id")}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleLocaleChange("id");
+              }}
               className={`rounded-xl px-3 py-1.5 text-sm font-medium transition-all ${locale === "id" ? "bg-white text-[#1A56DB] shadow-[0_1px_3px_rgba(15,23,42,0.12)]" : "text-slate-500 hover:text-slate-700"}`}
             >
               ID

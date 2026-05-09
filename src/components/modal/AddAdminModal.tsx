@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { AdminFormValues, adminSchema } from "@/validation/auth.validation";
+import { useTranslations } from "next-intl";
 
 type Props = {
   open: boolean;
@@ -13,6 +14,10 @@ type Props = {
 };
 
 const AddAdminModal: React.FC<Props> = ({ open, onClose }) => {
+  const t = useTranslations("Profile");
+  const tm = useTranslations("Menu");
+  const tv = useTranslations("Validation");
+  
   const [imagePreview, setImagePreview] = React.useState<string | null>(null);
   const [showPass, setShowPass] = React.useState(false);
   const [showConfirm, setShowConfirm] = React.useState(false);
@@ -24,7 +29,7 @@ const AddAdminModal: React.FC<Props> = ({ open, onClose }) => {
     reset,
     formState: { errors },
   } = useForm<AdminFormValues>({
-    resolver: zodResolver(adminSchema),
+    resolver: zodResolver(adminSchema(tv)),
     defaultValues: {
       role: "Admin",
     },
@@ -68,16 +73,16 @@ const AddAdminModal: React.FC<Props> = ({ open, onClose }) => {
             <Key size={28} />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-slate-900">Add Admin/Staff</h2>
+            <h2 className="text-2xl font-bold text-slate-900">{t("addAdminStaff")}</h2>
             <p className="text-[15px] text-slate-500">
-              Register new Profile for <span className="font-bold text-blue-600">Admin/Staff</span>
+              {t("registerNewProfileFor") || "Register new Profile for"} <span className="font-bold text-blue-600">{t("adminStaff") || "Admin/Staff"}</span>
             </p>
           </div>
         </div>
 
         <div className="mb-6">
-          <h3 className="text-[1.35rem] font-bold text-slate-900">Register</h3>
-          <p className="text-[14px] text-slate-500">Create New Dreamspos Account</p>
+          <h3 className="text-[1.35rem] font-bold text-slate-900">{tm("register")}</h3>
+          <p className="text-[14px] text-slate-500">{tm("createNewDreamsposAccount") || "Create New Dreamspos Account"}</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -89,14 +94,14 @@ const AddAdminModal: React.FC<Props> = ({ open, onClose }) => {
               {imagePreview ? (
                 <img src={imagePreview} alt="Preview" className="h-full w-full rounded-2xl object-cover" />
               ) : (
-                <span className="text-[14px] font-medium text-slate-400">Upload photo</span>
+                <span className="text-[14px] font-medium text-slate-400">{t("uploadPhoto") || "Upload photo"}</span>
               )}
               <input type="file" ref={fileInputRef} onChange={handleImageChange} className="hidden" accept="image/*" />
             </div>
           </div>
 
           <div className="space-y-1">
-            <label className="text-[13px] font-bold text-slate-700">Name <span className="text-red-500">*</span></label>
+            <label className="text-[13px] font-bold text-slate-700">{t("name") || "Name"} <span className="text-red-500">*</span></label>
             <div className="relative">
               <input
                 {...register("name")}
@@ -108,7 +113,7 @@ const AddAdminModal: React.FC<Props> = ({ open, onClose }) => {
           </div>
 
           <div className="space-y-1">
-            <label className="text-[13px] font-bold text-slate-700">Email Address <span className="text-red-500">*</span></label>
+            <label className="text-[13px] font-bold text-slate-700">{t("emailAddress") || "Email Address"} <span className="text-red-500">*</span></label>
             <div className="relative">
               <input
                 {...register("email")}
@@ -121,7 +126,7 @@ const AddAdminModal: React.FC<Props> = ({ open, onClose }) => {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-1">
-              <label className="text-[13px] font-bold text-slate-700">Password <span className="text-red-500">*</span></label>
+              <label className="text-[13px] font-bold text-slate-700">{t("password") || "Password"} <span className="text-red-500">*</span></label>
               <div className="relative">
                 <input
                   type={showPass ? "text" : "password"}
@@ -140,14 +145,14 @@ const AddAdminModal: React.FC<Props> = ({ open, onClose }) => {
             </div>
 
             <div className="space-y-1">
-              <label className="text-[13px] font-bold text-slate-700">Role</label>
+              <label className="text-[13px] font-bold text-slate-700">{t("role") || "Role"}</label>
               <div className="relative">
                 <select
                   {...register("role")}
                   className="w-full appearance-none rounded-xl border border-slate-100 bg-white px-4 py-3 text-[15px] outline-none transition-all focus:border-blue-500/50"
                 >
-                  <option value="Admin">Admin</option>
-                  <option value="Staff">Staff</option>
+                  <option value="Admin">{t("admin")}</option>
+                  <option value="Staff">{t("staff")}</option>
                 </select>
                 <ChevronDown className="absolute right-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
               </div>
@@ -155,7 +160,7 @@ const AddAdminModal: React.FC<Props> = ({ open, onClose }) => {
           </div>
 
           <div className="space-y-1">
-            <label className="text-[13px] font-bold text-slate-700">Confirm Password <span className="text-red-500">*</span></label>
+            <label className="text-[13px] font-bold text-slate-700">{t("confirmPassword") || "Confirm Password"} <span className="text-red-500">*</span></label>
             <div className="relative">
               <input
                 type={showConfirm ? "text" : "password"}
@@ -177,7 +182,7 @@ const AddAdminModal: React.FC<Props> = ({ open, onClose }) => {
             type="submit"
             className="mt-4 h-12 w-full rounded-xl bg-[#3B82F6] text-[15px] font-bold text-white shadow-lg shadow-blue-500/20 hover:bg-blue-600"
           >
-            Add Admin/Staff
+            {t("addAdminStaff")}
           </Button>
         </form>
       </div>

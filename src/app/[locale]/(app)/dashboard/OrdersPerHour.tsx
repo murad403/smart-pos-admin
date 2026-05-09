@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer} from "recharts";
+import { useTranslations } from "next-intl";
 
 const data = [
     { hour: "9AM", orders: 12 },
@@ -17,12 +18,12 @@ const data = [
     { hour: "8PM", orders: 45 },
 ];
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label, t }: any) => {
     if (active && payload && payload.length) {
         return (
             <div className="rounded-lg border border-slate-100 bg-white px-3 py-2 shadow-lg">
                 <p className="text-xs font-medium text-slate-500">{label}</p>
-                <p className="text-sm font-bold text-blue-600">{payload[0].value} orders</p>
+                <p className="text-sm font-bold text-blue-600">{payload[0].value} {t("orders")}</p>
             </div>
         );
     }
@@ -30,9 +31,10 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 const OrdersPerHour = () => {
+    const t = useTranslations("Dashboard");
     return (
         <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-            <h3 className="mb-5 text-base font-semibold text-slate-800">Orders Per Hour</h3>
+            <h3 className="mb-5 text-base font-semibold text-slate-800">{t("ordersPerHour")}</h3>
             <ResponsiveContainer width="100%" height={260}>
                 <LineChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
                     <CartesianGrid stroke="#f1f5f9" />
@@ -49,7 +51,7 @@ const OrdersPerHour = () => {
                         tick={{ fontSize: 11, fill: "#94a3b8" }}
                         width={30}
                     />
-                    <Tooltip content={<CustomTooltip />} />
+                    <Tooltip content={<CustomTooltip t={t} />} />
                     <Line
                         type="monotone"
                         dataKey="orders"

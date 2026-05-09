@@ -3,6 +3,7 @@ import {
     LineChart, Line, XAxis, YAxis, CartesianGrid,
     Tooltip, ResponsiveContainer,
 } from "recharts";
+import { useTranslations } from "next-intl";
 
 const data = [
     { date: "Apr 16", sales: 48000 },
@@ -27,11 +28,12 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 const SalesSummary = () => {
+    const t = useTranslations("Reports");
     return (
         <div className="space-y-4">
             {/* Chart card */}
             <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
-                <h2 className="text-xl font-bold text-slate-900">Sales Summary</h2>
+                <h2 className="text-xl font-bold text-slate-900">{t("salesSummary")}</h2>
                 <p className="mt-0.5 text-sm font-medium text-blue-500">23 April 2026 – 23 April 2026</p>
                 <div className="mt-5">
                     <ResponsiveContainer width="100%" height={220}>
@@ -68,12 +70,12 @@ const SalesSummary = () => {
             {/* Monthly earning card */}
             <div className="flex items-center justify-between rounded-2xl bg-blue-50 px-6 py-5">
                 <div>
-                    <p className="text-lg font-bold text-slate-800">This month's earning</p>
+                    <p className="text-lg font-bold text-slate-800">{t("thisMonthEarning")}</p>
                     <p className="mt-1 text-2xl font-bold text-slate-900">Rp 20,825,000</p>
                 </div>
                 <div className="text-right">
                     <p className="text-2xl font-bold text-slate-900">+26.2%</p>
-                    <p className="mt-1 text-sm text-blue-500">Compared to last month</p>
+                    <p className="mt-1 text-sm text-blue-500">{t("comparedToLastMonth")}</p>
                 </div>
             </div>
         </div>

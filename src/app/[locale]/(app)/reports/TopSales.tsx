@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+
 const items = [
     { name: "Nasi Goreng Special", category: "Main Course", qty: 245, revenue: "Rp 3,675,000" },
     { name: "Ayam Bakar",          category: "Main Course", qty: 198, revenue: "Rp 3,960,000" },
@@ -7,19 +9,20 @@ const items = [
 ];
 
 const TopSales = () => {
+    const t = useTranslations("Reports");
     return (
         <div className="rounded-xl border border-slate-100 bg-white shadow-sm">
             <div className="px-6 pt-5 pb-2">
-                <h3 className="text-base font-semibold text-slate-800">Top Sales</h3>
+                <h3 className="text-base font-semibold text-slate-800">{t("topSales")}</h3>
             </div>
             <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                     <thead>
                         <tr className="border-b border-slate-100">
-                            <th className="px-6 py-3 text-left font-medium text-slate-500">Item</th>
-                            <th className="px-6 py-3 text-left font-medium text-slate-500">Category</th>
-                            <th className="px-6 py-3 text-right font-medium text-slate-500">Quantity</th>
-                            <th className="px-6 py-3 text-right font-medium text-slate-500">Revenue</th>
+                            <th className="px-6 py-3 text-left font-medium text-slate-500">{t("item")}</th>
+                            <th className="px-6 py-3 text-left font-medium text-slate-500">{t("category")}</th>
+                            <th className="px-6 py-3 text-right font-medium text-slate-500">{t("quantity")}</th>
+                            <th className="px-6 py-3 text-right font-medium text-slate-500">{t("revenue")}</th>
                         </tr>
                     </thead>
                     <tbody>

@@ -1,8 +1,8 @@
 import z from "zod";
 
-export const menuItemSchema = z.object({
-  itemName: z.string().min(1, "Item name is required"),
-  price: z.coerce.number().min(0, "Price is required"),
+export const menuItemSchema = (t: any) => z.object({
+  itemName: z.string().min(1, t("itemNameRequired") || "Item name is required"),
+  price: z.coerce.number().min(0, t("priceRequired") || "Price is required"),
   productionDestination: z.enum(["Kitchen", "Bar", "Pastry", "Grill"]),
   inventory: z.string().optional().default(""),
   promoName: z.string().optional().default(""),
@@ -15,4 +15,4 @@ export const menuItemSchema = z.object({
   maxChoices: z.coerce.number().default(0),
 });
 
-export type MenuItemFormValues = z.infer<typeof menuItemSchema>;
+export type MenuItemFormValues = z.infer<ReturnType<typeof menuItemSchema>>;

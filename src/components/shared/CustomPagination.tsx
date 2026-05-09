@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface CustomPaginationProps {
     currentPage: number;
@@ -9,6 +10,7 @@ interface CustomPaginationProps {
 }
 
 const CustomPagination = ({ currentPage, totalPages, onPageChange }: CustomPaginationProps) => {
+    const t = useTranslations("Pagination");
 
     const getPageNumbers = () => {
         const pages: (number | string)[] = [];
@@ -40,7 +42,7 @@ const CustomPagination = ({ currentPage, totalPages, onPageChange }: CustomPagin
                 className="flex items-center gap-1 px-3 py-1.5 rounded-md text-sm text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
             >
                 <ChevronLeft size={15} />
-                <span className="hidden sm:inline">Previous</span>
+                <span className="hidden sm:inline">{t("previous")}</span>
             </button>
 
             {getPageNumbers().map((page, idx) =>
@@ -67,7 +69,7 @@ const CustomPagination = ({ currentPage, totalPages, onPageChange }: CustomPagin
                 disabled={currentPage === totalPages}
                 className="flex items-center gap-1 px-3 py-1.5 rounded-md text-sm text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
             >
-                <span className="hidden sm:inline">Next</span>
+                <span className="hidden sm:inline">{t("next")}</span>
                 <ChevronRight size={15} />
             </button>
         </div>

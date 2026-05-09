@@ -15,19 +15,33 @@ type Props = {
   initialData?: Partial<MenuItemFormValues> & { imageUrl?: string };
 };
 
-const LABEL_OPTIONS = [
-  "Best Seller", "Recommended", "Favorite", "Must Try",
-  "New", "Vegetarian", "Kids Choice", "Spicy",
-];
-const PRODUCTION_DESTINATIONS = ["Kitchen", "Bar", "Pastry", "Grill"];
-
 const EditMenuModal: React.FC<Props> = ({ open, onClose, onSave, initialData }) => {
   const t = useTranslations("Menu");
+  const tv = useTranslations("Validation");
+
+  const LABEL_OPTIONS = [
+    { key: "bestSeller", label: t("bestSeller") },
+    { key: "recommended", label: t("recommended") },
+    { key: "favorite", label: t("favorite") },
+    { key: "mustTry", label: t("mustTry") },
+    { key: "new", label: t("new") },
+    { key: "vegetarian", label: t("vegetarian") },
+    { key: "kidsChoice", label: t("kidsChoice") },
+    { key: "spicy", label: t("spicy") },
+  ];
+
+  const PRODUCTION_DESTINATIONS = [
+    { key: "Kitchen", label: t("kitchen") },
+    { key: "Bar", label: t("bar") },
+    { key: "Pastry", label: t("pastry") },
+    { key: "Grill", label: t("grill") },
+  ];
+
   const {
     register, handleSubmit, setValue, watch, reset,
     formState: { errors },
   } = useForm<MenuItemFormValues>({
-    resolver: zodResolver(menuItemSchema),
+    resolver: zodResolver(menuItemSchema(tv)),
     defaultValues: {
       itemName: "", price: 0, productionDestination: "Kitchen",
       inventory: "", promoName: "", promoPrice: 0,
@@ -72,12 +86,12 @@ const EditMenuModal: React.FC<Props> = ({ open, onClose, onSave, initialData }) 
     else setImagePreview(null);
   };
 
-  const toggleLabel = (label: string) => {
+  const toggleLabel = (labelKey: string) => {
     const current = selectedLabels;
-    if (current.includes(label)) {
-      setValue("labels", current.filter((l) => l !== label));
+    if (current.includes(labelKey)) {
+      setValue("labels", current.filter((l) => l !== labelKey));
     } else {
-      setValue("labels", [...current, label]);
+      setValue("labels", [...current, labelKey]);
     }
   };
 
@@ -128,7 +142,7 @@ const EditMenuModal: React.FC<Props> = ({ open, onClose, onSave, initialData }) 
                 <div className="relative">
                   <select {...register("productionDestination")}
                     className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-800 appearance-none cursor-pointer pr-8">
-                    {PRODUCTION_DESTINATIONS.map((d) => <option key={d} value={d}>{d}</option>)}
+                    {PRODUCTION_DESTINATIONS.map((d) => <option key={d.key} value={d.key}>{d.label}</option>)}
                   </select>
                   <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
                     width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -185,17 +199,17 @@ const EditMenuModal: React.FC<Props> = ({ open, onClose, onSave, initialData }) 
             <div>
               <h3 className="text-sm font-bold text-gray-800 mb-0.5">{t("labelSelector")}</h3>
               <p className="text-xs text-gray-500 mb-2">{t("pickMultipleTags")}</p>
-              <input type="text" readOnly value={selectedLabels.join(", ") || ""} placeholder={t("labelName")}
+              <input type="text" readOnly value={selectedLabels.map(l => LABEL_OPTIONS.find(opt => opt.key === l)?.label || l).join(", ") || ""} placeholder={t("labelName")}
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-gray-50 placeholder:text-gray-400 mb-3 cursor-default"
               />
               <div className="flex flex-wrap gap-2">
-                {LABEL_OPTIONS.map((label) => (
-                  <button key={label} type="button" onClick={() => toggleLabel(label)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${selectedLabels.includes(label)
+                {LABEL_OPTIONS.map((opt) => (
+                  <button key={opt.key} type="button" onClick={() => toggleLabel(opt.key)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${selectedLabels.includes(opt.key)
                       ? "bg-[#3366CC] text-white border-[#3366CC]"
                       : "bg-white text-gray-700 border-gray-300 hover:border-gray-400"
                       }`}>
-                    {label}
+                    {opt.label}
                   </button>
                 ))}
               </div>
@@ -211,13 +225,10 @@ const EditMenuModal: React.FC<Props> = ({ open, onClose, onSave, initialData }) 
             </div>
 
             {/* ── Packet Configuration ── */}
-            {/* ── Packet Configuration ── */}
             <div className="border border-gray-200 rounded-xl p-4">
               <h3 className="text-sm font-bold text-gray-900 mb-4">{t("packetConfiguration")}</h3>
 
               <div className="grid grid-cols-2 gap-4">
-
-                {/* Left column — labels only, input only at bottom */}
                 <div className="flex flex-col justify-between gap-4">
                   <p className="text-xs font-semibold text-gray-700 leading-snug">
                     {t("maxItemsInPacket")}
@@ -236,21 +247,17 @@ const EditMenuModal: React.FC<Props> = ({ open, onClose, onSave, initialData }) 
                   </div>
                 </div>
 
-                {/* Right column — Section 1 Choices header, input, then Max # row */}
                 <div className="flex flex-col gap-3">
-                  {/* Gray header */}
                   <div className="bg-gray-100 rounded-lg px-3 py-2 text-center">
                     <span className="text-xs font-semibold text-gray-700">{t("section1Choices")}</span>
                   </div>
 
-                  {/* Input below header */}
                   <input
                     type="number"
                     {...register("choiceSections", { valueAsNumber: true })}
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
                   />
 
-                  {/* Max # row — pushed to bottom */}
                   <div className="flex items-center gap-1.5 mt-auto">
                     <span className="text-xs font-semibold text-gray-700 whitespace-nowrap">{t("maxHash")}</span>
                     <input
@@ -269,7 +276,6 @@ const EditMenuModal: React.FC<Props> = ({ open, onClose, onSave, initialData }) 
                     </button>
                   </div>
                 </div>
-
               </div>
             </div>
 

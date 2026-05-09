@@ -14,21 +14,28 @@ type Props = {
   onSave?: (data: MenuItemFormValues & { image?: File | null }) => void;
 };
 
-const LABEL_OPTIONS = [
-  "Best Seller",
-  "Recommended",
-  "Favorite",
-  "Must Try",
-  "New",
-  "Vegetarian",
-  "Kids Choice",
-  "Spicy",
-];
-
-const PRODUCTION_DESTINATIONS = ["Kitchen", "Bar", "Pastry", "Grill"];
-
 const AddMenuModal: React.FC<Props> = ({ open, onClose, onSave }) => {
   const t = useTranslations("Menu");
+  const tv = useTranslations("Validation");
+
+  const LABEL_OPTIONS = [
+    { key: "bestSeller", label: t("bestSeller") },
+    { key: "recommended", label: t("recommended") },
+    { key: "favorite", label: t("favorite") },
+    { key: "mustTry", label: t("mustTry") },
+    { key: "new", label: t("new") },
+    { key: "vegetarian", label: t("vegetarian") },
+    { key: "kidsChoice", label: t("kidsChoice") },
+    { key: "spicy", label: t("spicy") },
+  ];
+
+  const PRODUCTION_DESTINATIONS = [
+    { key: "Kitchen", label: t("kitchen") },
+    { key: "Bar", label: t("bar") },
+    { key: "Pastry", label: t("pastry") },
+    { key: "Grill", label: t("grill") },
+  ];
+
   const {
     register,
     handleSubmit,
@@ -36,7 +43,7 @@ const AddMenuModal: React.FC<Props> = ({ open, onClose, onSave }) => {
     watch,
     formState: { errors },
   } = useForm<MenuItemFormValues>({
-    resolver: zodResolver(menuItemSchema),
+    resolver: zodResolver(menuItemSchema(tv)),
     defaultValues: {
       itemName: "",
       price: 0,
@@ -146,7 +153,7 @@ const AddMenuModal: React.FC<Props> = ({ open, onClose, onSave }) => {
                     className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-800 appearance-none cursor-pointer pr-8"
                   >
                     {PRODUCTION_DESTINATIONS.map((dest) => (
-                      <option key={dest} value={dest}>{dest}</option>
+                      <option key={dest.key} value={dest.key}>{dest.label}</option>
                     ))}
                   </select>
                   {/* Custom chevron */}
@@ -216,7 +223,7 @@ const AddMenuModal: React.FC<Props> = ({ open, onClose, onSave }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-                    Promo Price
+                    {t("promoPrice")}
                   </label>
                   <input
                     type="number"
@@ -235,22 +242,22 @@ const AddMenuModal: React.FC<Props> = ({ open, onClose, onSave }) => {
               <input
                 type="text"
                 readOnly
-                value={selectedLabels.join(", ") || ""}
+                value={selectedLabels.map(l => LABEL_OPTIONS.find(opt => opt.key === l)?.label || l).join(", ") || ""}
                 placeholder={t("labelName")}
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-gray-50 placeholder:text-gray-400 mb-3 cursor-default"
               />
               <div className="flex flex-wrap gap-2">
-                {LABEL_OPTIONS.map((label) => (
+                {LABEL_OPTIONS.map((opt) => (
                   <button
-                    key={label}
+                    key={opt.key}
                     type="button"
-                    onClick={() => toggleLabel(label)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${selectedLabels.includes(label)
+                    onClick={() => toggleLabel(opt.key)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${selectedLabels.includes(opt.key)
                       ? "bg-[#3366CC] text-white border-[#3366CC]"
                       : "bg-white text-gray-700 border-gray-300 hover:border-gray-400"
                       }`}
                   >
-                    {label}
+                    {opt.label}
                   </button>
                 ))}
               </div>
@@ -273,13 +280,10 @@ const AddMenuModal: React.FC<Props> = ({ open, onClose, onSave }) => {
             </div>
 
             {/* Packet Configuration */}
-            {/* ── Packet Configuration ── */}
             <div className="border border-gray-200 rounded-xl p-4">
               <h3 className="text-sm font-bold text-gray-900 mb-4">{t("packetConfiguration")}</h3>
 
               <div className="grid grid-cols-2 gap-4">
-
-                {/* Left column — labels only, input only at bottom */}
                 <div className="flex flex-col justify-between gap-4">
                   <p className="text-xs font-semibold text-gray-700 leading-snug">
                     {t("maxItemsInPacket")}
@@ -298,21 +302,17 @@ const AddMenuModal: React.FC<Props> = ({ open, onClose, onSave }) => {
                   </div>
                 </div>
 
-                {/* Right column — Section 1 Choices header, input, then Max # row */}
                 <div className="flex flex-col gap-3">
-                  {/* Gray header */}
                   <div className="bg-gray-100 rounded-lg px-3 py-2 text-center">
                     <span className="text-xs font-semibold text-gray-700">{t("section1Choices")}</span>
                   </div>
 
-                  {/* Input below header */}
                   <input
                     type="number"
                     {...register("choiceSections", { valueAsNumber: true })}
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
                   />
 
-                  {/* Max # row — pushed to bottom */}
                   <div className="flex items-center gap-1.5 mt-auto">
                     <span className="text-xs font-semibold text-gray-700 whitespace-nowrap">{t("maxHash")}</span>
                     <input
@@ -331,7 +331,6 @@ const AddMenuModal: React.FC<Props> = ({ open, onClose, onSave }) => {
                     </button>
                   </div>
                 </div>
-
               </div>
             </div>
 

@@ -6,6 +6,7 @@ import item2 from "@/assets/images/menu2.png";
 import { SquarePen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionLayoutType } from "@/components/modal/AddSectionModal";
+import { useTranslations } from "next-intl";
 
 export type MenuItemCardData = {
   itemNumber: string;
@@ -29,38 +30,40 @@ type Props = {
   onEditSection: () => void;
 };
 
-const layoutLabel: Record<SectionLayoutType, string> = {
-  "3-image-row": "3 Image Row",
-  "2-images-side-by-side": "2 Image",
-  "1-image": "1 Image",
-  "images-list": "Image List",
-  "no-image-list": "List View",
-};
-
 const imageMap = {
   menu1: item1,
   menu2: item2,
 };
 
 const MenuCards = ({ sectionNumber, sectionName, layout, items, onAddItem, onEditItem, onEditSection }: Props) => {
+  const t = useTranslations("Menu");
+  const tc = useTranslations("Common");
+  
+  const layoutLabel: Record<SectionLayoutType, string> = {
+    "3-image-row": t("3-image-row"),
+    "2-images-side-by-side": t("2-image"),
+    "1-image": t("1-image"),
+    "images-list": t("images-list"),
+    "no-image-list": t("no-image-list"),
+  };
+
   const isNoImageLayout = layout === "no-image-list";
   const isImageListLayout = layout === "images-list";
-  const isListLayout = isNoImageLayout || isImageListLayout;
 
   return (
     <section className="overflow-hidden rounded-[26px] border border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.06)]">
       <div className="flex flex-col gap-3 border-b border-slate-100 px-5 py-5 sm:flex-row sm:items-start sm:justify-between sm:px-6">
         <div>
           <h2 className="text-[1.75rem] font-bold tracking-tight text-slate-950">
-            Section {sectionNumber} | Layout Type: {layoutLabel[layout]}
+            {t("section")} {sectionNumber} | {t("layoutType")}: {layoutLabel[layout]}
           </h2>
-          <p className="mt-1 text-sm text-slate-500">{sectionName || "Untitled section"}</p>
+          <p className="mt-1 text-sm text-slate-500">{sectionName || t("untitledSection")}</p>
         </div>
 
         <div className="flex items-center gap-2">
           <Button type="button" onClick={onAddItem} className="h-10 rounded-xl bg-[#3B82F6] px-5 text-sm font-semibold text-white hover:bg-blue-600">
             <span className="mr-1 text-lg leading-none">+</span>
-            Add Item
+            {t("addItem")}
           </Button>
           <Button
             type="button"
@@ -69,7 +72,7 @@ const MenuCards = ({ sectionNumber, sectionName, layout, items, onAddItem, onEdi
             className="h-10 rounded-xl border-red-100 bg-red-50 px-4 text-sm font-semibold text-red-500 hover:bg-red-100 hover:text-red-600"
           >
             <SquarePen className="mr-2 size-4" />
-            Edit Layout
+            {t("editLayout")}
           </Button>
         </div>
       </div>
@@ -80,12 +83,12 @@ const MenuCards = ({ sectionNumber, sectionName, layout, items, onAddItem, onEdi
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-slate-100 text-sm font-semibold text-slate-500">
-                  <th className="pb-4 pl-2 font-medium">ID</th>
-                  <th className="pb-4 font-medium">Item Name</th>
-                  <th className="pb-4 font-medium text-center">Stock</th>
-                  <th className="pb-4 font-medium">Price</th>
-                  <th className="pb-4 font-medium">Promo Price</th>
-                  <th className="pb-4 pr-2 font-medium text-right">Action</th>
+                  <th className="pb-4 pl-2 font-medium">{t("id")}</th>
+                  <th className="pb-4 font-medium">{t("itemName")}</th>
+                  <th className="pb-4 font-medium text-center">{t("stock")}</th>
+                  <th className="pb-4 font-medium">{t("price")}</th>
+                  <th className="pb-4 font-medium">{t("promoPrice")}</th>
+                  <th className="pb-4 pr-2 font-medium text-right">{t("action")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -112,7 +115,7 @@ const MenuCards = ({ sectionNumber, sectionName, layout, items, onAddItem, onEdi
                         onClick={() => onEditItem(item)}
                         className="h-9 rounded-xl bg-[#3B82F6] px-4 text-sm font-semibold text-white shadow-sm hover:bg-blue-600"
                       >
-                        + Edit
+                        + {t("edit")}
                       </Button>
                     </td>
                   </tr>
@@ -154,19 +157,19 @@ const MenuCards = ({ sectionNumber, sectionName, layout, items, onAddItem, onEdi
                     <p className="text-lg font-bold tracking-tight text-red-500">{item.itemNumber}</p>
                     <h3 className="text-[1.35rem] font-bold tracking-tight text-red-500">{item.itemName}</h3>
                     <div className="grid grid-cols-3 gap-3 text-sm text-slate-700">
-                      <p className="text-slate-600">Inventory: {item.inventory}</p>
-                      <p className="text-slate-600">Stock: {item.stock}</p>
+                      <p className="text-slate-600">{t("inventory")}: {item.inventory}</p>
+                      <p className="text-slate-600">{t("stock")}: {item.stock}</p>
                       <p className="text-right font-medium text-slate-900">{item.statusLabel}</p>
                     </div>
                   </div>
 
                   <div className="mt-6 flex items-end justify-between gap-4">
                     <div className="text-sm text-slate-600">
-                      <p className="text-slate-500">Promo Price</p>
+                      <p className="text-slate-500">{t("promoPrice")}</p>
                       <p className="font-semibold text-slate-900">Rp{item.promoPrice.toLocaleString("en-US")}</p>
                     </div>
                     <Button type="button" onClick={() => onEditItem(item)} className="h-10 rounded-2xl bg-[#3B82F6] px-4 text-sm font-semibold text-white hover:bg-[#2f6fd3]">
-                      + Edit
+                      + {t("edit")}
                     </Button>
                   </div>
                 </div>

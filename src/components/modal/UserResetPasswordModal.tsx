@@ -1,14 +1,12 @@
 "use client";
 import React from "react";
-import { X, Key, Lock } from "lucide-react";
+import { Key, Lock } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
 import { ResetFormValues, resetSchema } from "@/validation/auth.validation";
-
-
-
+import { useTranslations } from "next-intl";
 
 type Props = {
     open: boolean;
@@ -17,11 +15,13 @@ type Props = {
 };
 
 const UserResetPasswordModal: React.FC<Props> = ({ open, onClose, user }) => {
+    const t = useTranslations("Profile");
+    const tv = useTranslations("Validation");
     const [showNew, setShowNew] = React.useState(false);
     const [showConfirm, setShowConfirm] = React.useState(false);
 
     const { register, handleSubmit, formState: { errors }, reset } = useForm<ResetFormValues>({
-        resolver: zodResolver(resetSchema),
+        resolver: zodResolver(resetSchema(tv)),
     });
 
     React.useEffect(() => {
@@ -43,16 +43,16 @@ const UserResetPasswordModal: React.FC<Props> = ({ open, onClose, user }) => {
                         <Key size={28} />
                     </div>
                     <div>
-                        <h2 className="text-2xl font-bold text-slate-900">Security Reset</h2>
+                        <h2 className="text-2xl font-bold text-slate-900">{t("securityReset") || "Security Reset"}</h2>
                         <p className="text-[15px] text-slate-500">
-                            Set new password for <span className="font-bold text-blue-600">{user?.name || "User"}</span>
+                            {t("setNewPasswordFor") || "Set new password for"} <span className="font-bold text-blue-600">{user?.name || "User"}</span>
                         </p>
                     </div>
                 </div>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                     <div className="space-y-1.5">
-                        <label className="text-[11px] font-bold uppercase tracking-widest text-slate-400">NAME</label>
+                        <label className="text-[11px] font-bold uppercase tracking-widest text-slate-400">{t("name") || "NAME"}</label>
                         <input
                             type="text"
                             value={user?.name || ""}
@@ -62,7 +62,7 @@ const UserResetPasswordModal: React.FC<Props> = ({ open, onClose, user }) => {
                     </div>
 
                     <div className="space-y-1.5">
-                        <label className="text-[11px] font-bold uppercase tracking-widest text-slate-400">EMAIL</label>
+                        <label className="text-[11px] font-bold uppercase tracking-widest text-slate-400">{t("email") || "EMAIL"}</label>
                         <input
                             type="text"
                             value={user?.email || ""}
@@ -72,12 +72,12 @@ const UserResetPasswordModal: React.FC<Props> = ({ open, onClose, user }) => {
                     </div>
 
                     <div className="space-y-1.5">
-                        <label className="text-[11px] font-bold uppercase tracking-widest text-slate-400">NEW PASSWORD</label>
+                        <label className="text-[11px] font-bold uppercase tracking-widest text-slate-400">{t("newPassword") || "NEW PASSWORD"}</label>
                         <div className="relative">
                             <input
                                 type={showNew ? "text" : "password"}
                                 {...register("newPassword")}
-                                placeholder="Min. 8 characters"
+                                placeholder={t("passwordPlaceholder") || "Min. 8 characters"}
                                 className="w-full rounded-2xl border border-slate-100 bg-slate-50/50 px-11 py-3 text-[15px] outline-none transition-all focus:bg-white focus:ring-4 focus:ring-blue-500/10"
                             />
                             <Lock className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-300" />
@@ -93,12 +93,12 @@ const UserResetPasswordModal: React.FC<Props> = ({ open, onClose, user }) => {
                     </div>
 
                     <div className="space-y-1.5">
-                        <label className="text-[11px] font-bold uppercase tracking-widest text-slate-400">CONFIRM PASSWORD</label>
+                        <label className="text-[11px] font-bold uppercase tracking-widest text-slate-400">{t("confirmPassword") || "CONFIRM PASSWORD"}</label>
                         <div className="relative">
                             <input
                                 type={showConfirm ? "text" : "password"}
                                 {...register("confirmPassword")}
-                                placeholder="Min. 8 characters"
+                                placeholder={t("passwordPlaceholder") || "Min. 8 characters"}
                                 className="w-full rounded-2xl border border-slate-100 bg-slate-50/50 px-11 py-3  text-[15px] outline-none transition-all focus:bg-white focus:ring-4 focus:ring-blue-500/10"
                             />
                             <Lock className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-300" />
@@ -115,7 +115,7 @@ const UserResetPasswordModal: React.FC<Props> = ({ open, onClose, user }) => {
 
                     <div className="rounded-2xl bg-orange-50/80 p-4 border border-orange-100">
                         <p className="text-[13px] leading-relaxed text-orange-800">
-                            <span className="font-bold">*</span> By resetting, the user will be forced to use this new credential for their next login. This action is recorded in audit logs.
+                            <span className="font-bold">*</span> {t("resetWarning") || "By resetting, the user will be forced to use this new credential for their next login. This action is recorded in audit logs."}
                         </p>
                     </div>
 
@@ -125,13 +125,13 @@ const UserResetPasswordModal: React.FC<Props> = ({ open, onClose, user }) => {
                             onClick={onClose}
                             className="text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-slate-700"
                         >
-                            CANCEL
+                            {t("cancel") || "CANCEL"}
                         </button>
                         <Button
                             type="submit"
                             className="h-12 rounded-2xl bg-[#93b4ff] px-10 text-sm font-bold text-white shadow-lg shadow-blue-500/20 hover:bg-blue-500 transition-all"
                         >
-                            Confirm Reset
+                            {t("confirmReset") || "Confirm Reset"}
                         </Button>
                     </div>
                 </form>

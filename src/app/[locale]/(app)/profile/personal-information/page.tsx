@@ -5,25 +5,26 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import CustomSwitch from "@/components/shared/CustomeSwitch";
+import { useTranslations } from "next-intl";
 
-const profileSchema = z.object({
-  businessName: z.string().min(1, "Business name is required"),
-  address: z.string().min(1, "Address is required"),
-  contactNumber: z.string().min(1, "Contact number is required"),
-  email: z.string().email("Invalid email address"),
+const profileSchema = (t: any) => z.object({
+  businessName: z.string().min(1, t("businessNameRequired")),
+  address: z.string().min(1, t("addressRequired")),
+  contactNumber: z.string().min(1, t("contactRequired")),
+  email: z.string().email(t("invalidEmail")),
   facebook: z.string().optional(),
   instagram: z.string().optional(),
   enableInventoryReport: z.boolean(),
   adminOnlyPaymentProof: z.boolean(),
 });
 
-type ProfileFormValues = z.infer<typeof profileSchema>;
-
-
+type ProfileFormValues = z.infer<ReturnType<typeof profileSchema>>;
 
 const ProfileInformationPage = () => {
+  const t = useTranslations("Profile");
+  const tv = useTranslations("Validation");
+
   const {
     register,
     handleSubmit,
@@ -31,16 +32,16 @@ const ProfileInformationPage = () => {
     watch,
     formState: { errors },
   } = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileSchema),
+    resolver: zodResolver(profileSchema(tv)),
     defaultValues: {
-      businessName: "SmartPOS Bistro",
-      address: "Jl. Sudirman No. 123, Jakarta Pusat",
+      businessName: "Best Way Special",
+      address: "Jl. Sudirman No. 123, Jakarta Selatan",
       contactNumber: "+62 812-3456-7890",
-      email: "admin@smartpos.com",
-      facebook: "facebook.com/smartposbistro",
-      instagram: "@smartpos.bistro",
+      email: "info@bestwayspecial.com",
+      facebook: "facebook.com/bestway.special",
+      instagram: "@bestway.special",
       enableInventoryReport: true,
-      adminOnlyPaymentProof: true,
+      adminOnlyPaymentProof: false,
     },
   });
 
@@ -48,7 +49,7 @@ const ProfileInformationPage = () => {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const onSubmit = (data: ProfileFormValues) => {
-    console.log("Form data:", { ...data, logo: imagePreview });
+    console.log("Form submitted:", data);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,11 +75,11 @@ const ProfileInformationPage = () => {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Owner Profile</h1>
-          <p className="mt-1 text-slate-500">Manage your business brand identity and operational settings.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">{t("ownerProfile")}</h1>
+          <p className="mt-1 text-slate-500">{t("subtitle")}</p>
         </div>
         <div className="inline-flex items-center rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-bold tracking-wide text-blue-600">
-          OWNER VERIFIED
+          {t("verified")}
         </div>
       </div>
 
@@ -102,11 +103,11 @@ const ProfileInformationPage = () => {
                         <line x1="12" y1="3" x2="12" y2="15" />
                       </svg>
                     </div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Upload Logo</span>
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{t("uploadLogo")}</span>
                   </div>
                 )}
                 <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-                  <span className="text-xs font-bold text-white uppercase tracking-wider">Change</span>
+                  <span className="text-xs font-bold text-white uppercase tracking-wider">{t("change")}</span>
                 </div>
               </div>
               <input
@@ -122,17 +123,17 @@ const ProfileInformationPage = () => {
                   onClick={() => setImagePreview(null)}
                   className="text-xs font-bold uppercase tracking-wider text-red-500 hover:text-red-600"
                 >
-                  Remove
+                  {t("remove")}
                 </button>
               )}
             </div>
 
             <div className="flex-1 space-y-6">
-              <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Business Name & Address</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400">{t("businessNameAddress") || "Business Name & Address"}</p>
 
               <div className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-sm font-semibold text-slate-700">Business Name</label>
+                  <label className="text-sm font-semibold text-slate-700">{t("businessName")}</label>
                   <input
                     {...register("businessName")}
                     className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-[15px] outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
@@ -141,7 +142,7 @@ const ProfileInformationPage = () => {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-sm font-semibold text-slate-700">Address</label>
+                  <label className="text-sm font-semibold text-slate-700">{t("address")}</label>
                   <input
                     {...register("address")}
                     className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-[15px] outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
@@ -155,10 +156,10 @@ const ProfileInformationPage = () => {
 
         {/* Contact Details */}
         <div className="rounded-[24px] border border-slate-100 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.02)] sm:p-8">
-          <p className="mb-6 text-[11px] font-bold uppercase tracking-widest text-slate-400">Contact Details</p>
+          <p className="mb-6 text-[11px] font-bold uppercase tracking-widest text-slate-400">{t("contactDetails")}</p>
           <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-1.5">
-              <label className="text-sm font-semibold text-slate-700">Contact Number</label>
+              <label className="text-sm font-semibold text-slate-700">{t("contactNumber")}</label>
               <input
                 {...register("contactNumber")}
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-[15px] outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
@@ -167,7 +168,7 @@ const ProfileInformationPage = () => {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-sm font-semibold text-slate-700">Email</label>
+              <label className="text-sm font-semibold text-slate-700">{t("email")}</label>
               <input
                 {...register("email")}
                 readOnly
@@ -177,12 +178,12 @@ const ProfileInformationPage = () => {
           </div>
         </div>
 
-        {/* Social Media */}
-        <div className="rounded-[24px] border border-slate-100 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.02)] sm:p-8">
-          <p className="mb-6 text-[11px] font-bold uppercase tracking-widest text-slate-400">Social Media</p>
+        {/* Social Media Section */}
+        {/* <div className="rounded-[24px] border border-slate-100 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.02)] sm:p-8">
+          <p className="mb-6 text-[11px] font-bold uppercase tracking-widest text-slate-400">{t("socialMedia")}</p>
           <div className="space-y-6">
             <div className="space-y-1.5">
-              <label className="text-sm font-semibold text-slate-700">Facebook</label>
+              <label className="text-sm font-semibold text-slate-700">{t("facebook")}</label>
               <input
                 {...register("facebook")}
                 className="w-full rounded-xl border-transparent bg-[#F8FAFC] px-4 py-3 text-[15px] outline-none transition-all focus:bg-white focus:ring-4 focus:ring-blue-500/10"
@@ -190,26 +191,26 @@ const ProfileInformationPage = () => {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-sm font-semibold text-slate-700">Instagram</label>
+              <label className="text-sm font-semibold text-slate-700">{t("instagram")}</label>
               <input
                 {...register("instagram")}
                 className="w-full rounded-xl border-transparent bg-[#F8FAFC] px-4 py-3 text-[15px] outline-none transition-all focus:bg-white focus:ring-4 focus:ring-blue-500/10"
               />
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Feature Controls */}
         <div className="rounded-[24px] border border-slate-100 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.02)] sm:p-8">
-          <p className="mb-4 text-[11px] font-bold uppercase tracking-widest text-slate-400">Feature Controls</p>
+          <p className="mb-4 text-[11px] font-bold uppercase tracking-widest text-slate-400">{t("featureControls")}</p>
           <div className="divide-y divide-slate-50">
             <CustomSwitch
-              label="Enable Inventory Report"
+              label={t("enableInventoryReport")}
               checked={enableInventoryReport}
               onChange={(v) => setValue("enableInventoryReport", v)}
             />
             <CustomSwitch
-              label="Admin-Only Payment Proof"
+              label={t("adminOnlyPaymentProof")}
               checked={adminOnlyPaymentProof}
               onChange={(v) => setValue("adminOnlyPaymentProof", v)}
             />
@@ -221,7 +222,7 @@ const ProfileInformationPage = () => {
           type="submit"
           className="h-14 w-full rounded-xl bg-[#3B82F6] text-lg font-semibold text-white shadow-xl shadow-blue-500/20 hover:bg-blue-600"
         >
-          Save Changes
+          {t("saveChanges")}
         </Button>
       </form>
     </div>

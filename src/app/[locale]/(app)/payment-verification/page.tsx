@@ -7,18 +7,17 @@ import PaymentVerificationStats from "./PaymentVerificationStats";
 import PaymentVerificationCard, { PaymentVerificationItem } from "./PaymentVerificationCard";
 import PaymentVerificationModal from "@/components/modal/PaymentVerificationModal";
 import CustomPagination from "@/components/shared/CustomPagination";
-
-
+import { useTranslations } from "next-intl";
 
 const TOTAL_PAGES = 68;
 const ITEMS_PER_PAGE = 6;
 
-const baseRows: Omit<PaymentVerificationItem, "id" | "orderNumber">[] = [
+const getBaseRows = (t: any): Omit<PaymentVerificationItem, "id" | "orderNumber">[] => [
   {
     amount: 125000,
     amountReceived: 130000,
-    paymentMethod: "Cash",
-    personLabel: "Cashier Name",
+    paymentMethod: t("cash"),
+    personLabel: t("cashier"),
     personName: "Md Ahad",
     dateTime: "2026-04-25 12:45",
     status: "mismatch",
@@ -27,8 +26,8 @@ const baseRows: Omit<PaymentVerificationItem, "id" | "orderNumber">[] = [
   {
     amount: 85000,
     amountReceived: 85000,
-    paymentMethod: "Transfer",
-    personLabel: "Staff",
+    paymentMethod: t("transfer"),
+    personLabel: t("staff"),
     personName: "Jane Smith",
     dateTime: "2026-04-25 12:30",
     status: "match",
@@ -37,8 +36,8 @@ const baseRows: Omit<PaymentVerificationItem, "id" | "orderNumber">[] = [
   {
     amount: 125000,
     amountReceived: 125000,
-    paymentMethod: "Cash",
-    personLabel: "Customer",
+    paymentMethod: t("cash"),
+    personLabel: t("customer"),
     personName: "Jone Deo",
     dateTime: "2026-04-25 12:45",
     status: "match",
@@ -47,8 +46,8 @@ const baseRows: Omit<PaymentVerificationItem, "id" | "orderNumber">[] = [
   {
     amount: 95000,
     amountReceived: 95000,
-    paymentMethod: "Cash",
-    personLabel: "Admin",
+    paymentMethod: t("cash"),
+    personLabel: t("admin"),
     personName: "Mike Jonson",
     dateTime: "2026-04-25 11:50",
     status: "match",
@@ -57,8 +56,8 @@ const baseRows: Omit<PaymentVerificationItem, "id" | "orderNumber">[] = [
   {
     amount: 150000,
     amountReceived: 150000,
-    paymentMethod: "Cash",
-    personLabel: "Staff",
+    paymentMethod: t("cash"),
+    personLabel: t("staff"),
     personName: "Jane Smith",
     dateTime: "2026-04-25 11:30",
     status: "match",
@@ -67,8 +66,8 @@ const baseRows: Omit<PaymentVerificationItem, "id" | "orderNumber">[] = [
   {
     amount: 45000,
     amountReceived: 45000,
-    paymentMethod: "Transfer",
-    personLabel: "Staff",
+    paymentMethod: t("transfer"),
+    personLabel: t("staff"),
     personName: "John Deo",
     dateTime: "2026-04-25 11:15",
     status: "match",
@@ -76,10 +75,11 @@ const baseRows: Omit<PaymentVerificationItem, "id" | "orderNumber">[] = [
   },
 ];
 
-const getPageTransactions = (page: number): PaymentVerificationItem[] => {
+const getPageTransactions = (page: number, t: any): PaymentVerificationItem[] => {
   const baseOrder = 1245 - (page - 1) * ITEMS_PER_PAGE;
+  const rows = getBaseRows(t);
 
-  return baseRows.map((row, index) => {
+  return rows.map((row, index) => {
     const orderNumber = String(baseOrder - index);
     return {
       ...row,
@@ -90,11 +90,12 @@ const getPageTransactions = (page: number): PaymentVerificationItem[] => {
 };
 
 const PaymentVerificationPage = () => {
+  const t = useTranslations("Payment");
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItem, setSelectedItem] = useState<PaymentVerificationItem | null>(null);
 
-  const pageRows = useMemo(() => getPageTransactions(currentPage), [currentPage]);
+  const pageRows = useMemo(() => getPageTransactions(currentPage, t), [currentPage, t]);
 
   const filteredRows = useMemo(() => {
     const keyword = searchQuery.trim().toLowerCase();
@@ -113,8 +114,8 @@ const PaymentVerificationPage = () => {
     <div>
       <div className="mb-6 flex justify-between items-center">
         <div className="">
-          <h1 className="text-2xl font-bold text-slate-900">Payment Proof</h1>
-          <p className="mt-1 text-sm text-slate-500">Verify all cash transactions and detect fraud.</p>
+          <h1 className="text-2xl font-bold text-slate-900">{t("proof")}</h1>
+          <p className="mt-1 text-sm text-slate-500">{t("subtitle")}</p>
         </div>
         <div className="relative">
           <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -122,7 +123,7 @@ const PaymentVerificationPage = () => {
             type="text"
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
-            placeholder="Search order or staff..."
+            placeholder={t("searchPlaceholder")}
             className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-10 pr-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
           />
         </div>
@@ -140,7 +141,7 @@ const PaymentVerificationPage = () => {
 
       {filteredRows.length === 0 && (
         <div className="mt-4 rounded-xl border border-dashed border-slate-300 bg-white px-4 py-8 text-center text-sm text-slate-500">
-          No transactions found for this search.
+          {t("noTransactions")}
         </div>
       )}
 

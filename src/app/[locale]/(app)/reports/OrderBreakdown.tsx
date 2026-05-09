@@ -1,5 +1,6 @@
 "use client";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import { useTranslations } from "next-intl";
 
 const data = [
     { name: "Dine-in",  value: 458, color: "#2563eb" },
@@ -23,9 +24,11 @@ const renderLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, name, value }
 };
 
 const OrderBreakdown = () => {
+    const t = useTranslations("Reports");
+    const td = useTranslations("Dashboard");
     return (
         <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm">
-            <h3 className="mb-4 text-base font-semibold text-slate-800">Order Breakdown</h3>
+            <h3 className="mb-4 text-base font-semibold text-slate-800">{t("orderBreakdown")}</h3>
 
             <div className="flex justify-center">
                 <ResponsiveContainer width={260} height={220}>
@@ -45,7 +48,7 @@ const OrderBreakdown = () => {
                                 <Cell key={i} fill={entry.color} />
                             ))}
                         </Pie>
-                        <Tooltip formatter={(v: number) => [`${v} orders`, ""]} />
+                        <Tooltip formatter={(v: number) => [`${v} ${td("orders")}`, ""]} />
                     </PieChart>
                 </ResponsiveContainer>
             </div>
@@ -53,11 +56,11 @@ const OrderBreakdown = () => {
             {/* Count badges */}
             <div className="mt-4 grid grid-cols-2 gap-3">
                 <div className="rounded-xl bg-blue-50 py-4 text-center">
-                    <p className="text-xs text-slate-500">Dine-in</p>
+                    <p className="text-xs text-slate-500">{td("dineIn")}</p>
                     <p className="mt-1 text-2xl font-bold text-blue-600">458</p>
                 </div>
                 <div className="rounded-xl bg-yellow-50 py-4 text-center">
-                    <p className="text-xs text-slate-500">Takeaway</p>
+                    <p className="text-xs text-slate-500">{td("takeaway")}</p>
                     <p className="mt-1 text-2xl font-bold text-yellow-500">287</p>
                 </div>
             </div>

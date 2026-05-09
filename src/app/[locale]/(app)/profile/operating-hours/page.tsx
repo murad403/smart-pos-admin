@@ -3,25 +3,29 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import CustomSwitch from "@/components/shared/CustomeSwitch";
+import { useTranslations } from "next-intl";
 
 type DayConfig = {
-  day: string;
+  key: string;
   isOpen: boolean;
   startTime: string;
   endTime: string;
 };
 
-const initialDays: DayConfig[] = [
-  { day: "Monday", isOpen: true, startTime: "09:00 AM", endTime: "10:00 PM" },
-  { day: "Tuesday", isOpen: true, startTime: "09:00 AM", endTime: "10:00 PM" },
-  { day: "Wednesday", isOpen: true, startTime: "09:00 AM", endTime: "10:00 PM" },
-  { day: "Thursday", isOpen: true, startTime: "09:00 AM", endTime: "10:00 PM" },
-  { day: "Friday", isOpen: true, startTime: "09:00 AM", endTime: "10:00 PM" },
-  { day: "Saturday", isOpen: true, startTime: "09:00 AM", endTime: "10:00 PM" },
-  { day: "Sunday", isOpen: false, startTime: "09:00 AM", endTime: "10:00 PM" },
-];
-
 const OperatingHoursPage = () => {
+  const t = useTranslations("Profile");
+  const td = useTranslations("Days");
+
+  const initialDays: DayConfig[] = [
+    { key: "monday",    isOpen: true,  startTime: "09:00 AM", endTime: "10:00 PM" },
+    { key: "tuesday",   isOpen: true,  startTime: "09:00 AM", endTime: "10:00 PM" },
+    { key: "wednesday", isOpen: true,  startTime: "09:00 AM", endTime: "10:00 PM" },
+    { key: "thursday",  isOpen: true,  startTime: "09:00 AM", endTime: "10:00 PM" },
+    { key: "friday",    isOpen: true,  startTime: "09:00 AM", endTime: "10:00 PM" },
+    { key: "saturday",  isOpen: true,  startTime: "09:00 AM", endTime: "10:00 PM" },
+    { key: "sunday",    isOpen: false, startTime: "09:00 AM", endTime: "10:00 PM" },
+  ];
+
   const [days, setDays] = React.useState<DayConfig[]>(initialDays);
 
   const toggleDay = (index: number) => {
@@ -41,31 +45,31 @@ const OperatingHoursPage = () => {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Operating Hours Settings</h1>
-          <p className="mt-1 text-slate-500">Manage your business brand identity and operational settings.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">{t("operatingHoursSettings")}</h1>
+          <p className="mt-1 text-slate-500">{t("subtitle")}</p>
         </div>
         <div className="inline-flex items-center rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-bold tracking-wide text-blue-600">
-          OWNER VERIFIED
+          {t("verified")}
         </div>
       </div>
 
       <div className="rounded-[24px] border border-slate-100 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.02)] sm:p-8">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h2 className="text-[13px] font-bold uppercase tracking-[0.15em] text-slate-400">OPERATING HOURS</h2>
-            <p className="mt-2 text-[14px] text-slate-500">System operations and order taking will follow these scheduled hours.</p>
+            <h2 className="text-[13px] font-bold uppercase tracking-[0.15em] text-slate-400">{t("operatingHours")}</h2>
+            <p className="mt-2 text-[14px] text-slate-500">{t("hoursDescription")}</p>
           </div>
           <div className="flex items-center gap-2 rounded-full bg-orange-50 px-3 py-1.5">
             <div className="size-2 rounded-full bg-orange-400" />
-            <span className="text-[11px] font-bold uppercase tracking-wider text-orange-600">SECURITY ENFORCEMENT ACTIVE</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-orange-600">{t("securityEnforcementActive") || "SECURITY ENFORCEMENT ACTIVE"}</span>
           </div>
         </div>
 
         <div className="grid gap-x-6 gap-y-4 md:grid-cols-2">
           {days.map((config, idx) => (
-            <div key={config.day} className={cn("rounded-2xl border border-slate-100 p-5 transition-all", !config.isOpen && "bg-slate-50/50 opacity-60")}>
+            <div key={config.key} className={cn("rounded-2xl border border-slate-100 p-5 transition-all", !config.isOpen && "bg-slate-50/50 opacity-60")}>
               <div className="flex items-center justify-between">
-                <span className="text-[16px] font-semibold text-slate-900">{config.day}</span>
+                <span className="text-[16px] font-semibold text-slate-900">{td(config.key)}</span>
                 <CustomSwitch
                   label=""
                   checked={config.isOpen}
@@ -95,7 +99,7 @@ const OperatingHoursPage = () => {
                 </div>
               </div>
               {!config.isOpen && (
-                <p className="mt-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">CLOSED</p>
+                <p className="mt-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">{t("closed")}</p>
               )}
             </div>
           ))}
@@ -107,7 +111,7 @@ const OperatingHoursPage = () => {
         type="button"
         className="h-12 cursor-pointer w-full rounded-xl bg-[#3B82F6] text-lg font-semibold text-white shadow-xl shadow-blue-500/20 hover:bg-blue-600"
       >
-        Save Changes
+        {t("saveChanges")}
       </Button>
     </div>
   );

@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+
 type StockStatus = "in_stock" | "low_stock" | "out_of_stock";
 
 interface InventoryItem {
@@ -23,28 +25,30 @@ const inventory: InventoryItem[] = [
   { id: 10, name: "Kerupuk",             category: "Side Dish",   openingStock: 200, sales: 120, closingStock: 80, status: "in_stock" },
 ];
 
-const statusBadge: Record<StockStatus, { label: string; className: string }> = {
-  in_stock:     { label: "In Stock",     className: "bg-green-500 text-white" },
-  low_stock:    { label: "Low Stock",    className: "bg-orange-400 text-white" },
-  out_of_stock: { label: "Out of Stock", className: "bg-red-500 text-white" },
-};
-
 const InventoryOverviewTable = () => {
+  const t = useTranslations("Inventory");
+  
+  const statusBadge: Record<StockStatus, { label: string; className: string }> = {
+    in_stock:     { label: t("inStock"),     className: "bg-green-500 text-white" },
+    low_stock:    { label: t("lowStock"),    className: "bg-orange-400 text-white" },
+    out_of_stock: { label: t("outOfStock"), className: "bg-red-500 text-white" },
+  };
+
   return (
     <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
       <h2 className="text-sm font-semibold text-gray-800 px-4 py-4">
-        Inventory Overview
+        {t("inventoryOverview")}
       </h2>
       <div className="overflow-x-auto p-4">
         <table className="w-full text-sm border">
           <thead className="border-t border-b border-gray-100 text-gray-900 font-semibold">
             <tr>
-              <th className="text-left px-4 py-3">Item</th>
-              <th className="text-left px-4 py-3 hidden sm:table-cell">Category</th>
-              <th className="text-right px-4 py-3 hidden md:table-cell">Opening Stock</th>
-              <th className="text-right px-4 py-3 hidden md:table-cell">Sales</th>
-              <th className="text-right px-4 py-3">Closing Stock</th>
-              <th className="text-left px-4 py-3">Status</th>
+              <th className="text-left px-4 py-3">{t("item")}</th>
+              <th className="text-left px-4 py-3 hidden sm:table-cell">{t("category")}</th>
+              <th className="text-right px-4 py-3 hidden md:table-cell">{t("openingStock")}</th>
+              <th className="text-right px-4 py-3 hidden md:table-cell">{t("sales")}</th>
+              <th className="text-right px-4 py-3">{t("closingStock")}</th>
+              <th className="text-left px-4 py-3">{t("status")}</th>
             </tr>
           </thead>
           <tbody>
