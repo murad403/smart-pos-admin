@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 
 type MenuTranslations = {
@@ -114,10 +115,14 @@ const indonesianTranslations: MenuTranslations = {
 const LanguageContext = React.createContext<{ locale: string; setLocale: (l: string) => void } | null>(null);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [locale, setLocale] = React.useState<string>(() => {
-    if (typeof window === "undefined") return "EN";
-    return (localStorage.getItem("locale") as string) || "EN";
-  });
+  const [locale, setLocale] = React.useState<string>("EN");
+
+  React.useEffect(() => {
+    const saved = localStorage.getItem("locale");
+    if (saved) {
+      setLocale(saved);
+    }
+  }, []);
 
   React.useEffect(() => {
     try {

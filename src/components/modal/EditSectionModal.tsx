@@ -3,25 +3,13 @@
 
 import React from "react";
 import { X } from "lucide-react";
-
-export type SectionLayoutType =
-  | "3-image-row"
-  | "2-images-side-by-side"
-  | "1-image"
-  | "images-list"
-  | "no-image-list";
-
-export type SectionDraft = {
-  sectionName: string;
-  layout: SectionLayoutType;
-  menuTab: string;
-};
+import { SectionDraft, SectionLayoutType } from "./AddSectionModal";
 
 type Props = {
   open: boolean;
   onClose: () => void;
   onSave: (section: SectionDraft) => void;
-  defaultCategory?: string;
+  initialData?: SectionDraft;
 };
 
 const layouts: Array<{
@@ -29,75 +17,77 @@ const layouts: Array<{
   title: string;
   previewContent: React.ReactNode;
 }> = [
-    {
-      id: "1-image",
-      title: "1 Large Image",
-      previewContent: (
-        <div className="flex aspect-square w-20 items-center justify-center rounded-lg bg-[#E2E8F0]" />
-      ),
-    },
-    {
-      id: "2-images-side-by-side",
-      title: "2 Images Side-by-Side",
-      previewContent: (
-        <div className="flex h-16 w-full items-center justify-center gap-1.5 px-2">
-          <div className="h-full flex-1 rounded bg-[#E2E8F0]" />
-          <div className="h-full flex-1 rounded bg-[#E2E8F0]" />
-        </div>
-      ),
-    },
-    {
-      id: "3-image-row",
-      title: "3-Image Row",
-      previewContent: (
-        <div className="flex h-12 w-full items-center justify-center gap-1 px-1.5">
-          <div className="h-full flex-1 rounded-sm bg-[#E2E8F0]" />
-          <div className="h-full flex-1 rounded-sm bg-[#E2E8F0]" />
-          <div className="h-full flex-1 rounded-sm bg-[#E2E8F0]" />
-        </div>
-      ),
-    },
-    {
-      id: "images-list",
-      title: "Images List View",
-      previewContent: (
-        <div className="flex w-full flex-col gap-2 px-2">
-          {[1, 2].map((i) => (
-            <div key={i} className="flex items-center gap-1.5">
-              <div className="h-8 w-8 rounded bg-[#E2E8F0]" />
-              <div className="flex-1 space-y-1">
-                <div className="h-1.5 w-full rounded-full bg-[#E2E8F0]" />
-                <div className="h-1.5 w-2/3 rounded-full bg-[#E2E8F0]" />
-              </div>
+  {
+    id: "1-image",
+    title: "1 Large Image",
+    previewContent: (
+      <div className="flex aspect-square w-20 items-center justify-center rounded-lg bg-[#E2E8F0]" />
+    ),
+  },
+  {
+    id: "2-images-side-by-side",
+    title: "2 Images Side-by-Side",
+    previewContent: (
+      <div className="flex h-16 w-full items-center justify-center gap-1.5 px-2">
+        <div className="h-full flex-1 rounded bg-[#E2E8F0]" />
+        <div className="h-full flex-1 rounded bg-[#E2E8F0]" />
+      </div>
+    ),
+  },
+  {
+    id: "3-image-row",
+    title: "3-Image Row",
+    previewContent: (
+      <div className="flex h-12 w-full items-center justify-center gap-1 px-1.5">
+        <div className="h-full flex-1 rounded-sm bg-[#E2E8F0]" />
+        <div className="h-full flex-1 rounded-sm bg-[#E2E8F0]" />
+        <div className="h-full flex-1 rounded-sm bg-[#E2E8F0]" />
+      </div>
+    ),
+  },
+  {
+    id: "images-list",
+    title: "Images List View",
+    previewContent: (
+      <div className="flex w-full flex-col gap-2 px-2">
+        {[1, 2].map((i) => (
+          <div key={i} className="flex items-center gap-1.5">
+            <div className="h-8 w-8 rounded bg-[#E2E8F0]" />
+            <div className="flex-1 space-y-1">
+              <div className="h-1.5 w-full rounded-full bg-[#E2E8F0]" />
+              <div className="h-1.5 w-2/3 rounded-full bg-[#E2E8F0]" />
             </div>
-          ))}
-        </div>
-      ),
-    },
-    {
-      id: "no-image-list",
-      title: "No-Image List View",
-      previewContent: (
-        <div className="flex w-full flex-col gap-2 px-2">
-          <div className="h-2 w-full rounded-full bg-[#E2E8F0]" />
-          <div className="h-2 w-full rounded-full bg-[#E2E8F0]" />
-          <div className="h-2 w-full rounded-full bg-[#E2E8F0]" />
-        </div>
-      ),
-    },
-  ];
+          </div>
+        ))}
+      </div>
+    ),
+  },
+  {
+    id: "no-image-list",
+    title: "No-Image List View",
+    previewContent: (
+      <div className="flex w-full flex-col gap-2 px-2">
+        <div className="h-2 w-full rounded-full bg-[#E2E8F0]" />
+        <div className="h-2 w-full rounded-full bg-[#E2E8F0]" />
+        <div className="h-2 w-full rounded-full bg-[#E2E8F0]" />
+      </div>
+    ),
+  },
+];
 
-const AddSectionModal: React.FC<Props> = ({ open, onClose, onSave, defaultCategory = "Main" }) => {
+const EditSectionModal: React.FC<Props> = ({ open, onClose, onSave, initialData }) => {
   const [sectionName, setSectionName] = React.useState("");
-  const [menuTab, setMenuTab] = React.useState(defaultCategory);
+  const [menuTab, setMenuTab] = React.useState("Main");
   const [layout, setLayout] = React.useState<SectionLayoutType>("1-image");
 
   React.useEffect(() => {
     if (!open) return;
-    setSectionName("");
-    setMenuTab(defaultCategory);
-    setLayout("1-image");
-  }, [open, defaultCategory]);
+    if (initialData) {
+      setSectionName(initialData.sectionName);
+      setMenuTab(initialData.menuTab);
+      setLayout(initialData.layout);
+    }
+  }, [open, initialData]);
 
   if (!open) return null;
 
@@ -122,7 +112,7 @@ const AddSectionModal: React.FC<Props> = ({ open, onClose, onSave, defaultCatego
         </button>
 
         <div className="mb-8">
-          <h2 className="text-[28px] font-bold tracking-tight text-slate-900">Add Section</h2>
+          <h2 className="text-[28px] font-bold tracking-tight text-slate-900">Edit Section</h2>
         </div>
 
         <div className="space-y-6">
@@ -197,7 +187,7 @@ const AddSectionModal: React.FC<Props> = ({ open, onClose, onSave, defaultCatego
               onClick={handleSubmit}
               className="rounded-xl bg-[#2563EB] px-7 py-3 text-[16px] font-semibold text-white shadow-lg shadow-blue-500/25 transition hover:bg-blue-700"
             >
-              Save Changes
+              Update Section
             </button>
           </div>
         </div>
@@ -206,4 +196,4 @@ const AddSectionModal: React.FC<Props> = ({ open, onClose, onSave, defaultCatego
   );
 };
 
-export default AddSectionModal;
+export default EditSectionModal;

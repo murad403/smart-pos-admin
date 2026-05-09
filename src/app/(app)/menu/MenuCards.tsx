@@ -3,6 +3,7 @@
 import Image from "next/image";
 import item1 from "@/assets/images/menu1.jpg";
 import item2 from "@/assets/images/menu2.png";
+import { SquarePen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionLayoutType } from "@/components/modal/AddSectionModal";
 
@@ -25,6 +26,7 @@ type Props = {
   items: MenuItemCardData[];
   onAddItem: () => void;
   onEditItem: (item: MenuItemCardData) => void;
+  onEditSection: () => void;
 };
 
 const layoutLabel: Record<SectionLayoutType, string> = {
@@ -40,8 +42,10 @@ const imageMap = {
   menu2: item2,
 };
 
-const MenuCards = ({ sectionNumber, sectionName, layout, items, onAddItem, onEditItem }: Props) => {
-  const isListLayout = layout === "images-list" || layout === "no-image-list";
+const MenuCards = ({ sectionNumber, sectionName, layout, items, onAddItem, onEditItem, onEditSection }: Props) => {
+  const isNoImageLayout = layout === "no-image-list";
+  const isImageListLayout = layout === "images-list";
+  const isListLayout = isNoImageLayout || isImageListLayout;
 
   return (
     <section className="overflow-hidden rounded-[26px] border border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.06)]">
@@ -54,67 +58,122 @@ const MenuCards = ({ sectionNumber, sectionName, layout, items, onAddItem, onEdi
         </div>
 
         <div className="flex items-center gap-2">
-          <Button type="button" onClick={onAddItem} className="h-9 rounded-2xl bg-[#3366CC] px-4 text-sm font-semibold text-white hover:bg-[#2d5bb5]">
-            <span className="text-base leading-none">+</span>
+          <Button type="button" onClick={onAddItem} className="h-10 rounded-xl bg-[#3B82F6] px-5 text-sm font-semibold text-white hover:bg-blue-600">
+            <span className="mr-1 text-lg leading-none">+</span>
             Add Item
           </Button>
-          <Button type="button" variant="outline" className="h-9 rounded-2xl border-red-200 bg-red-50 px-4 text-sm font-semibold text-red-500 hover:bg-red-100 hover:text-red-600">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onEditSection}
+            className="h-10 rounded-xl border-red-100 bg-red-50 px-4 text-sm font-semibold text-red-500 hover:bg-red-100 hover:text-red-600"
+          >
+            <SquarePen className="mr-2 size-4" />
             Edit Layout
           </Button>
         </div>
       </div>
 
-      <div className={isListLayout ? "space-y-3 px-5 py-5 sm:px-6" : "grid gap-3 px-5 py-5 sm:px-6 lg:grid-cols-3"}>
-        {items.map((item, index) => (
-          <article
-            key={item.itemNumber}
-            className={
-              isListLayout
-                ? "grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:grid-cols-[160px_1fr]"
-                : "overflow-hidden rounded-2xl border border-slate-200 bg-white"
-            }
-          >
-            <div className={isListLayout ? "relative h-40 overflow-hidden rounded-2xl sm:h-full" : "relative h-72 overflow-hidden"}>
-              <Image
-                src={imageMap[item.imageType]}
-                alt={item.itemName}
-                className="h-full w-full object-cover"
-                priority={index === 0}
-              />
+      <div className="p-5 sm:p-6">
+        {isNoImageLayout ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-slate-100 text-sm font-semibold text-slate-500">
+                  <th className="pb-4 pl-2 font-medium">ID</th>
+                  <th className="pb-4 font-medium">Item Name</th>
+                  <th className="pb-4 font-medium text-center">Stock</th>
+                  <th className="pb-4 font-medium">Price</th>
+                  <th className="pb-4 font-medium">Promo Price</th>
+                  <th className="pb-4 pr-2 font-medium text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {items.map((item) => (
+                  <tr key={item.itemNumber} className="group transition-colors hover:bg-slate-50/50">
+                    <td className="py-4 pl-2 text-[15px] text-slate-600">
+                      {item.itemNumber.split("-").pop()}
+                    </td>
+                    <td className="py-4 text-[15px] font-medium text-slate-900">
+                      {item.itemName}
+                    </td>
+                    <td className="py-4 text-[15px] text-slate-600 text-center">
+                      {item.inventory}
+                    </td>
+                    <td className="py-4 text-[15px] text-slate-600">
+                      Rp{item.price.toLocaleString("en-US")}
+                    </td>
+                    <td className="py-4 text-[15px] text-slate-600">
+                      {item.promoPrice ? `Rp${item.promoPrice.toLocaleString("en-US")}` : "-"}
+                    </td>
+                    <td className="py-4 pr-2 text-right">
+                      <Button
+                        type="button"
+                        onClick={() => onEditItem(item)}
+                        className="h-9 rounded-xl bg-[#3B82F6] px-4 text-sm font-semibold text-white shadow-sm hover:bg-blue-600"
+                      >
+                        + Edit
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className={isImageListLayout ? "space-y-3" : "grid gap-3 lg:grid-cols-3"}>
+            {items.map((item, index) => (
+              <article
+                key={item.itemNumber}
+                className={
+                  isImageListLayout
+                    ? "grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:grid-cols-[160px_1fr]"
+                    : "overflow-hidden rounded-2xl border border-slate-200 bg-white"
+                }
+              >
+                <div className={isImageListLayout ? "relative h-40 overflow-hidden rounded-2xl sm:h-full" : "relative h-72 overflow-hidden"}>
+                  <Image
+                    src={imageMap[item.imageType]}
+                    alt={item.itemName}
+                    className="h-full w-full object-cover"
+                    priority={index === 0}
+                  />
 
-              <div className="absolute left-3 top-3 flex flex-wrap gap-2">
-                <span className="rounded-lg bg-white/92 px-3 py-1 text-[11px] font-semibold text-red-500 shadow-sm backdrop-blur">
-                  {item.badges[0]}
-                </span>
-                <span className="rounded-lg bg-[#16A34A] px-3 py-1 text-[11px] font-semibold text-white shadow-sm">
-                  {item.badges[1]}
-                </span>
-              </div>
-            </div>
-
-            <div className={isListLayout ? "flex flex-col justify-between gap-5 py-1 sm:pr-2" : "flex flex-col justify-between p-4"}>
-              <div className="space-y-3">
-                <p className="text-lg font-bold tracking-tight text-red-500">{item.itemNumber}</p>
-                <h3 className="text-[1.35rem] font-bold tracking-tight text-red-500">{item.itemName}</h3>
-                <div className="grid grid-cols-3 gap-3 text-sm text-slate-700">
-                  <p className="text-slate-600">Inventory: {item.inventory}</p>
-                  <p className="text-slate-600">Stock: {item.stock}</p>
-                  <p className="text-right font-medium text-slate-900">{item.statusLabel}</p>
+                  <div className="absolute left-3 top-3 flex flex-wrap gap-2">
+                    <span className="rounded-lg bg-white/92 px-3 py-1 text-[11px] font-semibold text-red-500 shadow-sm backdrop-blur">
+                      {item.badges[0]}
+                    </span>
+                    <span className="rounded-lg bg-[#16A34A] px-3 py-1 text-[11px] font-semibold text-white shadow-sm">
+                      {item.badges[1]}
+                    </span>
+                  </div>
                 </div>
-              </div>
 
-              <div className="mt-6 flex items-end justify-between gap-4">
-                <div className="text-sm text-slate-600">
-                  <p className="text-slate-500">Promo Price</p>
-                  <p className="font-semibold text-slate-900">Rp{item.promoPrice.toLocaleString("en-US")}</p>
+                <div className={isImageListLayout ? "flex flex-col justify-between gap-5 py-1 sm:pr-2" : "flex flex-col justify-between p-4"}>
+                  <div className="space-y-3">
+                    <p className="text-lg font-bold tracking-tight text-red-500">{item.itemNumber}</p>
+                    <h3 className="text-[1.35rem] font-bold tracking-tight text-red-500">{item.itemName}</h3>
+                    <div className="grid grid-cols-3 gap-3 text-sm text-slate-700">
+                      <p className="text-slate-600">Inventory: {item.inventory}</p>
+                      <p className="text-slate-600">Stock: {item.stock}</p>
+                      <p className="text-right font-medium text-slate-900">{item.statusLabel}</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex items-end justify-between gap-4">
+                    <div className="text-sm text-slate-600">
+                      <p className="text-slate-500">Promo Price</p>
+                      <p className="font-semibold text-slate-900">Rp{item.promoPrice.toLocaleString("en-US")}</p>
+                    </div>
+                    <Button type="button" onClick={() => onEditItem(item)} className="h-10 rounded-2xl bg-[#3B82F6] px-4 text-sm font-semibold text-white hover:bg-[#2f6fd3]">
+                      + Edit
+                    </Button>
+                  </div>
                 </div>
-                <Button type="button" onClick={() => onEditItem(item)} className="h-10 rounded-2xl bg-[#3B82F6] px-4 text-sm font-semibold text-white hover:bg-[#2f6fd3]">
-                  + Edit
-                </Button>
-              </div>
-            </div>
-          </article>
-        ))}
+              </article>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
