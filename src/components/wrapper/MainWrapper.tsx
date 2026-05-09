@@ -1,4 +1,5 @@
 "use client"
+import React from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { ChevronDown, CreditCard, Grid2x2, LayoutDashboard, LogOut, Package, ReceiptText, User } from "lucide-react"
@@ -17,7 +18,13 @@ const navigationItems = [
   { label: "Payment Verification", icon: CreditCard, href: "/payment-verification" },
   { label: "Inventory Report", icon: Package, href: "/inventory-report" },
   { label: "Menu", icon: Grid2x2, href: "/menu" },
-  { label: "Profile", icon: User, href: "/profile" },
+]
+
+const profileSubItems = [
+  { label: "Profile Information", href: "/profile/personal-information" },
+  { label: "Password Change", href: "/profile/password-change" },
+  { label: "User", href: "/profile/user" },
+  { label: "Operating Hours", href: "/profile/operating-hours" },
 ]
 
 function SidebarBrand() {
@@ -36,6 +43,8 @@ function SidebarBrand() {
 
 function AppSidebar() {
   const pathName = usePathname();
+  const [profileOpen, setProfileOpen] = React.useState(true);
+
   return (
     <Sidebar collapsible="icon" className="border-r border-slate-200/80 bg-white">
       <SidebarHeader className="border-b border-slate-200/70 px-2 py-1">
@@ -58,17 +67,55 @@ function AppSidebar() {
                         : "hover:bg-slate-100 hover:text-slate-950"
                     )}
                   >
-                    <a href={item.href} className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0">
+                    <Link href={item.href} className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0">
                       <item.icon className="size-4" />
                       <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+
+              {/* Profile Dropdown */}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => setProfileOpen(!profileOpen)}
+                  tooltip="Profile"
+                  className={cn(
+                    "h-11 rounded-lg px-3 text-sm font-medium transition-colors group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:rounded-xl group-data-[collapsible=icon]:px-0",
+                    profileOpen || pathName.startsWith("/profile")
+                      ? "bg-[#1A56DB] text-white shadow-lg shadow-[#1A56DB]/20 hover:bg-[#1A56DB] hover:text-white"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-950"
+                  )}
+                >
+                  <div className="flex w-full items-center gap-3">
+                    <User className="size-4" />
+                    <span className="flex-1 group-data-[collapsible=icon]:hidden">Profile</span>
+                    <ChevronDown className={cn("size-4 transition-transform group-data-[collapsible=icon]:hidden", profileOpen && "rotate-180")} />
+                  </div>
+                </SidebarMenuButton>
+
+                {profileOpen && (
+                  <div className="mt-1 space-y-1 group-data-[collapsible=icon]:hidden">
+                    {profileSubItems.map((sub) => (
+                      <Link
+                        key={sub.label}
+                        href={sub.href}
+                        className={cn(
+                          "flex h-10 items-center rounded-lg px-10 text-sm font-medium transition-colors",
+                          pathName === sub.href
+                            ? "text-[#1A56DB] bg-blue-50/50"
+                            : "text-slate-500 hover:bg-slate-50 hover:text-slate-950"
+                        )}
+                      >
+                        {sub.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-
       </SidebarContent>
 
       <SidebarFooter className="border-t border-slate-200/70 p-3">
