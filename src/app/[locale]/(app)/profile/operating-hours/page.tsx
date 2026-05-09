@@ -37,7 +37,7 @@ const OperatingHoursPage = () => {
   };
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 pb-10">
+    <div className="space-y-6 pb-10">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
@@ -105,7 +105,7 @@ const OperatingHoursPage = () => {
       {/* Global Save Changes Button */}
       <Button
         type="button"
-        className="h-14 w-full rounded-xl bg-[#3B82F6] text-lg font-semibold text-white shadow-xl shadow-blue-500/20 hover:bg-blue-600"
+        className="h-12 cursor-pointer w-full rounded-xl bg-[#3B82F6] text-lg font-semibold text-white shadow-xl shadow-blue-500/20 hover:bg-blue-600"
       >
         Save Changes
       </Button>

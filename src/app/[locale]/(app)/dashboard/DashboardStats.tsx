@@ -1,39 +1,42 @@
 "use client";
 import { ShoppingCart, DollarSign, Package } from "lucide-react";
-
-const stats = [
-    {
-        label: "Total Revenue",
-        value: "Rp 464,000",
-        change: "+12.5% from last week",
-        icon: <DollarSign className="size-5 text-white" />,
-        variant: "blue",
-    },
-    {
-        label: "Total Orders",
-        value: "745",
-        change: "+8.2%  from last week",
-        icon: <ShoppingCart className="size-5 text-blue-500" />,
-        variant: "white",
-    },
-    {
-        label: "Avg Order Value",
-        value: "Rp 62,280",
-        sub: "Across all orders",
-        icon: <Package className="size-5 text-yellow-500" />,
-        variant: "white",
-    },
-    {
-        label: "Order Types",
-        orderTypes: [
-            { name: "Dine-in", count: 458 },
-            { name: "Takeaway", count: 287 },
-        ],
-        variant: "types",
-    },
-];
+import { useTranslations } from "next-intl";
 
 const DashboardStats = () => {
+    const t = useTranslations("Dashboard");
+
+    const stats = [
+        {
+            label: t("totalRevenue"),
+            value: "Rp 464,000",
+            change: `+12.5% ${t("fromLastWeek")}`,
+            icon: <DollarSign className="size-5 text-white" />,
+            variant: "blue" as const,
+        },
+        {
+            label: t("totalOrders"),
+            value: "745",
+            change: `+8.2% ${t("fromLastWeek")}`,
+            icon: <ShoppingCart className="size-5 text-blue-500" />,
+            variant: "white" as const,
+        },
+        {
+            label: t("avgOrderValue"),
+            value: "Rp 62,280",
+            sub: t("acrossAllOrders"),
+            icon: <Package className="size-5 text-yellow-500" />,
+            variant: "white" as const,
+        },
+        {
+            label: t("orderTypes"),
+            orderTypes: [
+                { name: t("dineIn"), count: 458 },
+                { name: t("takeaway"), count: 287 },
+            ],
+            variant: "types" as const,
+        },
+    ];
+
     return (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {stats.map((stat, i) => {

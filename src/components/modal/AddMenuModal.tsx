@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { X, Upload, Minus, Plus } from "lucide-react";
 import Image from "next/image";
 import { MenuItemFormValues, menuItemSchema } from "@/validation/settings.validation";
-import useLocalLanguage from "@/hooks/useLocalLanguage";
+import { useTranslations } from "next-intl";
 
 type Props = {
   open: boolean;
@@ -28,7 +28,7 @@ const LABEL_OPTIONS = [
 const PRODUCTION_DESTINATIONS = ["Kitchen", "Bar", "Pastry", "Grill"];
 
 const AddMenuModal: React.FC<Props> = ({ open, onClose, onSave }) => {
-  const { t } = useLocalLanguage();
+  const t = useTranslations("Menu");
   const {
     register,
     handleSubmit,
@@ -91,7 +91,7 @@ const AddMenuModal: React.FC<Props> = ({ open, onClose, onSave }) => {
 
           {/* Header */}
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-2xl font-bold text-gray-900">{t.addMenu}</h2>
+            <h2 className="text-2xl font-bold text-gray-900">{t("addMenu")}</h2>
             <button
               type="button"
               onClick={onClose}
@@ -106,11 +106,11 @@ const AddMenuModal: React.FC<Props> = ({ open, onClose, onSave }) => {
             {/* Item Name */}
             <div>
               <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-                {t.itemName}
+                {t("itemName")}
               </label>
               <input
                 {...register("itemName")}
-                placeholder={t.enterItemName}
+                placeholder={t("enterItemName")}
                 className={`w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 placeholder:text-gray-400 ${errors.itemName ? "border-red-400" : "border-gray-200"
                   }`}
               />
@@ -123,7 +123,7 @@ const AddMenuModal: React.FC<Props> = ({ open, onClose, onSave }) => {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-                  {t.price}
+                  {t("price")}
                 </label>
                 <input
                   type="number"
@@ -138,7 +138,7 @@ const AddMenuModal: React.FC<Props> = ({ open, onClose, onSave }) => {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-                  {t.productionDestination}
+                  {t("productionDestination")}
                 </label>
                 <div className="relative">
                   <select
@@ -164,25 +164,25 @@ const AddMenuModal: React.FC<Props> = ({ open, onClose, onSave }) => {
             {/* Inventory */}
             <div>
               <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-                {t.inventoryOptional}
+                {t("inventoryOptional")}
               </label>
               <input
                 {...register("inventory")}
-                placeholder={t.optional}
+                placeholder={t("optional")}
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 placeholder:text-gray-400"
               />
             </div>
 
             {/* Upload Product Image */}
             <div>
-              <label className="block text-sm font-semibold text-gray-800 mb-1.5">{t.uploadProductImage}</label>
+              <label className="block text-sm font-semibold text-gray-800 mb-1.5">{t("uploadProductImage")}</label>
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 className="w-full flex items-center justify-center gap-2 border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors"
               >
                 <Upload size={16} className="text-gray-600" />
-                <span className="text-sm font-medium text-gray-700">{t.upload}</span>
+                <span className="text-sm font-medium text-gray-700">{t("upload")}</span>
               </button>
               <input
                 ref={fileInputRef}
@@ -201,12 +201,12 @@ const AddMenuModal: React.FC<Props> = ({ open, onClose, onSave }) => {
             {/* Promotion — bordered box */}
             <div className="border border-gray-200 rounded-xl p-4">
               <h3 className="text-base font-black text-gray-900 mb-4 tracking-wide uppercase">
-                {t.promotion}
+                {t("promotion")}
               </h3>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-                    {t.promoName}
+                    {t("promoName")}
                   </label>
                   <input
                     {...register("promoName")}
@@ -230,13 +230,13 @@ const AddMenuModal: React.FC<Props> = ({ open, onClose, onSave }) => {
 
             {/* Label Selector */}
             <div>
-              <h3 className="text-sm font-bold text-gray-800 mb-0.5">{t.labelSelector}</h3>
-              <p className="text-xs text-gray-500 mb-2">{t.pickMultipleTags}</p>
+              <h3 className="text-sm font-bold text-gray-800 mb-0.5">{t("labelSelector")}</h3>
+              <p className="text-xs text-gray-500 mb-2">{t("pickMultipleTags")}</p>
               <input
                 type="text"
                 readOnly
                 value={selectedLabels.join(", ") || ""}
-                placeholder={t.labelName}
+                placeholder={t("labelName")}
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-gray-50 placeholder:text-gray-400 mb-3 cursor-default"
               />
               <div className="flex flex-wrap gap-2">
@@ -258,7 +258,7 @@ const AddMenuModal: React.FC<Props> = ({ open, onClose, onSave }) => {
 
             {/* Out of Stock Toggle */}
             <div className="flex items-center justify-between py-1">
-              <span className="text-sm font-bold text-gray-800">{t.outOfStock}</span>
+              <span className="text-sm font-bold text-gray-800">{t("outOfStock")}</span>
               <button
                 type="button"
                 onClick={() => setValue("outOfStock", !outOfStock)}
@@ -275,21 +275,21 @@ const AddMenuModal: React.FC<Props> = ({ open, onClose, onSave }) => {
             {/* Packet Configuration */}
             {/* ── Packet Configuration ── */}
             <div className="border border-gray-200 rounded-xl p-4">
-              <h3 className="text-sm font-bold text-gray-900 mb-4">{t.packetConfiguration}</h3>
+              <h3 className="text-sm font-bold text-gray-900 mb-4">{t("packetConfiguration")}</h3>
 
               <div className="grid grid-cols-2 gap-4">
 
                 {/* Left column — labels only, input only at bottom */}
                 <div className="flex flex-col justify-between gap-4">
                   <p className="text-xs font-semibold text-gray-700 leading-snug">
-                    {t.maxItemsInPacket}
+                    {t("maxItemsInPacket")}
                   </p>
                   <p className="text-xs font-semibold text-gray-700 leading-snug">
-                    {t.choiceSection}
+                    {t("choiceSection")}
                   </p>
                   <div>
                     <p className="text-xs font-semibold text-gray-700 mb-1.5">
-                      {t.section1Name}
+                      {t("section1Name")}
                     </p>
                     <input
                       {...register("sectionName")}
@@ -302,7 +302,7 @@ const AddMenuModal: React.FC<Props> = ({ open, onClose, onSave }) => {
                 <div className="flex flex-col gap-3">
                   {/* Gray header */}
                   <div className="bg-gray-100 rounded-lg px-3 py-2 text-center">
-                    <span className="text-xs font-semibold text-gray-700">{t.section1Choices}</span>
+                    <span className="text-xs font-semibold text-gray-700">{t("section1Choices")}</span>
                   </div>
 
                   {/* Input below header */}
@@ -314,7 +314,7 @@ const AddMenuModal: React.FC<Props> = ({ open, onClose, onSave }) => {
 
                   {/* Max # row — pushed to bottom */}
                   <div className="flex items-center gap-1.5 mt-auto">
-                    <span className="text-xs font-semibold text-gray-700 whitespace-nowrap">{t.maxHash}</span>
+                    <span className="text-xs font-semibold text-gray-700 whitespace-nowrap">{t("maxHash")}</span>
                     <input
                       type="number" readOnly value={maxChoices}
                       className="w-12 border border-gray-200 rounded-lg px-2 py-2 text-sm text-center bg-gray-50"
@@ -342,13 +342,13 @@ const AddMenuModal: React.FC<Props> = ({ open, onClose, onSave }) => {
                 onClick={onClose}
                 className="px-6 py-2.5 rounded-xl text-gray-700 font-semibold text-sm hover:bg-gray-100 transition-all"
               >
-                {t.cancel}
+                {t("cancel")}
               </button>
               <button
                 type="submit"
                 className="px-6 py-2.5 rounded-xl bg-[#3366CC] text-white font-semibold text-sm hover:bg-[#2952a3] transition-all"
               >
-                {t.saveItem}
+                {t("saveItem")}
               </button>
             </div>
 

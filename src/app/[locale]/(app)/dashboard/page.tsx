@@ -7,15 +7,18 @@ import TopSellingItems from "./TopSellingItems";
 import Alerts from "./Alerts";
 import DateRangePicker from "@/components/shared/DateRangePicker";
 
+import { useTranslations } from "next-intl";
+
 const DashboardPage = () => {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
+  const t = useTranslations("Dashboard");
 
   return (
     <div className="bg-slate-50">
       {/* Page Header */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
+        <h1 className="text-2xl font-bold text-slate-900">{t("title")}</h1>
         <DateRangePicker
           startDate={startDate}
           endDate={endDate}

@@ -1,31 +1,13 @@
 "use client"
 import React from "react"
 import Image from "next/image"
-import Link from "next/link"
 import { ChevronDown, CreditCard, Grid2x2, LayoutDashboard, LogOut, Package, ReceiptText, User } from "lucide-react"
 import brandLogo from "@/assets/logo/logo.png"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger} from "@/components/ui/dropdown-menu"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
-import { usePathname } from "next/navigation"
-import useLocalLanguage, { LanguageProvider } from "@/hooks/useLocalLanguage";
-
-
-
-const navigationItems = [
-  { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
-  { label: "Sales Reports", icon: ReceiptText, href: "/reports" },
-  { label: "Payment Verification", icon: CreditCard, href: "/payment-verification" },
-  { label: "Inventory Report", icon: Package, href: "/inventory-report" },
-  { label: "Menu", icon: Grid2x2, href: "/menu" },
-]
-
-const profileSubItems = [
-  { label: "Profile Information", href: "/profile/personal-information" },
-  { label: "Password Change", href: "/profile/password-change" },
-  { label: "User", href: "/profile/user" },
-  { label: "Operating Hours", href: "/profile/operating-hours" },
-]
+import { usePathname, useRouter, Link } from "@/i18n/routing"
+import { useLocale, useTranslations } from "next-intl"
 
 function SidebarBrand() {
   return (
@@ -44,6 +26,22 @@ function SidebarBrand() {
 function AppSidebar() {
   const pathName = usePathname();
   const [profileOpen, setProfileOpen] = React.useState(true);
+  const t = useTranslations("Common");
+
+  const navigationItems = [
+    { label: t("dashboard"), icon: LayoutDashboard, href: "/dashboard" },
+    { label: t("salesReports"), icon: ReceiptText, href: "/reports" },
+    { label: t("paymentVerification"), icon: CreditCard, href: "/payment-verification" },
+    { label: t("inventoryReport"), icon: Package, href: "/inventory-report" },
+    { label: t("menu"), icon: Grid2x2, href: "/menu" },
+  ]
+
+  const profileSubItems = [
+    { label: t("profileInformation"), href: "/profile/personal-information" },
+    { label: t("passwordChange"), href: "/profile/password-change" },
+    { label: t("users"), href: "/profile/users" },
+    { label: t("operatingHours"), href: "/profile/operating-hours" },
+  ]
 
   return (
     <Sidebar collapsible="icon" className="border-r border-slate-200/80 bg-white">
@@ -79,7 +77,7 @@ function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton
                   onClick={() => setProfileOpen(!profileOpen)}
-                  tooltip="Profile"
+                  tooltip={t("profile")}
                   className={cn(
                     "h-11 rounded-lg px-3 text-sm font-medium transition-colors group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:rounded-xl group-data-[collapsible=icon]:px-0",
                     profileOpen || pathName.startsWith("/profile")
@@ -89,7 +87,7 @@ function AppSidebar() {
                 >
                   <div className="flex w-full items-center gap-3">
                     <User className="size-4" />
-                    <span className="flex-1 group-data-[collapsible=icon]:hidden">Profile</span>
+                    <span className="flex-1 group-data-[collapsible=icon]:hidden">{t("profile")}</span>
                     <ChevronDown className={cn("size-4 transition-transform group-data-[collapsible=icon]:hidden", profileOpen && "rotate-180")} />
                   </div>
                 </SidebarMenuButton>
@@ -121,12 +119,12 @@ function AppSidebar() {
       <SidebarFooter className="border-t border-slate-200/70 p-3">
         <SidebarMenuButton
           asChild
-          tooltip="Logout"
+          tooltip={t("logout")}
           className="h-11 justify-start rounded-2xl px-3 text-sm font-medium text-red-500 hover:bg-red-50 hover:text-red-600"
         >
           <a href="#" className="flex items-center gap-3">
             <LogOut className="size-4" />
-            <span>Logout</span>
+            <span>{t("logout")}</span>
           </a>
         </SidebarMenuButton>
       </SidebarFooter>
@@ -134,30 +132,37 @@ function AppSidebar() {
   )
 }
 
-
 function Topbar() {
-  const { locale, setLocale } = useLocalLanguage();
+  const t = useTranslations("Common");
+  const locale = useLocale();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const handleLocaleChange = (newLocale: string) => {
+    router.replace(pathname, { locale: newLocale });
+  };
+
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white">
       <div className="flex py-3.5 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <SidebarTrigger className="-ml-1 text-slate-700 hover:bg-slate-100" />
           <div className="min-w-0">
-            <h1 className="truncate text-[1.05rem] font-semibold tracking-tight text-slate-950 sm:text-[1.15rem]">Dashboard</h1>
+            <h1 className="truncate text-[1.05rem] font-semibold tracking-tight text-slate-950 sm:text-[1.15rem]">{t("dashboard")}</h1>
           </div>
         </div>
 
         <div className="flex items-center gap-4 sm:gap-6">
           <div className="flex items-center rounded-2xl border border-slate-200 bg-[#f3f4f6] p-1 shadow-sm">
             <button
-              onClick={() => setLocale("EN")}
-              className={`rounded-xl px-3 py-1.5 text-sm font-medium ${locale === "EN" ? "bg-white text-[#1A56DB] shadow-[0_1px_3px_rgba(15,23,42,0.12)]" : "text-slate-500"}`}
+              onClick={() => handleLocaleChange("en")}
+              className={`rounded-xl px-3 py-1.5 text-sm font-medium transition-all ${locale === "en" ? "bg-white text-[#1A56DB] shadow-[0_1px_3px_rgba(15,23,42,0.12)]" : "text-slate-500 hover:text-slate-700"}`}
             >
               EN
             </button>
             <button
-              onClick={() => setLocale("ID")}
-              className={`rounded-xl px-3 py-1.5 text-sm font-medium ${locale === "ID" ? "bg-white text-[#1A56DB] shadow-[0_1px_3px_rgba(15,23,42,0.12)]" : "text-slate-500"}`}
+              onClick={() => handleLocaleChange("id")}
+              className={`rounded-xl px-3 py-1.5 text-sm font-medium transition-all ${locale === "id" ? "bg-white text-[#1A56DB] shadow-[0_1px_3px_rgba(15,23,42,0.12)]" : "text-slate-500 hover:text-slate-700"}`}
             >
               ID
             </button>
@@ -170,8 +175,8 @@ function Topbar() {
                   <User className="size-5" />
                 </div>
                 <div className="min-w-0 leading-tight">
-                  <div className="text-sm font-medium text-slate-950 sm:text-base">Restaurant Owner</div>
-                  <div className="text-xs text-slate-500 sm:text-sm">Owner</div>
+                  <div className="text-sm font-medium text-slate-950 sm:text-base">{t("restaurantOwner")}</div>
+                  <div className="text-xs text-slate-500 sm:text-sm">{t("owner")}</div>
                 </div>
                 <ChevronDown className="size-4 text-slate-400" />
               </button>
@@ -179,7 +184,7 @@ function Topbar() {
 
             <DropdownMenuContent align="end" sideOffset={12} className="w-68 rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl">
               <DropdownMenuLabel className="px-2 py-1.5">
-                <div className="text-base font-medium text-slate-950">Restaurant Owner</div>
+                <div className="text-base font-medium text-slate-950">{t("restaurantOwner")}</div>
                 <div className="text-sm font-normal text-slate-400">owner@smartpos.com</div>
               </DropdownMenuLabel>
 
@@ -188,7 +193,7 @@ function Topbar() {
               <DropdownMenuItem asChild className="cursor-pointer rounded-lg px-3 py-2 text-base text-slate-800 focus:bg-slate-50 focus:text-slate-950">
                 <Link href="/profile" className="flex items-center gap-3">
                   <User className="size-4 text-slate-500" />
-                  <span>Profile</span>
+                  <span>{t("profile")}</span>
                 </Link>
               </DropdownMenuItem>
 
@@ -197,7 +202,7 @@ function Topbar() {
               <DropdownMenuItem asChild className="cursor-pointer rounded-lg px-3 py-2 text-base text-red-500 focus:bg-red-50 focus:text-red-600">
                 <button className="flex w-full items-center gap-3 text-left">
                   <LogOut className="size-4 text-slate-500" />
-                  <span>Logout</span>
+                  <span>{t("logout")}</span>
                 </button>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -210,18 +215,16 @@ function Topbar() {
 
 const MainWrapper = ({ children }: { children: React.ReactNode }) => {
   return (
-    <LanguageProvider>
-      <SidebarProvider defaultOpen>
-        <div className="flex min-h-screen w-full bg-[#F7F7F7] text-slate-900">
-          <AppSidebar />
+    <SidebarProvider defaultOpen>
+      <div className="flex min-h-screen w-full bg-[#F7F7F7] text-slate-900">
+        <AppSidebar />
 
-          <SidebarInset className="flex min-h-screen flex-col bg-[#F7F7F7]">
-            <Topbar />
-            <main className="flex flex-1 flex-col p-4 md:p-6 lg:p-8">{children}</main>
-          </SidebarInset>
-        </div>
-      </SidebarProvider>
-    </LanguageProvider>
+        <SidebarInset className="flex min-h-screen flex-col bg-[#F7F7F7]">
+          <Topbar />
+          <main className="flex flex-1 flex-col p-4 md:p-6 lg:p-8">{children}</main>
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
   );
 };
 
