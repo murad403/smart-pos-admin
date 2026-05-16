@@ -7,6 +7,7 @@ import AddMenuModal from "@/components/modal/AddMenuModal";
 import EditMenuModal from "@/components/modal/EditMenuModal";
 import AddSectionModal, { SectionDraft, SectionLayoutType } from "@/components/modal/AddSectionModal";
 import EditSectionModal from "@/components/modal/EditSectionModal";
+import AddCategoryModal from "@/components/modal/AddCategoryModal";
 import MenuCards, { MenuItemCardData } from "./MenuCards";
 import { useTranslations } from "next-intl";
 
@@ -63,6 +64,7 @@ const Page = () => {
   const [isAddMenuOpen, setIsAddMenuOpen] = React.useState(false);
   const [isEditMenuOpen, setIsEditMenuOpen] = React.useState(false);
   const [isEditSectionOpen, setIsEditSectionOpen] = React.useState(false);
+  const [isAddCategoryOpen, setIsAddCategoryOpen] = React.useState(false);
   const [activeSectionId, setActiveSectionId] = React.useState<string | null>(null);
   const [editingSectionId, setEditingSectionId] = React.useState<string | null>(null);
   const [editingItem, setEditingItem] = React.useState<MenuItemCardData | null>(null);
@@ -172,6 +174,7 @@ const Page = () => {
         <div className="flex items-center flex-wrap gap-3">
           <Button
             type="button"
+            onClick={() => setIsAddCategoryOpen(true)}
             className="h-11 rounded-[14px] border-2 border-blue-500 bg-[#F3F7FF] px-5 text-[15px] font-semibold text-blue-600 shadow-none hover:bg-blue-100"
           >
             <Plus className="mr-1.5 size-4" />
@@ -200,10 +203,10 @@ const Page = () => {
             <SquarePen className="size-8" />
           </div>
           <h2 className="mt-5 text-2xl font-semibold tracking-tight text-slate-950">
-            {t("noSectionsIn", { category: categories.find((c: any) => c.id === selectedCategory)?.label })}
+            {t("noSectionsIn", { category: categories.find((c: any) => c.id === selectedCategory)?.label || selectedCategory })}
           </h2>
           <p className="mx-auto mt-2 max-w-xl text-sm text-slate-500">
-            {t("clickAddSection", { category: categories.find((c: any) => c.id === selectedCategory)?.label })}
+            {t("clickAddSection", { category: categories.find((c: any) => c.id === selectedCategory)?.label || selectedCategory })}
           </p>
         </div>
       ) : (
@@ -255,6 +258,15 @@ const Page = () => {
           layout: editingSection.layout,
           menuTab: editingSection.menuTab
         } : undefined}
+      />
+
+      <AddCategoryModal
+        open={isAddCategoryOpen}
+        onClose={() => setIsAddCategoryOpen(false)}
+        onSave={(categories) => {
+          console.log("Saving categories:", categories);
+          setIsAddCategoryOpen(false);
+        }}
       />
     </div>
   );
