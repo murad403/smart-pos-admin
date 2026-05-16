@@ -11,7 +11,7 @@ import { useLocale, useTranslations } from "next-intl"
 
 function SidebarBrand() {
   return (
-    <div className="flex items-center gap-3 px-3 py-2.5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:px-1">
+    <Link href="/dashboard" className="flex items-center gap-3 px-3 py-2.5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:px-1">
       <div className="flex size-11 items-center justify-center rounded-2xl bg-[#F7F7F7] shadow-sm ring-1 ring-slate-200 group-data-[collapsible=icon]:size-9">
         <Image src={brandLogo} alt="SmartPOS" className="h-7 w-7 object-contain group-data-[collapsible=icon]:h-6 group-data-[collapsible=icon]:w-6" priority />
       </div>
@@ -19,14 +19,19 @@ function SidebarBrand() {
         <p className="text-lg font-semibold tracking-tight text-slate-950">SmartPOS</p>
         <p className="text-xs text-slate-500">Admin panel</p>
       </div>
-    </div>
+    </Link>
   )
 }
 
 function AppSidebar() {
   const pathName = usePathname();
+  const router = useRouter();
   const [profileOpen, setProfileOpen] = React.useState(pathName.startsWith("/profile"));
   const t = useTranslations("Common");
+
+  React.useEffect(() => {
+    setProfileOpen(pathName.startsWith("/profile"));
+  }, [pathName]);
 
   const navigationItems = [
     { label: t("dashboard"), icon: LayoutDashboard, href: "/dashboard" },
@@ -118,14 +123,14 @@ function AppSidebar() {
 
       <SidebarFooter className="border-t border-slate-200/70 p-3">
         <SidebarMenuButton
-          asChild
+          onClick={() => router.push("/auth/sign-in")}
           tooltip={t("logout")}
           className="h-11 justify-start rounded-2xl px-3 text-sm font-medium text-red-500 hover:bg-red-50 hover:text-red-600"
         >
-          <a href="#" className="flex items-center gap-3">
+          <div className="flex items-center gap-3 cursor-pointer">
             <LogOut className="size-4" />
             <span>{t("logout")}</span>
-          </a>
+          </div>
         </SidebarMenuButton>
       </SidebarFooter>
     </Sidebar>
@@ -205,11 +210,14 @@ function Topbar() {
 
               <DropdownMenuSeparator className="my-1 bg-slate-200" />
 
-              <DropdownMenuItem asChild className="cursor-pointer rounded-lg px-3 py-2 text-base text-red-500 focus:bg-red-50 focus:text-red-600">
-                <button className="flex w-full items-center gap-3 text-left">
+              <DropdownMenuItem 
+                onClick={() => router.push("/auth/sign-in")}
+                className="cursor-pointer rounded-lg px-3 py-2 text-base text-red-500 focus:bg-red-50 focus:text-red-600"
+              >
+                <div className="flex w-full items-center gap-3 text-left">
                   <LogOut className="size-4 text-slate-500" />
                   <span>{t("logout")}</span>
-                </button>
+                </div>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
