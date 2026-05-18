@@ -1,5 +1,12 @@
 import baseApi from "../../api/api";
-import { AnalyticsQueryParams, AnalyticsResponse, SalesReportResponse } from "./dashboard.type";
+import {
+    AnalyticsQueryParams,
+    AnalyticsResponse,
+    SalesReportResponse,
+    GetPaymentsResponse,
+    GetPaymentsQueryParams,
+    GetPaymentDetailsResponse
+} from "./dashboard.type";
 
 const dashboardApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -28,11 +35,37 @@ const dashboardApi = baseApi.injectEndpoints({
                     params: queryParams,
                 };
             },
-        })
+        }),
+        getPayments: builder.query<GetPaymentsResponse, GetPaymentsQueryParams | void>({
+            query: (params) => {
+                const queryParams: Record<string, string> = {};
+                if (params?.page) queryParams.page = String(params.page);
+                if (params?.limit) queryParams.limit = String(params.limit);
+                if (params?.status) queryParams.status = params.status;
+                if (params?.method) queryParams.method = params.method;
+                if (params?.search) queryParams.search = params.search;
+
+                return {
+                    url: "/payments",
+                    method: "GET",
+                    params: queryParams,
+                };
+            },
+        }),
+        getPaymentDetails: builder.query<GetPaymentDetailsResponse, number>({
+            query: (id) => {
+                return {
+                    url: `/payments/${id}`,
+                    method: "GET",
+                };
+            },
+        }),
     }),
 });
 
 export const {
     useGetAnalyticsQuery,
     useGetSalesReportsQuery,
+    useGetPaymentsQuery,
+    useGetPaymentDetailsQuery,
 } = dashboardApi;

@@ -102,3 +102,93 @@ export interface SalesReportResponse {
     message: string;
     data: SalesReportData;
 }
+
+// Payments Interfaces
+export interface PaymentOrder {
+    id: number;
+    slug: string;
+    customerName: string;
+}
+
+export interface PaymentItem {
+    id: number;
+    slug: string;
+    orderId: number;
+    method: "CASH" | "TRANSFER" | "OTHER";
+    status: "PENDING" | "PAID" | "CANCELLED";
+    subtotal: string;
+    chargesTotal: string;
+    totalAmount: string;
+    cashReceived: number | null;
+    changeAmount: number | null;
+    proofImages: string[];
+    appliedCharges: any;
+    paidAt: string | null;
+    createdAt: string;
+    updatedAt: string;
+    order: PaymentOrder;
+}
+
+export interface Pagination {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+}
+
+export interface GetPaymentsResponse {
+    success: boolean;
+    statusCode: number;
+    message: string;
+    pagination: Pagination;
+    data: PaymentItem[];
+}
+
+export interface GetPaymentsQueryParams {
+    page?: number;
+    limit?: number;
+    status?: "PENDING" | "PAID" | "CANCELLED" | "";
+    method?: "CASH" | "TRANSFER" | "OTHER" | "";
+    search?: string;
+}
+
+export interface PaymentDetailsOrderItem {
+    id: string;
+    itemName: string;
+    quantity: number;
+    unitPrice: string;
+}
+
+export interface PaymentDetailsOrder {
+    id: number;
+    slug: string;
+    customerName: string;
+    type: "DINE_IN" | "TAKE_AWAY" | string;
+    totalAmount: string;
+    orderItems: PaymentDetailsOrderItem[];
+}
+
+export interface PaymentDetails {
+    id: number;
+    slug: string;
+    orderId: number;
+    method: "CASH" | "TRANSFER" | "OTHER";
+    status: "PENDING" | "PAID" | "CANCELLED";
+    subtotal: number;
+    chargesTotal: number;
+    totalAmount: number;
+    cashReceived: number | null;
+    changeAmount: number | null;
+    proofImages: string[];
+    paidAt: string | null;
+    createdAt: string;
+    updatedAt: string;
+    order: PaymentDetailsOrder;
+}
+
+export interface GetPaymentDetailsResponse {
+    success: boolean;
+    statusCode: number;
+    message: string;
+    data: PaymentDetails;
+}
