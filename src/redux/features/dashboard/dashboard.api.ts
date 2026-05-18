@@ -5,7 +5,9 @@ import {
     SalesReportResponse,
     GetPaymentsResponse,
     GetPaymentsQueryParams,
-    GetPaymentDetailsResponse
+    GetPaymentDetailsResponse,
+    GetInventoryReportResponse,
+    GetInventoryReportQueryParams
 } from "./dashboard.type";
 
 const dashboardApi = baseApi.injectEndpoints({
@@ -60,6 +62,23 @@ const dashboardApi = baseApi.injectEndpoints({
                 };
             },
         }),
+
+        // inventoryReport*******************************************************************
+
+        getInventoryReport: builder.query<GetInventoryReportResponse, GetInventoryReportQueryParams | void>({
+            query: (params) => {
+                const queryParams: Record<string, string> = {};
+                if (params?.page) queryParams.page = String(params.page);
+                if (params?.limit) queryParams.limit = String(params.limit);
+                if (params?.search) queryParams.search = params.search;
+
+                return {
+                    url: `/inventory`,
+                    method: "GET",
+                    params: queryParams
+                };
+            },
+        }),
     }),
 });
 
@@ -68,4 +87,5 @@ export const {
     useGetSalesReportsQuery,
     useGetPaymentsQuery,
     useGetPaymentDetailsQuery,
+    useGetInventoryReportQuery,
 } = dashboardApi;

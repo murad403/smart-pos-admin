@@ -192,3 +192,33 @@ export interface GetPaymentDetailsResponse {
     message: string;
     data: PaymentDetails;
 }
+
+// Inventory Interfaces
+export interface InventoryItem {
+    id: number;
+    slug: string;
+    name: string;
+    inventoryQty: number | null;
+    price: string;
+    imageUrl: string | null;
+    isOutOfStock: boolean;
+}
+
+export interface GetInventoryReportResponse {
+    success: boolean;
+    statusCode: number;
+    message: string;
+    pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        pages: number;
+    };
+    data: InventoryItem[];
+}
+
+export interface GetInventoryReportQueryParams {
+    page?: number;
+    limit?: number;
+    search?: string;
+}

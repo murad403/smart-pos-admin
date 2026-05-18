@@ -1,38 +1,44 @@
-import { useTranslations } from "next-intl";
+"use client";
+import { useTranslations, useLocale } from "next-intl";
+import { InventoryItem } from "@/redux/features/dashboard/dashboard.type";
 
 type StockStatus = "in_stock" | "low_stock" | "out_of_stock";
 
-interface InventoryItem {
-  id: number;
-  name: string;
-  category: string;
-  openingStock: number;
-  sales: number;
-  closingStock: number;
-  status: StockStatus;
+interface InventoryOverviewTableProps {
+  items?: InventoryItem[];
+  isLoading?: boolean;
 }
 
-const inventory: InventoryItem[] = [
-  { id: 1,  name: "Nasi Goreng Special", category: "Main Course", openingStock: 50,  sales: 25,  closingStock: 25, status: "in_stock" },
-  { id: 2,  name: "Ayam Bakar",          category: "Main Course", openingStock: 40,  sales: 18,  closingStock: 22, status: "in_stock" },
-  { id: 3,  name: "Es Teh Manis",        category: "Beverages",   openingStock: 100, sales: 68,  closingStock: 32, status: "in_stock" },
-  { id: 4,  name: "Soto Ayam",           category: "Main Course", openingStock: 35,  sales: 15,  closingStock: 20, status: "in_stock" },
-  { id: 5,  name: "Sate Ayam",           category: "Main Course", openingStock: 45,  sales: 22,  closingStock: 23, status: "in_stock" },
-  { id: 6,  name: "Gado-Gado",           category: "Appetizer",   openingStock: 30,  sales: 12,  closingStock: 18, status: "low_stock" },
-  { id: 7,  name: "Es Jeruk",            category: "Beverages",   openingStock: 80,  sales: 45,  closingStock: 35, status: "in_stock" },
-  { id: 8,  name: "Nasi Putih",          category: "Side Dish",   openingStock: 120, sales: 85,  closingStock: 35, status: "in_stock" },
-  { id: 9,  name: "Sambal",              category: "Side Dish",   openingStock: 50,  sales: 50,  closingStock: 0,  status: "out_of_stock" },
-  { id: 10, name: "Kerupuk",             category: "Side Dish",   openingStock: 200, sales: 120, closingStock: 80, status: "in_stock" },
-];
-
-const InventoryOverviewTable = () => {
+const InventoryOverviewTable = ({ items, isLoading }: InventoryOverviewTableProps) => {
   const t = useTranslations("Inventory");
+  const locale = useLocale();
   
   const statusBadge: Record<StockStatus, { label: string; className: string }> = {
-    in_stock:     { label: t("inStock"),     className: "bg-green-500 text-white" },
-    low_stock:    { label: t("lowStock"),    className: "bg-orange-400 text-white" },
-    out_of_stock: { label: t("outOfStock"), className: "bg-red-500 text-white" },
+    in_stock:     { label: t("inStock") || "In Stock",     className: "bg-green-500 text-white" },
+    low_stock:    { label: t("lowStock") || "Low Stock",    className: "bg-orange-400 text-white" },
+    out_of_stock: { label: t("outOfStock") || "Out of Stock", className: "bg-red-500 text-white" },
   };
+
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden h-[340px] animate-pulse p-4">
+        <div className="h-6 w-48 bg-slate-100 rounded mb-4" />
+        <div className="space-y-4">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="flex justify-between border-t border-slate-50 pt-3">
+              <div className="h-4 w-40 bg-slate-50 rounded" />
+              <div className="h-4 w-20 bg-slate-50 rounded" />
+              <div className="h-4 w-12 bg-slate-50 rounded" />
+              <div className="h-5 w-16 bg-slate-50 rounded-full" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Filter items that have managed stock quantity
+  const itemsToRender = (items ?? []).filter((item) => item.inventoryQty !== null);
 
   return (
     <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
@@ -40,29 +46,54 @@ const InventoryOverviewTable = () => {
         {t("inventoryOverview")}
       </h2>
       <div className="overflow-x-auto p-4">
-        <table className="w-full text-sm border">
-          <thead className="border-t border-b border-gray-100 text-gray-900 font-semibold">
+        <table className="w-full text-sm border-collapse table-fixed">
+          <thead className="border-t border-b border-gray-100 text-gray-900 font-semibold bg-slate-50/50">
             <tr>
-              <th className="text-left px-4 py-3">{t("item")}</th>
-              <th className="text-left px-4 py-3 hidden sm:table-cell">{t("category")}</th>
-              <th className="text-right px-4 py-3 hidden md:table-cell">{t("openingStock")}</th>
-              <th className="text-right px-4 py-3 hidden md:table-cell">{t("sales")}</th>
-              <th className="text-right px-4 py-3">{t("closingStock")}</th>
-              <th className="text-left px-4 py-3">{t("status")}</th>
+              <th className="text-left px-4 py-3 w-[35%]">{t("item")}</th>
+              <th className="text-left px-4 py-3 w-[20%]">Price</th>
+              <th className="text-left px-4 py-3 w-[25%]">
+                {locale === "id" ? "Jumlah Inventaris" : "Inventory Quantity"}
+              </th>
+              <th className="text-left px-4 py-3 w-[20%]">{t("status")}</th>
             </tr>
           </thead>
           <tbody>
-            {inventory.map((item) => {
-              const badge = statusBadge[item.status];
+            {itemsToRender.map((item) => {
+              // Calculate status badge based on isOutOfStock and inventoryQty
+              let status: StockStatus = "in_stock";
+              if (item.isOutOfStock) {
+                status = "out_of_stock";
+              } else if (item.inventoryQty !== null && item.inventoryQty <= 10) {
+                status = "low_stock";
+              }
+              
+              const badge = statusBadge[status];
+              const displayQty = item.inventoryQty !== null ? item.inventoryQty : "-";
+              const formattedPrice = `Rp ${Number(item.price).toLocaleString("en-US")}`;
+
               return (
-                <tr key={item.id} className="border-t border-gray-50">
-                  <td className="px-4 py-3 text-gray-900">{item.name}</td>
-                  <td className="px-4 py-3 text-gray-400 hidden sm:table-cell">{item.category}</td>
-                  <td className="px-4 py-3 text-right text-gray-900 hidden md:table-cell">{item.openingStock}</td>
-                  <td className="px-4 py-3 text-right text-gray-900 hidden md:table-cell">{item.sales}</td>
-                  <td className="px-4 py-3 text-right text-gray-900">{item.closingStock}</td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-block text-xs font-medium px-3 py-1 rounded-full ${badge.className}`}>
+                <tr key={item.id} className="border-t border-gray-50 hover:bg-slate-50/50 transition-colors">
+                  {/* Item Image Thumbnail and Name */}
+                  <td className="px-4 py-3 text-gray-900 font-medium flex items-center gap-3 overflow-hidden text-ellipsis whitespace-nowrap">
+                    {item.imageUrl && (
+                      <img
+                        src={item.imageUrl}
+                        alt={item.name}
+                        className="w-8 h-8 rounded-lg object-cover border border-slate-100 flex-shrink-0"
+                      />
+                    )}
+                    <span className="truncate">{item.name}</span>
+                  </td>
+                  
+                  {/* Price */}
+                  <td className="px-4 py-3 text-left text-gray-900 font-semibold">{formattedPrice}</td>
+                  
+                  {/* Closing Stock Quantity */}
+                  <td className="px-4 py-3 text-left text-gray-900 font-semibold">{displayQty}</td>
+                  
+                  {/* Status Badge */}
+                  <td className="px-4 py-3 text-left">
+                    <span className={`inline-block text-xs font-semibold px-2.5 py-0.5 rounded-full ${badge.className}`}>
                       {badge.label}
                     </span>
                   </td>

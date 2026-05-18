@@ -5,11 +5,16 @@ import InventoryReportStats from "./InventoryReportStats";
 import InventoryOverviewTable from "./InventoryOverviewTable";
 import { useTranslations } from "next-intl";
 import AddMenuModal from "@/components/modal/AddMenuModal";
+import { useGetInventoryReportQuery } from "@/redux/features/dashboard/dashboard.api";
 
 const InventoryReportPage = ({ params }: { params?: Promise<{ locale: string }> }) => {
   if (params) use(params);
   const t = useTranslations("Inventory");
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Fetch live inventory data from API
+  const { data: inventoryReportRes, isLoading } = useGetInventoryReportQuery();
+  const inventoryItems = inventoryReportRes?.data;
 
   return (
     <div>
@@ -25,8 +30,10 @@ const InventoryReportPage = ({ params }: { params?: Promise<{ locale: string }> 
           <span className="text-base leading-none">+</span> {t("addItem")}
         </button>
       </div>
+      
       <InventoryReportStats />
-      <InventoryOverviewTable />
+      
+      <InventoryOverviewTable items={inventoryItems} isLoading={isLoading} />
 
       <AddMenuModal
         open={isModalOpen}
@@ -40,4 +47,4 @@ const InventoryReportPage = ({ params }: { params?: Promise<{ locale: string }> 
   );
 };
 
-export default InventoryReportPage;
+export default InventoryReportPage;
