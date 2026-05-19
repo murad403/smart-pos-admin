@@ -293,7 +293,7 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
       <AddCategoryModal
         open={isAddCategoryOpen}
         onClose={() => setIsAddCategoryOpen(false)}
-        onSave={(categories) => {
+        onSave={(categories: any) => {
           console.log("Saving categories:", categories);
           setIsAddCategoryOpen(false);
         }}

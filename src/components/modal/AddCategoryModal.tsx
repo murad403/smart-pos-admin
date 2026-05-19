@@ -2,33 +2,40 @@
 import React, { useState, useEffect } from "react";
 import { X, Plus, Check, Edit3, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { useGetAllMenuQuery, useAddMenuMutation, useDeleteMenuMutation, useUpdateMenuMutation } from "@/redux/features/menu/menu.api";
-
-type CategoryAccess = {
-  qrTable: boolean;
-  screen: boolean;
-  service: boolean;
-  admin: boolean;
-};
-
-type CategoryItem = {
-  id: string;
-  name: string;
-  access: CategoryAccess;
-};
+import {
+  useGetAllMenuQuery,
+  useAddMenuMutation,
+  useDeleteMenuMutation,
+  useUpdateMenuMutation,
+  useGetAllSectionByMenuIdQuery,
+  useUpdateSectionVisibilityBulkMutation
+} from "@/redux/features/menu/menu.api";
 
 type Props = {
   open: boolean;
   onClose: () => void;
-  onSave?: (categories: CategoryItem[]) => void;
 };
 
-const AddCategoryModal: React.FC<Props> = ({ open, onClose, onSave }) => {
+type SectionStateItem = {
+  id: number;
+  name: string;
+  isVisible: boolean;
+  visibleOnQrTable: boolean;
+  visibleOnTouchscreen: boolean;
+  visibleOnService: boolean;
+  visibleOnAdmin: boolean;
+  orientationKiosk: string;
+  orientationService: string;
+};
+
+const AddCategoryModal: React.FC<Props> = ({ open, onClose }) => {
   // Menu API Hooks
   const { data: menuRes, isLoading: isMenusLoading } = useGetAllMenuQuery(undefined, { skip: !open });
   const [addMenu, { isLoading: isAdding }] = useAddMenuMutation();
   const [deleteMenu] = useDeleteMenuMutation();
   const [updateMenu] = useUpdateMenuMutation();
+
+  const [updateVisibilityBulk, { isLoading: isSavingVisibility }] = useUpdateSectionVisibilityBulkMutation();
 
   const menus = menuRes?.data ?? [];
 
@@ -38,13 +45,15 @@ const AddCategoryModal: React.FC<Props> = ({ open, onClose, onSave }) => {
   const [editingMenuId, setEditingMenuId] = useState<number | null>(null);
   const [editingMenuName, setEditingMenuName] = useState("");
 
-  const [categories, setCategories] = useState<CategoryItem[]>([
-    { id: "1", name: "Category 1", access: { qrTable: true, screen: true, service: true, admin: true } },
-    { id: "2", name: "Category 2", access: { qrTable: true, screen: true, service: true, admin: true } },
-    { id: "3", name: "Category 3", access: { qrTable: true, screen: true, service: true, admin: true } },
-    { id: "4", name: "Category 4", access: { qrTable: false, screen: false, service: false, admin: false } },
-    { id: "5", name: "Category 5", access: { qrTable: false, screen: false, service: false, admin: false } },
-  ]);
+  // Sections fetching for the active menu
+  const { data: sectionsRes, isLoading: isSectionsLoading } = useGetAllSectionByMenuIdQuery(
+    activeMenuId as number,
+    { skip: !activeMenuId || !open }
+  );
+  const sections = sectionsRes?.data ?? [];
+
+  // Local state for section visibility settings
+  const [sectionsState, setSectionsState] = useState<SectionStateItem[]>([]);
 
   // Set active menu to first item once fetched
   useEffect(() => {
@@ -52,6 +61,27 @@ const AddCategoryModal: React.FC<Props> = ({ open, onClose, onSave }) => {
       setActiveMenuId(menus[0].id);
     }
   }, [menus, activeMenuId]);
+
+  // Sync loaded sections to editable local state
+  useEffect(() => {
+    if (sections.length > 0) {
+      setSectionsState(
+        sections.map((sec) => ({
+          id: sec.id,
+          name: sec.name || "",
+          isVisible: sec.isVisible !== false,
+          visibleOnQrTable: sec.visibleOnQrTable !== false,
+          visibleOnTouchscreen: sec.visibleOnTouchscreen !== false,
+          visibleOnService: sec.visibleOnService !== false,
+          visibleOnAdmin: sec.visibleOnAdmin !== false,
+          orientationKiosk: sec.orientationKiosk || "LANDSCAPE",
+          orientationService: sec.orientationService || "PORTRAIT",
+        }))
+      );
+    } else {
+      setSectionsState([]);
+    }
+  }, [sections]);
 
   if (!open) return null;
 
@@ -95,18 +125,34 @@ const AddCategoryModal: React.FC<Props> = ({ open, onClose, onSave }) => {
     }
   };
 
-  const handleToggleAccess = (id: string, field: keyof CategoryAccess) => {
-    setCategories((prev) =>
-      prev.map((cat) =>
-        cat.id === id ? { ...cat, access: { ...cat.access, [field]: !cat.access[field] } } : cat
+  const handleToggleAccess = (id: number, field: "visibleOnQrTable" | "visibleOnTouchscreen" | "visibleOnService" | "visibleOnAdmin") => {
+    setSectionsState((prev) =>
+      prev.map((sec) =>
+        sec.id === id ? { ...sec, [field]: !sec[field] } : sec
       )
     );
   };
 
-  const handleUpdateName = (id: string, name: string) => {
-    setCategories((prev) =>
-      prev.map((cat) => (cat.id === id ? { ...cat, name } : cat))
-    );
+  const handleSave = async () => {
+    try {
+      const payload = {
+        sections: sectionsState.map((sec) => ({
+          id: sec.id,
+          isVisible: sec.visibleOnQrTable || sec.visibleOnTouchscreen || sec.visibleOnService || sec.visibleOnAdmin,
+          visibleOnQrTable: sec.visibleOnQrTable,
+          visibleOnTouchscreen: sec.visibleOnTouchscreen,
+          visibleOnService: sec.visibleOnService,
+          visibleOnAdmin: sec.visibleOnAdmin,
+          orientationKiosk: sec.orientationKiosk,
+          orientationService: sec.orientationService,
+        }))
+      };
+      await updateVisibilityBulk(payload).unwrap();
+      toast.success("Section visibility updated successfully");
+      onClose();
+    } catch (err: any) {
+      toast.error(err?.data?.message || err?.message || "Failed to update visibility");
+    }
   };
 
   const gridStyle = {
@@ -130,7 +176,7 @@ const AddCategoryModal: React.FC<Props> = ({ open, onClose, onSave }) => {
 
         {/* Header */}
         <div className="mb-7 mt-1">
-          <h2 className="text-[28px] font-bold text-gray-900 tracking-tight">Category Management</h2>
+          <h2 className="text-[28px] font-bold text-gray-900 tracking-tight">Section Management</h2>
         </div>
 
         {/* Add Menu Section */}
@@ -248,7 +294,7 @@ const AddCategoryModal: React.FC<Props> = ({ open, onClose, onSave }) => {
         <div className="mb-8 rounded-[28px] border border-gray-100 p-5 bg-white shadow-sm overflow-hidden">
           {/* Table Header */}
           <div style={gridStyle} className="mb-4 px-1">
-            <span className="text-[14px] font-bold text-gray-900 leading-tight">Category<br />Naming</span>
+            <span className="text-[14px] font-bold text-gray-900 leading-tight">Section<br />Naming</span>
             <span className="text-center text-[14px] font-bold text-gray-900 leading-[1.1]">QR<br />Table</span>
             <span className="text-center text-[14px] font-bold text-gray-900">Screen</span>
             <span className="text-center text-[14px] font-bold text-gray-900">Service</span>
@@ -257,46 +303,57 @@ const AddCategoryModal: React.FC<Props> = ({ open, onClose, onSave }) => {
 
           {/* Table Rows */}
           <div className="space-y-4 max-h-[250px] overflow-y-auto pr-1 custom-scrollbar">
-            {categories.map((cat) => (
-              <div
-                key={cat.id}
-                style={gridStyle}
-                className={`pt-4 border-t border-gray-50 first:border-0 first:pt-0 px-1`}
-              >
-                <div className="relative group">
-                  <input
-                    value={cat.name}
-                    onChange={(e) => handleUpdateName(cat.id, e.target.value)}
-                    className="w-full rounded-[12px] bg-[#F1F5F9] px-4 py-3 text-[14px] text-gray-700 font-medium outline-none border-2 border-transparent focus:border-blue-200 focus:bg-blue-50/30 transition-all"
-                    placeholder="Category Name"
-                  />
-                </div>
-                <div className="flex justify-center items-center">
-                  <ImageCheckbox
-                    checked={cat.access.qrTable}
-                    onChange={() => handleToggleAccess(cat.id, 'qrTable')}
-                  />
-                </div>
-                <div className="flex justify-center items-center">
-                  <ImageCheckbox
-                    checked={cat.access.screen}
-                    onChange={() => handleToggleAccess(cat.id, 'screen')}
-                  />
-                </div>
-                <div className="flex justify-center items-center">
-                  <ImageCheckbox
-                    checked={cat.access.service}
-                    onChange={() => handleToggleAccess(cat.id, 'service')}
-                  />
-                </div>
-                <div className="flex justify-center items-center">
-                  <ImageCheckbox
-                    checked={cat.access.admin}
-                    onChange={() => handleToggleAccess(cat.id, 'admin')}
-                  />
-                </div>
+            {isSectionsLoading ? (
+              <div className="text-center py-8 text-slate-400 flex flex-col items-center justify-center gap-2">
+                <Loader2 className="animate-spin text-blue-500" size={24} />
+                <span>Loading sections...</span>
               </div>
-            ))}
+            ) : sectionsState.length === 0 ? (
+              <div className="text-center py-8 text-slate-400">
+                No sections found in this menu.
+              </div>
+            ) : (
+              sectionsState.map((sec) => (
+                <div
+                  key={sec.id}
+                  style={gridStyle}
+                  className="pt-4 border-t border-gray-50 first:border-0 first:pt-0 px-1"
+                >
+                  <div className="relative group">
+                    <input
+                      value={sec.name}
+                      readOnly
+                      className="w-full rounded-[12px] bg-[#F8FAFC] px-4 py-3 text-[14px] text-slate-500 font-semibold outline-none border border-slate-100 cursor-default select-none"
+                      placeholder="Section Name"
+                    />
+                  </div>
+                  <div className="flex justify-center items-center">
+                    <ImageCheckbox
+                      checked={sec.visibleOnQrTable}
+                      onChange={() => handleToggleAccess(sec.id, 'visibleOnQrTable')}
+                    />
+                  </div>
+                  <div className="flex justify-center items-center">
+                    <ImageCheckbox
+                      checked={sec.visibleOnTouchscreen}
+                      onChange={() => handleToggleAccess(sec.id, 'visibleOnTouchscreen')}
+                    />
+                  </div>
+                  <div className="flex justify-center items-center">
+                    <ImageCheckbox
+                      checked={sec.visibleOnService}
+                      onChange={() => handleToggleAccess(sec.id, 'visibleOnService')}
+                    />
+                  </div>
+                  <div className="flex justify-center items-center">
+                    <ImageCheckbox
+                      checked={sec.visibleOnAdmin}
+                      onChange={() => handleToggleAccess(sec.id, 'visibleOnAdmin')}
+                    />
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
@@ -306,17 +363,17 @@ const AddCategoryModal: React.FC<Props> = ({ open, onClose, onSave }) => {
             type="button"
             onClick={onClose}
             className="rounded-[14px] border border-gray-200 px-7 py-3 text-[16px] font-bold text-gray-600 hover:bg-gray-50 transition-colors"
+            disabled={isSavingVisibility}
           >
             Cancel
           </button>
           <button
             type="button"
-            onClick={() => {
-              onSave?.(categories);
-              onClose();
-            }}
-            className="rounded-[14px] bg-[#2563EB] px-8 py-3 text-[16px] font-bold text-white transition hover:bg-blue-700 shadow-lg shadow-blue-500/30 active:scale-95"
+            onClick={handleSave}
+            disabled={isSavingVisibility}
+            className="rounded-[14px] bg-[#2563EB] px-8 py-3 text-[16px] font-bold text-white transition hover:bg-blue-700 shadow-lg shadow-blue-500/30 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5"
           >
+            {isSavingVisibility && <Loader2 size={16} className="animate-spin" />}
             Save Changes
           </button>
         </div>

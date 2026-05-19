@@ -91,6 +91,16 @@ const menuApi = baseApi.injectEndpoints({
             },
             invalidatesTags: ["section"],
         }),
+        updateSectionVisibilityBulk: builder.mutation({
+            query: (data) => {
+                return {
+                    url: `/section/visibility/bulk`,
+                    method: "PATCH",
+                    body: data,
+                };
+            },
+            invalidatesTags: ["section"],
+        }),
     }),
 });
 
@@ -104,4 +114,5 @@ export const {
     useGetAllSectionByMenuIdQuery,
     useGetAllSectionDetailsByMenuIdQuery,
     useUpdateSectionMutation,
+    useUpdateSectionVisibilityBulkMutation,
 } = menuApi;
