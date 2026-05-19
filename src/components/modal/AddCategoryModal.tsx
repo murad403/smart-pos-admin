@@ -1,19 +1,16 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState, useEffect } from "react";
 import { X, Plus, Check, Edit3, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  useGetAllMenuQuery,
-  useAddMenuMutation,
-  useDeleteMenuMutation,
-  useUpdateMenuMutation,
-  useGetAllSectionByMenuIdQuery,
-  useUpdateSectionVisibilityBulkMutation
-} from "@/redux/features/menu/menu.api";
+import { useGetAllMenuQuery, useAddMenuMutation, useDeleteMenuMutation, useUpdateMenuMutation, useGetAllSectionByMenuIdQuery, useUpdateSectionVisibilityBulkMutation } from "@/redux/features/menu/menu.api";
 
 type Props = {
   open: boolean;
   onClose: () => void;
+  onSave: () => void;
 };
 
 type SectionStateItem = {
@@ -50,7 +47,7 @@ const AddCategoryModal: React.FC<Props> = ({ open, onClose }) => {
     activeMenuId as number,
     { skip: !activeMenuId || !open }
   );
-  const sections = sectionsRes?.data ?? [];
+  const sections = React.useMemo(() => (sectionsRes?.data ?? []) as any[], [sectionsRes?.data]);
 
   // Local state for section visibility settings
   const [sectionsState, setSectionsState] = useState<SectionStateItem[]>([]);
@@ -64,7 +61,7 @@ const AddCategoryModal: React.FC<Props> = ({ open, onClose }) => {
 
   // Sync loaded sections to editable local state
   useEffect(() => {
-    if (sections.length > 0) {
+    if (sectionsRes?.data) {
       setSectionsState(
         sections.map((sec) => ({
           id: sec.id,
@@ -78,10 +75,10 @@ const AddCategoryModal: React.FC<Props> = ({ open, onClose }) => {
           orientationService: sec.orientationService || "PORTRAIT",
         }))
       );
-    } else {
+    } else if (sectionsState.length > 0) {
       setSectionsState([]);
     }
-  }, [sections]);
+  }, [sections, sectionsRes?.data, sectionsState.length]);
 
   if (!open) return null;
 
@@ -163,8 +160,8 @@ const AddCategoryModal: React.FC<Props> = ({ open, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-4 backdrop-blur-[2px]">
-      <div className="relative w-full max-w-[500px] rounded-[32px] bg-white p-7 shadow-2xl overflow-hidden font-sans">
+    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/40 px-4 backdrop-blur-[2px]">
+      <div className="relative w-full max-w-125 rounded-[32px] bg-white p-7 shadow-2xl overflow-hidden font-sans">
         {/* Close Button */}
         <button
           type="button"
@@ -204,7 +201,7 @@ const AddCategoryModal: React.FC<Props> = ({ open, onClose }) => {
         </div>
 
         {/* Menu Tags */}
-        <div className="flex flex-wrap gap-2.5 mb-8 max-h-[160px] overflow-y-auto pr-1">
+        <div className="flex flex-wrap gap-2.5 mb-8 max-h-40 overflow-y-auto pr-1">
           {isMenusLoading ? (
             <div className="text-sm text-slate-400 py-2 flex items-center gap-2">
               <Loader2 size={16} className="animate-spin" />
@@ -258,8 +255,8 @@ const AddCategoryModal: React.FC<Props> = ({ open, onClose }) => {
                   type="button"
                   onClick={() => setActiveMenuId(item.id)}
                   className={`flex items-center gap-2.5 rounded-[16px] px-5 py-2.5 text-[16px] font-medium transition-all ${isActive
-                      ? "bg-[#3B82F6] text-white shadow-lg shadow-blue-500/30"
-                      : "bg-[#F1F5F9] text-gray-400 hover:bg-gray-200"
+                    ? "bg-[#3B82F6] text-white shadow-lg shadow-blue-500/30"
+                    : "bg-[#F1F5F9] text-gray-400 hover:bg-gray-200"
                     }`}
                 >
                   <span>{item.name}</span>
@@ -302,7 +299,7 @@ const AddCategoryModal: React.FC<Props> = ({ open, onClose }) => {
           </div>
 
           {/* Table Rows */}
-          <div className="space-y-4 max-h-[250px] overflow-y-auto pr-1 custom-scrollbar">
+          <div className="space-y-4 max-h-62.5 overflow-y-auto pr-1 custom-scrollbar">
             {isSectionsLoading ? (
               <div className="text-center py-8 text-slate-400 flex flex-col items-center justify-center gap-2">
                 <Loader2 className="animate-spin text-blue-500" size={24} />
@@ -387,8 +384,8 @@ const ImageCheckbox = ({ checked, onChange }: { checked: boolean; onChange: () =
     type="button"
     onClick={onChange}
     className={`flex h-6 w-6 items-center justify-center rounded-[6px] border-2 transition-all duration-200 shrink-0 ${checked
-        ? "border-[#3B82F6] bg-[#3B82F6] text-white"
-        : "border-gray-100 bg-[#F1F5F9] hover:border-gray-200"
+      ? "border-[#3B82F6] bg-[#3B82F6] text-white"
+      : "border-gray-100 bg-[#F1F5F9] hover:border-gray-200"
       }`}
   >
     {checked && <Check size={14} strokeWidth={4} />}

@@ -1,18 +1,7 @@
 import baseApi from "../../api/api";
-import {
-    AnalyticsQueryParams,
-    AnalyticsResponse,
-    SalesReportResponse,
-    GetPaymentsResponse,
-    GetPaymentsQueryParams,
-    GetPaymentDetailsResponse,
-    GetInventoryReportResponse,
-    GetInventoryReportQueryParams,
-    GetItemsResponse,
-    GetItemsQueryParams,
-    StockAdjustBody,
-    StockAdjustResponse
-} from "./dashboard.type";
+import { AnalyticsQueryParams, AnalyticsResponse, SalesReportResponse, GetPaymentsResponse, GetPaymentsQueryParams, GetPaymentDetailsResponse, GetInventoryReportResponse, GetInventoryReportQueryParams, GetItemsResponse, GetItemsQueryParams, StockAdjustBody, StockAdjustResponse, GetAllUsersResponse, GetAllUsersQueryParams } from "./dashboard.type";
+
+
 
 const dashboardApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -68,7 +57,6 @@ const dashboardApi = baseApi.injectEndpoints({
         }),
 
         // inventoryReport*******************************************************************
-
         getInventoryReport: builder.query<GetInventoryReportResponse, GetInventoryReportQueryParams | void>({
             query: (params) => {
                 const queryParams: Record<string, string> = {};
@@ -116,8 +104,22 @@ const dashboardApi = baseApi.injectEndpoints({
         }),
 
 
+        // users**************************************************
+        getAllUsers: builder.query<GetAllUsersResponse, GetAllUsersQueryParams | void>({
+            query: (params) => {
+                const queryParams: Record<string, string> = {};
+                if (params?.page) queryParams.page = String(params.page);
+                if (params?.limit) queryParams.limit = String(params.limit);
+                if (params?.search) queryParams.search = params.search;
 
-        
+                return {
+                    url: "/users",
+                    method: "GET",
+                    params: queryParams,
+                };
+            },
+            providesTags: ["users"]
+        })
     }),
 });
 
@@ -130,4 +132,5 @@ export const {
     useGetItemsQuery,
     useStockInMutation,
     useStockOutMutation,
+    useGetAllUsersQuery,
 } = dashboardApi;

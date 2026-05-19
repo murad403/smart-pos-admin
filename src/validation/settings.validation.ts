@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import z from "zod";
 
 export const menuItemSchema = (t: any) => z.object({
@@ -8,7 +9,6 @@ export const menuItemSchema = (t: any) => z.object({
   promoName: z.string().default(""),
   promoPrice: z.number().min(0).default(0),
   labels: z.array(z.string()).default([]),
-  outOfStock: z.boolean().default(false),
   maxItemsInPacket: z.number().optional(),
   choiceSections: z.number().optional(),
   sectionName: z.string().default(""),

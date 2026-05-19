@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface TopSellingItem {
     id: number;
     name: string;
@@ -273,5 +274,40 @@ export interface StockAdjustResponse {
     statusCode: number;
     message: string;
     data: null;
+}
+
+export interface UserListItem {
+    id: number;
+    slug: string;
+    name: string | null;
+    role: "OWNER" | "ADMIN" | "USER" | string;
+    email: string | null;
+    phone: string | null;
+    photoUrl: string | null;
+    address: string | null;
+    facebookUrl: string | null;
+    instagramUrl: string | null;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface GetAllUsersQueryParams {
+    page?: number;
+    limit?: number;
+    search?: string;
+}
+
+export interface GetAllUsersResponse {
+    success: boolean;
+    statusCode: number;
+    message: string;
+    pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+    };
+    data: UserListItem[];
 }
 

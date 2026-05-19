@@ -52,7 +52,6 @@ const AddMenuModal: React.FC<Props> = ({ open, onClose, onSave }) => {
       promoName: "",
       promoPrice: 0,
       labels: [],
-      outOfStock: false,
       maxItemsInPacket: undefined,
       choiceSections: undefined,
       sectionName: "",
@@ -65,7 +64,6 @@ const AddMenuModal: React.FC<Props> = ({ open, onClose, onSave }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const selectedLabels = watch("labels") || [];
-  const outOfStock = watch("outOfStock") || false;
   const maxChoices = watch("maxChoices") || 0;
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -261,22 +259,6 @@ const AddMenuModal: React.FC<Props> = ({ open, onClose, onSave }) => {
                   </button>
                 ))}
               </div>
-            </div>
-
-            {/* Out of Stock Toggle */}
-            <div className="flex items-center justify-between py-1">
-              <span className="text-sm font-bold text-gray-800">{t("outOfStock")}</span>
-              <button
-                type="button"
-                onClick={() => setValue("outOfStock", !outOfStock)}
-                className={`relative w-12 h-6 rounded-full transition-colors ${outOfStock ? "bg-[#3366CC]" : "bg-gray-300"
-                  }`}
-              >
-                <span
-                  className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${outOfStock ? "translate-x-6" : "translate-x-0"
-                    }`}
-                />
-              </button>
             </div>
 
             {/* Packet Configuration */}

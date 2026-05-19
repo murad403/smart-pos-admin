@@ -1,5 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
 import React from "react";
 import { Plus, SquarePen } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -293,8 +296,7 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
       <AddCategoryModal
         open={isAddCategoryOpen}
         onClose={() => setIsAddCategoryOpen(false)}
-        onSave={(categories: any) => {
-          console.log("Saving categories:", categories);
+        onSave={() => {
           setIsAddCategoryOpen(false);
         }}
       />

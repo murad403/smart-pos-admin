@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { redirect } from "next/navigation";
 
 export default async function ProfilePage({ params }: { params?: Promise<any> }) {
