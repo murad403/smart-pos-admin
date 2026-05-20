@@ -52,7 +52,7 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
   const currentMenuId = currentMenu?.id;
 
   // Fetch sections by menuId
-  const { data: sectionsRes, isLoading: isSectionsLoading } = useGetAllSectionByMenuIdQuery(
+  const { data: sectionsRes, isLoading: isSectionsLoading, refetch: refetchSections } = useGetAllSectionByMenuIdQuery(
     currentMenuId as number,
     { skip: !currentMenuId }
   );
@@ -134,7 +134,7 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
   };
 
   const handleSaveItem = () => {
-    toast.success("Item added successfully");
+    refetchSections();
     setIsAddMenuOpen(false);
   };
 
@@ -250,7 +250,22 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
               sectionNumber={index + 1}
               sectionName={section.name}
               layout={section.layout}
-              items={[]} // Always render blank section initially as requested
+              items={((section as any).items || []).map((sectionItem: any) => {
+                const item = sectionItem.item || sectionItem;
+                return {
+                  id: item.id,
+                  itemNumber: item.slug || `i-${item.id}`,
+                  itemName: item.name,
+                  price: Number(item.price || 0),
+                  inventory: item.inventoryQty || 0,
+                  stock: item.inventoryQty || 0,
+                  statusLabel: item.isOutOfStock ? "Out of Stock" : "In Stock",
+                  promoPrice: item.promoPrice ? Number(item.promoPrice) : 0,
+                  imageType: "menu1",
+                  imageUrl: item.imageUrl || null,
+                  badges: [item.labels?.[0] || "", item.labels?.[1] || ""],
+                };
+              })}
               onAddItem={() => handleOpenAddItem(section.id)}
               onEditItem={handleEditItem}
               onEditSection={() => {
@@ -277,6 +292,7 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
         open={isAddMenuOpen}
         onClose={() => setIsAddMenuOpen(false)}
         onSave={handleSaveItem}
+        sectionId={activeSectionId}
       />
 
       <EditMenuModal

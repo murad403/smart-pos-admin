@@ -2,6 +2,7 @@
 import React, { useEffect, useState, use } from "react";
 import Splash from "@/components/shared/Splash";
 import { useRouter } from "next/navigation";
+import { getUserData } from "@/utils/auth";
 
 const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
   const p = params ? use(params) : { locale: "en" };
@@ -20,7 +21,12 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
 
   useEffect(() => {
     if (!showSplash) {
-      router.push(`/${p.locale}/auth/sign-in`);
+      const userData = getUserData();
+      if (userData) {
+        router.push(`/${p.locale}/dashboard`);
+      } else {
+        router.push(`/${p.locale}/auth/sign-in`);
+      }
     }
   }, [showSplash, router, p.locale]);
 

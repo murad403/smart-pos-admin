@@ -1,339 +1,192 @@
 /* eslint-disable react-hooks/incompatible-library */
 "use client";
-import React, { useState, useRef } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { X, Upload, Minus, Plus } from "lucide-react";
+import React, { useState } from "react";
+import { X, Search, Loader2 } from "lucide-react";
 import Image from "next/image";
-import { MenuItemFormValues, menuItemSchema } from "@/validation/settings.validation";
 import { useTranslations } from "next-intl";
+import { useGetAllItemsQuery, useAddItemToSectionMutation } from "@/redux/features/menu/menu.api";
+import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type Props = {
   open: boolean;
   onClose: () => void;
-  onSave?: (data: MenuItemFormValues & { image?: File | null }) => void;
+  onSave?: () => void;
+  sectionId: number | null;
 };
 
-const AddMenuModal: React.FC<Props> = ({ open, onClose, onSave }) => {
+const AddMenuModal: React.FC<Props> = ({ open, onClose, onSave, sectionId }) => {
   const t = useTranslations("Menu");
-  const tv = useTranslations("Validation");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
 
-  const LABEL_OPTIONS = [
-    { key: "bestSeller", label: t("bestSeller") },
-    { key: "recommended", label: t("recommended") },
-    { key: "favorite", label: t("favorite") },
-    { key: "mustTry", label: t("mustTry") },
-    { key: "new", label: t("new") },
-    { key: "vegetarian", label: t("vegetarian") },
-    { key: "kidsChoice", label: t("kidsChoice") },
-    { key: "spicy", label: t("spicy") },
-  ];
+  // Fetch all items with limit 100 to populate search dropdown
+  const { data: itemsRes, isLoading: isItemsLoading } = useGetAllItemsQuery(
+    { limit: 100 },
+    { skip: !open }
+  );
 
-  const PRODUCTION_DESTINATIONS = [
-    { key: "Kitchen", label: t("kitchen") },
-    { key: "Bar", label: t("bar") },
-    { key: "Pastry", label: t("pastry") },
-    { key: "Grill", label: t("grill") },
-  ];
+  const [addItemToSection, { isLoading: isSaving }] = useAddItemToSectionMutation();
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<MenuItemFormValues>({
-    resolver: zodResolver(menuItemSchema(tv)),
-    defaultValues: {
-      itemName: "",
-      price: 0,
-      productionDestination: "Kitchen",
-      inventory: "",
-      promoName: "",
-      promoPrice: 0,
-      labels: [],
-      maxItemsInPacket: undefined,
-      choiceSections: undefined,
-      sectionName: "",
-      maxChoices: 0,
-    },
-  });
+  const items = itemsRes?.data ?? [];
 
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  // Filter items by search text
+  const filteredItems = items.filter((item: any) =>
+    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  const selectedLabels = watch("labels") || [];
-  const maxChoices = watch("maxChoices") || 0;
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] ?? null;
-    setImageFile(file);
-    if (file) setImagePreview(URL.createObjectURL(file));
-    else setImagePreview(null);
-  };
-
-  const toggleLabel = (label: string) => {
-    const current = selectedLabels;
-    if (current.includes(label)) {
-      setValue("labels", current.filter((currentLabel: string) => currentLabel !== label));
-    } else {
-      setValue("labels", [...current, label]);
+  const handleSave = async () => {
+    if (!sectionId) {
+      toast.error("Invalid section ID");
+      return;
     }
-  };
+    if (!selectedItemId) {
+      toast.error("Please select an item to add");
+      return;
+    }
 
-  const onSubmit = (data: MenuItemFormValues) => {
-    onSave?.({ ...data, image: imageFile });
-    onClose();
+    try {
+      await addItemToSection({
+        sectionId,
+        data: { itemId: selectedItemId },
+      }).unwrap();
+      toast.success("Item added to section successfully!");
+      onSave?.();
+      onClose();
+      setSelectedItemId(null);
+      setSearchQuery("");
+    } catch (err: any) {
+      toast.error(err?.data?.message || err?.message || "Failed to add item to section");
+    }
   };
 
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-125 max-h-[92vh] overflow-y-auto">
-        <div className="p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-[2px]">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
+          <h2 className="text-xl font-bold text-gray-900">Add Item to Section</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
+          >
+            <X size={18} className="text-gray-500" />
+          </button>
+        </div>
 
-          {/* Header */}
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-2xl font-bold text-gray-900">{t("addMenu")}</h2>
-            <button
-              type="button"
-              onClick={onClose}
-              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
-            >
-              <X size={18} className="text-gray-500" />
-            </button>
+        {/* Content & Search */}
+        <div className="p-6 flex flex-col flex-1 overflow-hidden min-h-0">
+          <label className="block text-sm font-semibold text-gray-800 mb-2">
+            Select Existing Item
+          </label>
+          <div className="relative mb-4 shrink-0">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search items by name..."
+              className="w-full border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 placeholder:text-gray-400"
+            />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-
-            {/* Item Name */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-                {t("itemName")}
-              </label>
-              <input
-                {...register("itemName")}
-                placeholder={t("enterItemName")}
-                className={`w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 placeholder:text-gray-400 ${errors.itemName ? "border-red-400" : "border-gray-200"
-                  }`}
-              />
-              {errors.itemName && (
-                <p className="text-red-500 text-xs mt-1">{errors.itemName.message}</p>
-              )}
-            </div>
-
-            {/* Price & Production Destination */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-                  {t("price")}
-                </label>
-                <input
-                  type="number"
-                  {...register("price", { valueAsNumber: true })}
-                  placeholder="0"
-                  className={`w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 placeholder:text-gray-400 ${errors.price ? "border-red-400" : "border-gray-200"
-                    }`}
-                />
-                {errors.price && (
-                  <p className="text-red-500 text-xs mt-1">{errors.price.message}</p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-                  {t("productionDestination")}
-                </label>
-                <div className="relative">
-                  <select
-                    {...register("productionDestination")}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-800 appearance-none cursor-pointer pr-8"
-                  >
-                    {PRODUCTION_DESTINATIONS.map((dest) => (
-                      <option key={dest.key} value={dest.key}>{dest.label}</option>
-                    ))}
-                  </select>
-                  {/* Custom chevron */}
-                  <svg
-                    className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-                    width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <polyline points="6 9 12 15 18 9" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            {/* Inventory */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-                {t("inventoryOptional")}
-              </label>
-              <input
-                {...register("inventory")}
-                placeholder={t("optional")}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 placeholder:text-gray-400"
-              />
-            </div>
-
-            {/* Upload Product Image */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-800 mb-1.5">{t("uploadProductImage")}</label>
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="w-full flex items-center justify-center gap-2 border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors"
-              >
-                <Upload size={16} className="text-gray-600" />
-                <span className="text-sm font-medium text-gray-700">{t("upload")}</span>
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="hidden"
-              />
-              {imagePreview && (
-                <div className="mt-2 relative w-full h-48 rounded-xl overflow-hidden">
-                  <Image src={imagePreview} alt="Preview" fill className="object-cover" />
-                </div>
-              )}
-            </div>
-
-            {/* Promotion — bordered box */}
-            <div className="border border-gray-200 rounded-xl p-4">
-              <h3 className="text-base font-black text-gray-900 mb-4 tracking-wide uppercase">
-                {t("promotion")}
-              </h3>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-                    {t("promoName")}
-                  </label>
-                  <input
-                    {...register("promoName")}
-                    placeholder="e.g., Summer Special"
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 placeholder:text-gray-400"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-                    {t("promoPrice")}
-                  </label>
-                  <input
-                    type="number"
-                    {...register("promoPrice", { valueAsNumber: true })}
-                    placeholder="0"
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 placeholder:text-gray-400"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Label Selector */}
-            <div>
-              <h3 className="text-sm font-bold text-gray-800 mb-0.5">{t("labelSelector")}</h3>
-              <p className="text-xs text-gray-500 mb-2">{t("pickMultipleTags")}</p>
-              <input
-                type="text"
-                readOnly
-                value={selectedLabels.map(l => LABEL_OPTIONS.find(opt => opt.key === l)?.label || l).join(", ") || ""}
-                placeholder={t("labelName")}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-gray-50 placeholder:text-gray-400 mb-3 cursor-default"
-              />
-              <div className="flex flex-wrap gap-2">
-                {LABEL_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.key}
-                    type="button"
-                    onClick={() => toggleLabel(opt.key)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${selectedLabels.includes(opt.key)
-                      ? "bg-[#3366CC] text-white border-[#3366CC]"
-                      : "bg-white text-gray-700 border-gray-300 hover:border-gray-400"
-                      }`}
-                  >
-                    {opt.label}
-                  </button>
+          {/* List of items */}
+          <div className="flex-1 overflow-y-auto border border-gray-100 rounded-xl divide-y divide-gray-50 bg-white">
+            {isItemsLoading ? (
+              <div className="p-4 space-y-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <Skeleton className="w-12 h-12 rounded-lg bg-slate-100 shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-4 w-2/3 bg-slate-100 rounded" />
+                      <Skeleton className="h-3 w-1/3 bg-slate-100 rounded" />
+                    </div>
+                    <Skeleton className="w-5 h-5 rounded-full bg-slate-100 shrink-0" />
+                  </div>
                 ))}
               </div>
-            </div>
-
-            {/* Packet Configuration */}
-            <div className="border border-gray-200 rounded-xl p-4">
-              <h3 className="text-sm font-bold text-gray-900 mb-4">{t("packetConfiguration")}</h3>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col justify-between gap-4">
-                  <p className="text-xs font-semibold text-gray-700 leading-snug">
-                    {t("maxItemsInPacket")}
-                  </p>
-                  <p className="text-xs font-semibold text-gray-700 leading-snug">
-                    {t("choiceSection")}
-                  </p>
-                  <div>
-                    <p className="text-xs font-semibold text-gray-700 mb-1.5">
-                      {t("section1Name")}
-                    </p>
-                    <input
-                      {...register("sectionName")}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-3">
-                  <div className="bg-gray-100 rounded-lg px-3 py-2 text-center">
-                    <span className="text-xs font-semibold text-gray-700">{t("section1Choices")}</span>
-                  </div>
-
-                  <input
-                    type="number"
-                    {...register("choiceSections", { valueAsNumber: true })}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
-                  />
-
-                  <div className="flex items-center gap-1.5 mt-auto">
-                    <span className="text-xs font-semibold text-gray-700 whitespace-nowrap">{t("maxHash")}</span>
-                    <input
-                      type="number" readOnly value={maxChoices}
-                      className="w-12 border border-gray-200 rounded-lg px-2 py-2 text-sm text-center bg-gray-50"
-                    />
-                    <button type="button"
-                      onClick={() => setValue("maxChoices", Math.max(0, maxChoices - 1))}
-                      className="w-8 h-8 shrink-0 rounded-lg border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-100 transition-colors">
-                      <Minus size={13} />
-                    </button>
-                    <button type="button"
-                      onClick={() => setValue("maxChoices", maxChoices + 1)}
-                      className="w-8 h-8 shrink-0 rounded-lg border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-100 transition-colors">
-                      <Plus size={13} />
-                    </button>
-                  </div>
-                </div>
+            ) : filteredItems.length === 0 ? (
+              <div className="p-8 text-center text-sm text-gray-500">
+                No items found matching search
               </div>
-            </div>
+            ) : (
+              filteredItems.map((item: any) => {
+                const isSelected = selectedItemId === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setSelectedItemId(item.id)}
+                    className={`w-full flex items-center gap-3 px-4 py-3.5 hover:bg-gray-50 transition-colors text-left border-l-2 ${
+                      isSelected
+                        ? "bg-blue-50/40 border-blue-500 hover:bg-blue-50/60"
+                        : "border-transparent"
+                    }`}
+                  >
+                    <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-gray-100 border border-gray-200/60 shrink-0">
+                      {item.imageUrl ? (
+                        <Image
+                          src={item.imageUrl}
+                          alt={item.name}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-xs font-bold text-gray-400 bg-gray-100">
+                          {item.name.substring(0, 2).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
 
-            {/* Footer */}
-            <div className="flex items-center justify-end gap-3 pt-2">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-6 py-2.5 rounded-xl text-gray-700 font-semibold text-sm hover:bg-gray-100 transition-all"
-              >
-                {t("cancel")}
-              </button>
-              <button
-                type="submit"
-                className="px-6 py-2.5 rounded-xl bg-[#3366CC] text-white font-semibold text-sm hover:bg-[#2952a3] transition-all"
-              >
-                {t("saveItem")}
-              </button>
-            </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-900 truncate">
+                        {item.name}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        Price: Rp {Number(item.price || 0).toLocaleString("en-US")}
+                      </p>
+                    </div>
 
-          </form>
+                    <div
+                      className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors shrink-0 ${
+                        isSelected
+                          ? "border-blue-600 bg-blue-600 text-white"
+                          : "border-gray-300"
+                      }`}
+                    >
+                      {isSelected && (
+                        <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                      )}
+                    </div>
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50 shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isSaving}
+            className="px-5 py-2.5 rounded-xl text-gray-700 font-semibold text-sm hover:bg-gray-100 transition-colors disabled:opacity-50"
+          >
+            {t("cancel")}
+          </button>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={isSaving || !selectedItemId}
+            className="px-5 py-2.5 rounded-xl bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSaving && <Loader2 className="animate-spin" size={16} />}
+            Add to Section
+          </button>
         </div>
       </div>
     </div>

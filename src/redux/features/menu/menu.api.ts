@@ -102,9 +102,90 @@ const menuApi = baseApi.injectEndpoints({
             invalidatesTags: ["section"],
         }),
 
-
-
         // item*******************************************************
+        getAllProductionStation: builder.query<any, { limit?: number; page?: number } | void>({
+            query: (params) => {
+                const limit = params?.limit ?? 100;
+                const page = params?.page ?? 1;
+                return {
+                    url: `/production-station?limit=${limit}&page=${page}`,
+                    method: "GET",
+                };
+            }
+        }),
+        getAllItems: builder.query<any, { limit?: number; page?: number; search?: string } | void>({
+            query: (params) => {
+                const queryParams: Record<string, any> = {};
+                if (params?.limit) queryParams.limit = params.limit;
+                if (params?.page) queryParams.page = params.page;
+                if (params?.search) queryParams.search = params.search;
+                return {
+                    url: `/items`,
+                    method: "GET",
+                    params: queryParams,
+                };
+            },
+            providesTags: ["item"]
+        }),
+        addItem: builder.mutation<any, any>({
+            query: (data) => {
+                return {
+                    url: `/items`,
+                    method: "POST",
+                    body: data,
+                };
+            },
+            invalidatesTags: ["item"]
+        }),
+        updateItem: builder.mutation<any, { itemId: number; data: any }>({
+            query: ({ itemId, data }) => {
+                return {
+                    url: `/items/${itemId}`,
+                    method: "PATCH",
+                    body: data,
+                };
+            },
+            invalidatesTags: ["item"]
+        }),
+        deleteItem: builder.mutation<any, number>({
+            query: (itemId) => {
+                return {
+                    url: `/items/${itemId}`,
+                    method: "DELETE",
+                };
+            },
+            invalidatesTags: ["item"]
+        }),
+        addPacketSection: builder.mutation<any, { itemId: number; data: any }>({
+            query: ({ data, itemId }) => {
+                return {
+                    url: `/items/${itemId}/packet-sections`,
+                    method: "POST",
+                    body: data,
+                };
+            },
+            invalidatesTags: ["item"]
+        }),
+        addPacketSectionChoice: builder.mutation<any, { sid: number; data: any }>({
+            query: ({ data, sid }) => {
+                return {
+                    url: `/items/packet-sections/${sid}/choices`,
+                    method: "POST",
+                    body: data,
+                };
+            },
+            invalidatesTags: ["item"]
+        }),
+        addItemToSection: builder.mutation({
+            query: ({ data, sectionId }) => {
+                return {
+                    url: `/section/${sectionId}/items`,
+                    method: "POST",
+                    body: data,
+                };
+            },
+            invalidatesTags: ["section", "menu"]
+        }),
     }),
 });
 
@@ -119,4 +200,12 @@ export const {
     useGetAllSectionDetailsByMenuIdQuery,
     useUpdateSectionMutation,
     useUpdateSectionVisibilityBulkMutation,
+    useGetAllProductionStationQuery,
+    useGetAllItemsQuery,
+    useAddItemMutation,
+    useUpdateItemMutation,
+    useDeleteItemMutation,
+    useAddPacketSectionMutation,
+    useAddPacketSectionChoiceMutation,
+    useAddItemToSectionMutation,
 } = menuApi;

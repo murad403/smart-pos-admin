@@ -9,6 +9,7 @@ import { SectionLayoutType } from "@/redux/features/menu/menu.type";
 import { useTranslations } from "next-intl";
 
 export type MenuItemCardData = {
+  id?: number;
   itemNumber: string;
   itemName: string;
   price: number;
@@ -17,6 +18,7 @@ export type MenuItemCardData = {
   statusLabel: string;
   promoPrice: number;
   imageType: "menu1" | "menu2";
+  imageUrl?: string | null;
   badges: [string, string];
 };
 
@@ -181,10 +183,11 @@ const MenuCards = ({ sectionNumber, sectionName, layout, items, onAddItem, onEdi
                     : "overflow-hidden rounded-2xl border border-slate-200 bg-white"
                 }
               >
-                <div className={isImageListLayout ? "relative h-40 overflow-hidden rounded-2xl sm:h-full" : "relative h-72 overflow-hidden"}>
+                <div className={isImageListLayout ? "relative h-40 overflow-hidden rounded-2xl sm:h-full w-full" : "relative h-72 overflow-hidden w-full"}>
                   <Image
-                    src={imageMap[item.imageType]}
+                    src={item.imageUrl || imageMap[item.imageType]}
                     alt={item.itemName}
+                    fill
                     className="h-full w-full object-cover"
                     priority={index === 0}
                   />
