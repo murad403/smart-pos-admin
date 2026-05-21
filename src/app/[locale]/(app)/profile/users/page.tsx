@@ -212,13 +212,6 @@ const UserManagementPage = ({ params }: { params?: Promise<{ locale: string }> }
                 )}
             </div>
 
-            {/* Global Save Changes Button */}
-            <Button
-                type="button"
-                className="h-11 cursor-pointer w-full rounded-xl bg-[#3B82F6] text-sm font-semibold text-white shadow-xl shadow-blue-500/20 hover:bg-blue-600"
-            >
-                {t("saveChanges")}
-            </Button>
 
             {/* Modals */}
             <AddAdminModal open={isAddAdminOpen} onClose={() => setIsAddAdminOpen(false)} />

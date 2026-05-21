@@ -4,6 +4,10 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import CustomSwitch from "@/components/shared/CustomeSwitch";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
+import { useGetOperatingHoursQuery, useUpdateOperatingHoursMutation } from "@/redux/features/dashboard/dashboard.api";
+import type { OperatingHoursData, UpdateOperatingHoursBody } from "@/redux/features/dashboard/dashboard.type";
+import { cn } from "@/lib/utils";
 
 type DayConfig = {
   key: string;
@@ -12,33 +16,124 @@ type DayConfig = {
   endTime: string;
 };
 
+const normalizeTimeValue = (value: string) => {
+  const trimmedValue = value.trim();
+  if (!trimmedValue) return "";
+
+  const directMatch = trimmedValue.match(/^([0-1]?\d|2[0-3]):([0-5]\d)$/);
+  if (directMatch) {
+    return `${directMatch[1].padStart(2, "0")}:${directMatch[2]}`;
+  }
+
+  const amPmMatch = trimmedValue.match(/^(0?[1-9]|1[0-2]):([0-5]\d)\s*([AaPp][Mm])$/);
+  if (!amPmMatch) return trimmedValue;
+
+  let hour = Number(amPmMatch[1]);
+  const minute = amPmMatch[2];
+  const meridiem = amPmMatch[3].toLowerCase();
+
+  if (meridiem === "pm" && hour !== 12) hour += 12;
+  if (meridiem === "am" && hour === 12) hour = 0;
+
+  return `${String(hour).padStart(2, "0")}:${minute}`;
+};
+
+const DAY_FIELD_MAP = {
+  monday: { start: "mondayStart", end: "mondayEnd" },
+  tuesday: { start: "tuesdayStart", end: "tuesdayEnd" },
+  wednesday: { start: "wednesdayStart", end: "wednesdayEnd" },
+  thursday: { start: "thursdayStart", end: "thursdayEnd" },
+  friday: { start: "fridayStart", end: "fridayEnd" },
+  saturday: { start: "saturdayStart", end: "saturdayEnd" },
+  sunday: { start: "sundayStart", end: "sundayEnd" },
+} as const;
+
+const createEmptyDays = (): DayConfig[] => [
+  { key: "monday", isOpen: false, startTime: "", endTime: "" },
+  { key: "tuesday", isOpen: false, startTime: "", endTime: "" },
+  { key: "wednesday", isOpen: false, startTime: "", endTime: "" },
+  { key: "thursday", isOpen: false, startTime: "", endTime: "" },
+  { key: "friday", isOpen: false, startTime: "", endTime: "" },
+  { key: "saturday", isOpen: false, startTime: "", endTime: "" },
+  { key: "sunday", isOpen: false, startTime: "", endTime: "" },
+];
+
+const mapApiToDays = (data: OperatingHoursData): DayConfig[] => [
+  { key: "monday", isOpen: Boolean(data.mondayStart && data.mondayEnd), startTime: normalizeTimeValue(data.mondayStart), endTime: normalizeTimeValue(data.mondayEnd) },
+  { key: "tuesday", isOpen: Boolean(data.tuesdayStart && data.tuesdayEnd), startTime: normalizeTimeValue(data.tuesdayStart), endTime: normalizeTimeValue(data.tuesdayEnd) },
+  { key: "wednesday", isOpen: Boolean(data.wednesdayStart && data.wednesdayEnd), startTime: normalizeTimeValue(data.wednesdayStart), endTime: normalizeTimeValue(data.wednesdayEnd) },
+  { key: "thursday", isOpen: Boolean(data.thursdayStart && data.thursdayEnd), startTime: normalizeTimeValue(data.thursdayStart), endTime: normalizeTimeValue(data.thursdayEnd) },
+  { key: "friday", isOpen: Boolean(data.fridayStart && data.fridayEnd), startTime: normalizeTimeValue(data.fridayStart), endTime: normalizeTimeValue(data.fridayEnd) },
+  { key: "saturday", isOpen: Boolean(data.saturdayStart && data.saturdayEnd), startTime: normalizeTimeValue(data.saturdayStart), endTime: normalizeTimeValue(data.saturdayEnd) },
+  { key: "sunday", isOpen: Boolean(data.sundayStart && data.sundayEnd), startTime: normalizeTimeValue(data.sundayStart), endTime: normalizeTimeValue(data.sundayEnd) },
+];
+
+const mapDaysToPayload = (days: DayConfig[]): UpdateOperatingHoursBody => {
+  const payload = {
+    mondayStart: "",
+    mondayEnd: "",
+    tuesdayStart: "",
+    tuesdayEnd: "",
+    wednesdayStart: "",
+    wednesdayEnd: "",
+    thursdayStart: "",
+    thursdayEnd: "",
+    fridayStart: "",
+    fridayEnd: "",
+    saturdayStart: "",
+    saturdayEnd: "",
+    sundayStart: "",
+    sundayEnd: "",
+  };
+
+  days.forEach((day) => {
+    const mapping = DAY_FIELD_MAP[day.key as keyof typeof DAY_FIELD_MAP];
+    payload[mapping.start] = day.isOpen ? normalizeTimeValue(day.startTime) : "";
+    payload[mapping.end] = day.isOpen ? normalizeTimeValue(day.endTime) : "";
+  });
+
+  return payload;
+};
+
 const OperatingHoursPage = ({ params }: { params?: Promise<{ locale: string }> }) => {
   if (params) React.use(params);
   const t = useTranslations("Profile");
   const td = useTranslations("Days");
+  const { data: operatingHoursRes, isLoading } = useGetOperatingHoursQuery();
+  const [updateOperatingHours, { isLoading: isSaving }] = useUpdateOperatingHoursMutation();
+  const [draftDays, setDraftDays] = React.useState<DayConfig[] | null>(null);
 
-  const initialDays: DayConfig[] = [
-    { key: "monday",    isOpen: true,  startTime: "09:00 AM", endTime: "10:00 PM" },
-    { key: "tuesday",   isOpen: true,  startTime: "09:00 AM", endTime: "10:00 PM" },
-    { key: "wednesday", isOpen: true,  startTime: "09:00 AM", endTime: "10:00 PM" },
-    { key: "thursday",  isOpen: true,  startTime: "09:00 AM", endTime: "10:00 PM" },
-    { key: "friday",    isOpen: true,  startTime: "09:00 AM", endTime: "10:00 PM" },
-    { key: "saturday",  isOpen: true,  startTime: "09:00 AM", endTime: "10:00 PM" },
-    { key: "sunday",    isOpen: false, startTime: "09:00 AM", endTime: "10:00 PM" },
-  ];
+  const serverDays = operatingHoursRes?.data ? mapApiToDays(operatingHoursRes.data) : createEmptyDays();
 
-  const [days, setDays] = React.useState<DayConfig[]>(initialDays);
+  const days = draftDays ?? serverDays;
 
   const toggleDay = (index: number) => {
-    setDays((curr) =>
-      curr.map((d, i) => (i === index ? { ...d, isOpen: !d.isOpen } : d))
-    );
+    setDraftDays((curr) => {
+      const base = curr ?? serverDays;
+      return base.map((d, i) => (i === index ? { ...d, isOpen: !d.isOpen } : d));
+    });
   };
 
   const updateTime = (index: number, type: "startTime" | "endTime", value: string) => {
-    setDays((curr) =>
-      curr.map((d, i) => (i === index ? { ...d, [type]: value } : d))
-    );
+    setDraftDays((curr) => {
+      const base = curr ?? serverDays;
+      return base.map((d, i) => (i === index ? { ...d, [type]: value } : d));
+    });
+  };
+
+  const handleSave = async () => {
+    try {
+      const payload = mapDaysToPayload(days);
+      const result = await updateOperatingHours(payload).unwrap();
+      toast.success(result.message || "Operating hours updated successfully");
+      setDraftDays(null);
+    } catch (error: unknown) {
+      const message = error && typeof error === "object" && "data" in error
+        ? (error as { data?: { message?: string } }).data?.message
+        : undefined;
+      const fallbackMessage = error instanceof Error ? error.message : undefined;
+      toast.error(message || fallbackMessage || "Failed to update operating hours");
+    }
   };
 
   return (
@@ -81,7 +176,7 @@ const OperatingHoursPage = ({ params }: { params?: Promise<{ locale: string }> }
               <div className="mt-4 flex items-center gap-3">
                 <div className="flex-1">
                   <input
-                    type="text"
+                    type="time"
                     value={config.startTime}
                     disabled={!config.isOpen}
                     onChange={(e) => updateTime(idx, "startTime", e.target.value)}
@@ -91,7 +186,7 @@ const OperatingHoursPage = ({ params }: { params?: Promise<{ locale: string }> }
                 <span className="text-slate-300">-</span>
                 <div className="flex-1">
                   <input
-                    type="text"
+                    type="time"
                     value={config.endTime}
                     disabled={!config.isOpen}
                     onChange={(e) => updateTime(idx, "endTime", e.target.value)}
@@ -110,17 +205,14 @@ const OperatingHoursPage = ({ params }: { params?: Promise<{ locale: string }> }
       {/* Global Save Changes Button */}
       <Button
         type="button"
-        className="h-12 cursor-pointer w-full rounded-xl bg-[#3B82F6] text-lg font-semibold text-white shadow-xl shadow-blue-500/20 hover:bg-blue-600"
+        onClick={handleSave}
+        disabled={isLoading || isSaving}
+        className="h-12 cursor-pointer w-full rounded-xl bg-[#3B82F6] text-lg font-semibold text-white shadow-xl shadow-blue-500/20 hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-70"
       >
-        {t("saveChanges")}
+        {isSaving ? "Saving..." : t("saveChanges")}
       </Button>
     </div>
   );
 };
-
-// Helper function
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(" ");
-}
 
 export default OperatingHoursPage;

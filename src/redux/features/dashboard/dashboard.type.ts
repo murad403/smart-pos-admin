@@ -341,6 +341,55 @@ export interface DeleteUserResponse {
     data: UserListItem;
 }
 
+export interface OperatingHoursData {
+    id: number;
+    sundayStart: string;
+    sundayEnd: string;
+    mondayStart: string;
+    mondayEnd: string;
+    tuesdayStart: string;
+    tuesdayEnd: string;
+    wednesdayStart: string;
+    wednesdayEnd: string;
+    thursdayStart: string;
+    thursdayEnd: string;
+    fridayStart: string;
+    fridayEnd: string;
+    saturdayStart: string;
+    saturdayEnd: string;
+}
+
+export interface GetOperatingHoursResponse {
+    success: boolean;
+    statusCode: number;
+    message: string;
+    data: OperatingHoursData;
+}
+
+export interface UpdateOperatingHoursBody {
+    sundayStart: string;
+    sundayEnd: string;
+    mondayStart: string;
+    mondayEnd: string;
+    tuesdayStart: string;
+    tuesdayEnd: string;
+    wednesdayStart: string;
+    wednesdayEnd: string;
+    thursdayStart: string;
+    thursdayEnd: string;
+    fridayStart: string;
+    fridayEnd: string;
+    saturdayStart: string;
+    saturdayEnd: string;
+}
+
+export interface UpdateOperatingHoursResponse {
+    success: boolean;
+    statusCode: number;
+    message: string;
+    data: OperatingHoursData;
+}
+
 export interface GetAllUsersResponse {
     success: boolean;
     statusCode: number;

@@ -54,7 +54,6 @@ function AppSidebar() {
 
   const profileSubItems = [
     { label: t("profileInformation"), href: "/profile/personal-information" },
-    { label: t("passwordChange"), href: "/profile/password-change" },
     { label: t("users"), href: "/profile/users" },
     { label: t("operatingHours"), href: "/profile/operating-hours" },
   ]

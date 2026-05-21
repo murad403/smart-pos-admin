@@ -17,9 +17,12 @@ import {
     GetPaymentsQueryParams,
     GetPaymentsResponse,
     GetUserByIdResponse,
+    GetOperatingHoursResponse,
     SalesReportResponse,
     StockAdjustBody,
     StockAdjustResponse,
+    UpdateOperatingHoursBody,
+    UpdateOperatingHoursResponse,
 } from "./dashboard.type";
 
 
@@ -179,6 +182,25 @@ const dashboardApi = baseApi.injectEndpoints({
             },
             invalidatesTags: ["users"],
         }),
+        getOperatingHours: builder.query<GetOperatingHoursResponse, void>({
+            query: () => {
+                return {
+                    url: `/operating-hours`,
+                    method: "GET"
+                };
+            },
+            providesTags: ["operating-hours"]
+        }),
+        updateOperatingHours: builder.mutation<UpdateOperatingHoursResponse, UpdateOperatingHoursBody>({
+            query: (data) => {
+                return {
+                    url: `/operating-hours`,
+                    method: "PATCH",
+                    body: data
+                };
+            },
+            invalidatesTags: ["operating-hours"]
+        }),
     }),
 });
 
@@ -196,4 +218,6 @@ export const {
     useAddUserMutation,
     useChangeUserPasswordMutation,
     useDeleteUserMutation,
+    useGetOperatingHoursQuery,
+    useUpdateOperatingHoursMutation,
 } = dashboardApi;

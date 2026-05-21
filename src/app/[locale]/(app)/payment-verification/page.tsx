@@ -1,7 +1,8 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useMemo, useState } from "react";
 import { Search } from "lucide-react";
-import PaymentVerificationStats from "./PaymentVerificationStats";
 import PaymentVerificationCard, { PaymentVerificationItem } from "./PaymentVerificationCard";
 import PaymentVerificationModal from "@/components/modal/PaymentVerificationModal";
 import CustomPagination from "@/components/shared/CustomPagination";
@@ -121,16 +122,13 @@ const PaymentVerificationPage = ({ params }: { params?: Promise<{ locale: string
         </div>
       </div>
 
-      {/* Verification Stats (Static per requirements) */}
-      <PaymentVerificationStats />
-
       {/* Cards list / Grid */}
       {isLoading ? (
         <div className="grid grid-cols-1 gap-4 md:gap-6 md:grid-cols-2 xl:grid-cols-3">
           {[...Array(6)].map((_, i) => (
             <div
               key={i}
-              className="animate-pulse rounded-xl border border-slate-200 bg-white p-4 h-[400px] flex flex-col justify-between"
+              className="animate-pulse rounded-xl border border-slate-200 bg-white p-4 h-100 flex flex-col justify-between"
             >
               <div className="h-60 w-full bg-slate-50 rounded-lg" />
               <div className="space-y-3 mt-3">

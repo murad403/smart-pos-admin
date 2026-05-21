@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import MainWrapper from '@/components/wrapper/MainWrapper'
 import React from 'react'
 
