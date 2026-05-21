@@ -102,7 +102,7 @@ const menuApi = baseApi.injectEndpoints({
             invalidatesTags: ["section"],
         }),
 
-        // item*******************************************************
+        // production station*******************************************************
         getAllProductionStation: builder.query<any, { limit?: number; page?: number } | void>({
             query: (params) => {
                 const limit = params?.limit ?? 100;
@@ -111,8 +111,42 @@ const menuApi = baseApi.injectEndpoints({
                     url: `/production-station?limit=${limit}&page=${page}`,
                     method: "GET",
                 };
-            }
+            },
+            providesTags: ["production-station"]
         }),
+        addProductionStation: builder.mutation({
+            query: (data) => {
+                return {
+                    url: `/production-station`,
+                    method: "POST",
+                    body: data
+                };
+            },
+            invalidatesTags: ["production-station"]
+        }),
+        updateProductionStation: builder.mutation({
+            query: ({ data, stationId }) => {
+                return {
+                    url: `/production-station/${stationId}`,
+                    method: "PATCH",
+                    body: data
+                };
+            },
+            invalidatesTags: ["production-station"]
+        }),
+        deleteProductionStation: builder.mutation({
+            query: (stationId) => {
+                return {
+                    url: `/production-station/${stationId}`,
+                    method: "DELETE"
+                };
+            },
+            invalidatesTags: ["production-station"]
+        }),
+
+
+
+        // item**************************************************************************
         getAllItems: builder.query<any, { limit?: number; page?: number; search?: string } | void>({
             query: (params) => {
                 const queryParams: Record<string, any> = {};
@@ -260,4 +294,7 @@ export const {
     useDeletePacketSectionChoiceMutation,
     useAddItemToSectionMutation,
     useRemoveItemToSectionMutation,
+    useAddProductionStationMutation,
+    useUpdateProductionStationMutation,
+    useDeleteProductionStationMutation,
 } = menuApi;
