@@ -88,7 +88,8 @@
     "restaurantOwner": "Restaurant Owner",
     "owner": "Owner",
     "register": "Register",
-    "saveChanges": "Save Changes"
+    "saveChanges": "Save Changes",
+    "manageTable": "Manage Tables"
   },
   "Dashboard": {
     "title": "Dashboard",
@@ -287,6 +288,37 @@
     "emailRequired": "Email is required",
     "itemNameRequired": "Item name is required",
     "priceRequired": "Price is required"
+  },
+  "Table": {
+    "title": "Manage Tables",
+    "description": "Manage dining tables, codes, statuses, and QR code access for customers.",
+    "addTable": "Add Table",
+    "editTable": "Edit Table",
+    "deleteTable": "Delete Table",
+    "confirmDelete": "Delete Table?",
+    "confirmDeleteDesc": "Are you sure you want to delete this table? This action is permanent and cannot be undone.",
+    "tableNumber": "Table Number",
+    "notes": "Notes",
+    "status": "Status",
+    "actions": "Actions",
+    "isActive": "Active Status",
+    "isActiveDesc": "This table is active and available for customers",
+    "notesPlaceholder": "Optional notes (e.g., location, capacity)",
+    "tableNumberPlaceholder": "Enter table number (e.g. 101, Patio-A)",
+    "noTablesFound": "No Tables Found",
+    "noTablesFoundDesc": "Get started by adding your first dining table.",
+    "createFirstTable": "Create First Table",
+    "creatingTable": "Creating table...",
+    "updatingTable": "Updating table...",
+    "deletingTable": "Deleting table...",
+    "qrCodeTitle": "Table QR Code",
+    "qrCodeSubtitle": "Generate and manage QR code for Table {number}",
+    "downloadQR": "Download QR Code",
+    "printQR": "Print QR Code",
+    "scanQrCode": "Scan or scan to order",
+    "customerOrderUrl": "Customer Order URL",
+    "copyLink": "Copy Link",
+    "copied": "Copied!"
   },
   "Pagination": {
     "previous": "Previous",

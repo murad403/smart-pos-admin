@@ -88,7 +88,8 @@
     "restaurantOwner": "Pemilik Restoran",
     "owner": "Pemilik",
     "register": "Daftar",
-    "saveChanges": "Simpan Perubahan"
+    "saveChanges": "Simpan Perubahan",
+    "manageTable": "Kelola Meja"
   },
   "Dashboard": {
     "title": "Dasbor",
@@ -289,6 +290,37 @@
     "emailRequired": "Email wajib diisi",
     "itemNameRequired": "Nama item wajib diisi",
     "priceRequired": "Harga wajib diisi"
+  },
+  "Table": {
+    "title": "Kelola Meja",
+    "description": "Kelola meja makan, kode, status, dan akses kode QR untuk pelanggan.",
+    "addTable": "Tambah Meja",
+    "editTable": "Ubah Meja",
+    "deleteTable": "Hapus Meja",
+    "confirmDelete": "Hapus Meja?",
+    "confirmDeleteDesc": "Apakah Anda yakin ingin menghapus meja ini? Tindakan ini permanen dan tidak dapat dibatalkan.",
+    "tableNumber": "Nomor Meja",
+    "notes": "Catatan",
+    "status": "Status",
+    "actions": "Aksi",
+    "isActive": "Status Aktif",
+    "isActiveDesc": "Meja ini aktif dan tersedia untuk pelanggan",
+    "notesPlaceholder": "Catatan opsional (mis. lokasi, kapasitas)",
+    "tableNumberPlaceholder": "Masukkan nomor meja (mis. 101, Teras-A)",
+    "noTablesFound": "Meja Tidak Ditemukan",
+    "noTablesFoundDesc": "Mulai dengan menambahkan meja makan pertama Anda.",
+    "createFirstTable": "Buat Meja Pertama",
+    "creatingTable": "Membuat meja...",
+    "updatingTable": "Memperbarui meja...",
+    "deletingTable": "Menghapus meja...",
+    "qrCodeTitle": "Kode QR Meja",
+    "qrCodeSubtitle": "Buat dan kelola kode QR untuk Meja {number}",
+    "downloadQR": "Unduh Kode QR",
+    "printQR": "Cetak Kode QR",
+    "scanQrCode": "Pindai atau scan untuk memesan",
+    "customerOrderUrl": "URL Pesanan Pelanggan",
+    "copyLink": "Salin Tautan",
+    "copied": "Tersalin!"
   },
   "Pagination": {
     "previous": "Sebelumnya",
