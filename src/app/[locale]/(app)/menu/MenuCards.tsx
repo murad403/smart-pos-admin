@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { SectionLayoutType } from "@/redux/features/menu/menu.type";
 import { useTranslations } from "next-intl";
 
-import { useGetAllSectionDetailsByMenuIdQuery } from "@/redux/features/menu/menu.api";
+import { useGetAllSectionDetailsByMenuIdQuery, useRemoveItemToSectionMutation } from "@/redux/features/menu/menu.api";
+import { toast } from "sonner";
 
 export type MenuItemCardData = {
   id?: number;
@@ -45,6 +46,19 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
   const { data: sectionDetailsRes, isLoading } = useGetAllSectionDetailsByMenuIdQuery(sectionId);
   const sectionDetails = sectionDetailsRes?.data;
   const sectionItems = sectionDetails?.sectionItems || [];
+
+  const [removeItemToSection] = useRemoveItemToSectionMutation();
+
+  const handleRemoveItem = async (itemId?: number) => {
+    if (!itemId) return;
+    try {
+      toast.loading("Removing item from section...", { id: "remove-item-section" });
+      await removeItemToSection({ sectionId, itemId }).unwrap();
+      toast.success("Item removed from section successfully", { id: "remove-item-section" });
+    } catch (err: any) {
+      toast.error(err?.data?.message || err?.message || "Failed to remove item", { id: "remove-item-section" });
+    }
+  };
 
   const items: MenuItemCardData[] = (sectionItems || []).map((sectionItem: any) => {
     const item = sectionItem.item || sectionItem;
@@ -158,7 +172,8 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
                   <th className="pb-4 font-medium">{t("itemName")}</th>
                   <th className="pb-4 font-medium text-center">{t("stock")}</th>
                   <th className="pb-4 font-medium">{t("price")}</th>
-                  <th className="pb-4 pr-2 font-medium">{t("promoPrice")}</th>
+                  <th className="pb-4 font-medium">{t("promoPrice")}</th>
+                  <th className="pb-4 pr-2 font-medium text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -176,8 +191,18 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
                     <td className="py-4 text-[15px] text-slate-600">
                       Rp{item.price.toLocaleString("en-US")}
                     </td>
-                    <td className="py-4 pr-2 text-[15px] text-slate-600">
+                    <td className="py-4 text-[15px] text-slate-600">
                       {item.promoPrice ? `Rp${item.promoPrice.toLocaleString("en-US")}` : "-"}
+                    </td>
+                    <td className="py-4 pr-2 text-right">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => handleRemoveItem(item.id)}
+                        className="h-8 w-8 p-0 rounded-lg border-red-100 bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 transition-colors"
+                      >
+                        <Trash2 className="size-3.5" />
+                      </Button>
                     </td>
                   </tr>
                 ))}
@@ -230,6 +255,14 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
                       <p className="text-slate-500">{t("promoPrice")}</p>
                       <p className="font-semibold text-slate-900">Rp{item.promoPrice.toLocaleString("en-US")}</p>
                     </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => handleRemoveItem(item.id)}
+                      className="h-9 w-9 p-0 rounded-xl border-red-100 bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 transition-colors"
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
                   </div>
                 </div>
               </article>

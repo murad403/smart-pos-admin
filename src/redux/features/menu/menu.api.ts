@@ -224,6 +224,15 @@ const menuApi = baseApi.injectEndpoints({
             },
             invalidatesTags: ["section", "menu"]
         }),
+        removeItemToSection: builder.mutation({
+            query: ({ sectionId, itemId }) => {
+                return {
+                    url: `/section/${sectionId}/items/${itemId}`,
+                    method: "DELETE"
+                };
+            },
+            invalidatesTags: ["section", "menu"]
+        }),
     }),
 });
 
@@ -250,4 +259,5 @@ export const {
     useUpdatePacketSectionChoiceMutation,
     useDeletePacketSectionChoiceMutation,
     useAddItemToSectionMutation,
+    useRemoveItemToSectionMutation,
 } = menuApi;
