@@ -166,12 +166,50 @@ const menuApi = baseApi.injectEndpoints({
             },
             invalidatesTags: ["item"]
         }),
+        updatePacketSection: builder.mutation({
+            query: ({ data, sId }) => {
+                return {
+                    url: `/items/packet-sections/${sId}`,
+                    method: "PATCH",
+                    body: data,
+                };
+            },
+            invalidatesTags: ["item"]
+        }),
+        deletePacketSection: builder.mutation({
+            query: ({ sId }) => {
+                return {
+                    url: `/items/packet-sections/${sId}`,
+                    method: "DELETE",
+                };
+            },
+            invalidatesTags: ["item"]
+        }),
         addPacketSectionChoice: builder.mutation<any, { sid: number; data: any }>({
             query: ({ data, sid }) => {
                 return {
                     url: `/items/packet-sections/${sid}/choices`,
                     method: "POST",
                     body: data,
+                };
+            },
+            invalidatesTags: ["item"]
+        }),
+        updatePacketSectionChoice: builder.mutation({
+            query: ({ data, cid }) => {
+                return {
+                    url: `/items/packet-sections/choices/${cid}`,
+                    method: "PATCH",
+                    body: data,
+                };
+            },
+            invalidatesTags: ["item"]
+        }),
+        deletePacketSectionChoice: builder.mutation({
+            query: ({ cid }) => {
+                return {
+                    url: `/items/packet-sections/choices/${cid}`,
+                    method: "DELETE",
                 };
             },
             invalidatesTags: ["item"]
@@ -206,6 +244,10 @@ export const {
     useUpdateItemMutation,
     useDeleteItemMutation,
     useAddPacketSectionMutation,
+    useUpdatePacketSectionMutation,
+    useDeletePacketSectionMutation,
     useAddPacketSectionChoiceMutation,
+    useUpdatePacketSectionChoiceMutation,
+    useDeletePacketSectionChoiceMutation,
     useAddItemToSectionMutation,
 } = menuApi;

@@ -1,13 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
 import React, { useState, useRef, useEffect } from "react";
-import { X, Upload } from "lucide-react";
+import { X, Upload, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import {
-  useGetAllProductionStationQuery,
-  useUpdateItemMutation,
-} from "@/redux/features/menu/menu.api";
+import { useGetAllProductionStationQuery, useUpdateItemMutation, useAddPacketSectionMutation, useUpdatePacketSectionMutation, useDeletePacketSectionMutation, useAddPacketSectionChoiceMutation, useUpdatePacketSectionChoiceMutation, useDeletePacketSectionChoiceMutation } from "@/redux/features/menu/menu.api";
 import { toast } from "sonner";
 
 type Props = {
@@ -24,8 +20,14 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
   const { data: stationsRes, isLoading: isStationsLoading } = useGetAllProductionStationQuery({ limit: 100 });
   const stations = stationsRes?.data ?? [];
 
-  // Mutation
+  // Mutations
   const [updateItem, { isLoading: isUpdating }] = useUpdateItemMutation();
+  const [addPacketSection] = useAddPacketSectionMutation();
+  const [updatePacketSection] = useUpdatePacketSectionMutation();
+  const [deletePacketSection] = useDeletePacketSectionMutation();
+  const [addPacketSectionChoice] = useAddPacketSectionChoiceMutation();
+  const [updatePacketSectionChoice] = useUpdatePacketSectionChoiceMutation();
+  const [deletePacketSectionChoice] = useDeletePacketSectionChoiceMutation();
 
   // Basic Form States
   const [name, setName] = useState("");
@@ -44,6 +46,7 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
 
   // Packet States
   const [maxPacketItems, setMaxPacketItems] = useState<number | "">("");
+  const [sections, setSections] = useState<any[]>([]);
 
   // Image Upload States
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -78,6 +81,22 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
       setMaxPacketItems(item.maxPacketItems ? Number(item.maxPacketItems) : "");
       setImageFile(null);
       setImagePreview(item.imageUrl || null);
+
+      if (item.packetSections) {
+        const mappedSections = item.packetSections.map((sec: any) => ({
+          id: sec.id,
+          name: sec.name,
+          maxQty: sec.maxQty,
+          choices: (sec.choices || []).map((ch: any) => ({
+            id: ch.id,
+            name: ch.name,
+            maxQty: ch.maxQty,
+          })),
+        }));
+        setSections(mappedSections);
+      } else {
+        setSections([]);
+      }
     }
   }, [item, open]);
 
@@ -99,6 +118,79 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
     }
   };
 
+  // Packet Builder Handlers
+  const handleAddSection = () => {
+    const newSection = {
+      id: crypto.randomUUID(),
+      name: "",
+      maxQty: 1,
+      choices: [{ id: crypto.randomUUID(), name: "", maxQty: 1 }],
+    };
+    setSections([...sections, newSection]);
+  };
+
+  const handleRemoveSection = (sectionId: string | number) => {
+    setSections(sections.filter((s) => s.id !== sectionId));
+  };
+
+  const handleSectionChange = (sectionId: string | number, field: "name" | "maxQty", value: any) => {
+    setSections(
+      sections.map((s) => {
+        if (s.id === sectionId) {
+          return { ...s, [field]: value };
+        }
+        return s;
+      })
+    );
+  };
+
+  const handleAddChoice = (sectionId: string | number) => {
+    setSections(
+      sections.map((s) => {
+        if (s.id === sectionId) {
+          return {
+            ...s,
+            choices: [...s.choices, { id: crypto.randomUUID(), name: "", maxQty: 1 }],
+          };
+        }
+        return s;
+      })
+    );
+  };
+
+  const handleRemoveChoice = (sectionId: string | number, choiceId: string | number) => {
+    setSections(
+      sections.map((s) => {
+        if (s.id === sectionId) {
+          return {
+            ...s,
+            choices: s.choices.filter((c: any) => c.id !== choiceId),
+          };
+        }
+        return s;
+      })
+    );
+  };
+
+  const handleChoiceChange = (sectionId: string | number, choiceId: string | number, field: "name" | "maxQty", value: any) => {
+    setSections(
+      sections.map((s) => {
+        if (s.id === sectionId) {
+          return {
+            ...s,
+            choices: s.choices.map((c: any) => {
+              if (c.id === choiceId) {
+                return { ...c, [field]: value };
+              }
+              return c;
+            }),
+          };
+        }
+        return s;
+      })
+    );
+  };
+
   const handleSubmitForm = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -118,12 +210,12 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
       };
 
       // Set optional values or clear them
-      payload.productionStationId = productionStationId ? Number(productionStationId) : null;
-      payload.inventoryQty = inventoryQty !== "" ? Number(inventoryQty) : null;
+      payload.productionStationId = productionStationId ? Number(productionStationId) : undefined;
+      payload.inventoryQty = inventoryQty !== "" ? Number(inventoryQty) : undefined;
       payload.labels = selectedLabels;
-      payload.promoName = hasPromo && promoName.trim() ? promoName : null;
-      payload.promoPrice = hasPromo && promoPrice !== "" ? Number(promoPrice) : null;
-      payload.maxPacketItems = itemType === "PACKET" && maxPacketItems !== "" ? Number(maxPacketItems) : null;
+      payload.promoName = hasPromo && promoName.trim() ? promoName : undefined;
+      payload.promoPrice = hasPromo && promoPrice !== "" ? Number(promoPrice) : undefined;
+      payload.maxPacketItems = itemType === "PACKET" && maxPacketItems !== "" ? Number(maxPacketItems) : undefined;
 
       // Create FormData for multipart request
       const formData = new FormData();
@@ -135,6 +227,98 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
       toast.loading("Updating item...", { id: "edit-item-toast" });
 
       await updateItem({ itemId: item.id, data: formData }).unwrap();
+
+      // If it's a PACKET, synchronize packet sections and choices
+      if (itemType === "PACKET") {
+        toast.loading("Configuring packet sections and choices...", { id: "edit-item-toast" });
+        const originalSections = item.packetSections || [];
+
+        // --- A. DELETE REMOVED SECTIONS ---
+        for (const origSec of originalSections) {
+          const exists = sections.some((s) => s.id === origSec.id);
+          if (!exists) {
+            await deletePacketSection({ sId: origSec.id }).unwrap();
+          }
+        }
+
+        // --- B. DELETE REMOVED CHOICES ---
+        for (const origSec of originalSections) {
+          const currentSec = sections.find((s) => s.id === origSec.id);
+          if (currentSec) {
+            const originalChoices = origSec.choices || [];
+            for (const origChoice of originalChoices) {
+              const choiceExists = currentSec.choices.some((c: any) => c.id === origChoice.id);
+              if (!choiceExists) {
+                await deletePacketSectionChoice({ cid: origChoice.id }).unwrap();
+              }
+            }
+          }
+        }
+
+        // --- C. ADD OR UPDATE SECTIONS AND CHOICES ---
+        for (const sec of sections) {
+          if (!sec.name.trim()) continue;
+
+          let sid = sec.id;
+          const isNewSection = typeof sid === "string";
+
+          if (isNewSection) {
+            const sectionRes = await addPacketSection({
+              itemId: item.id,
+              data: {
+                name: sec.name,
+                maxQty: Number(sec.maxQty),
+              },
+            }).unwrap();
+            sid = sectionRes?.data?.id;
+          } else {
+            const originalSec = originalSections.find((s: any) => s.id === sid);
+            if (originalSec && (originalSec.name !== sec.name || originalSec.maxQty !== sec.maxQty)) {
+              await updatePacketSection({
+                sId: sid,
+                data: {
+                  name: sec.name,
+                  maxQty: Number(sec.maxQty),
+                },
+              }).unwrap();
+            }
+          }
+
+          if (sid) {
+            for (const choice of sec.choices) {
+              if (!choice.name.trim()) continue;
+
+              const isNewChoice = typeof choice.id === "string";
+
+              if (isNewChoice) {
+                await addPacketSectionChoice({
+                  sid,
+                  data: {
+                    name: choice.name,
+                    maxQty: Number(choice.maxQty),
+                  },
+                }).unwrap();
+              } else {
+                let originalChoice: any = null;
+                const originalSec = originalSections.find((s: any) => s.id === sec.id);
+                if (originalSec) {
+                  originalChoice = (originalSec.choices || []).find((c: any) => c.id === choice.id);
+                }
+
+                if (originalChoice && (originalChoice.name !== choice.name || originalChoice.maxQty !== choice.maxQty)) {
+                  await updatePacketSectionChoice({
+                    cid: choice.id,
+                    data: {
+                      name: choice.name,
+                      maxQty: Number(choice.maxQty),
+                    },
+                  }).unwrap();
+                }
+              }
+            }
+          }
+        }
+      }
 
       toast.success("Item updated successfully!", { id: "edit-item-toast" });
       onSuccess?.();
@@ -308,14 +492,12 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
                 <button
                   type="button"
                   onClick={() => setHasPromo(!hasPromo)}
-                  className={`relative w-12 h-6 rounded-full transition-colors ${
-                    hasPromo ? "bg-blue-600" : "bg-gray-300"
-                  }`}
+                  className={`relative w-12 h-6 rounded-full transition-colors ${hasPromo ? "bg-blue-600" : "bg-gray-300"
+                    }`}
                 >
                   <span
-                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                      hasPromo ? "translate-x-6" : "translate-x-0"
-                    }`}
+                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${hasPromo ? "translate-x-6" : "translate-x-0"
+                      }`}
                   />
                 </button>
               </div>
@@ -359,11 +541,10 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
                       key={opt.key}
                       type="button"
                       onClick={() => toggleLabel(opt.key)}
-                      className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all ${
-                        isSelected
+                      className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all ${isSelected
                           ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/10 scale-95"
                           : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300"
-                      }`}
+                        }`}
                     >
                       {opt.label}
                     </button>
@@ -378,14 +559,12 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
                 <button
                   type="button"
                   onClick={() => setIsVisible(!isVisible)}
-                  className={`relative w-12 h-6 rounded-full transition-colors ${
-                    isVisible ? "bg-blue-600" : "bg-gray-300"
-                  }`}
+                  className={`relative w-12 h-6 rounded-full transition-colors ${isVisible ? "bg-blue-600" : "bg-gray-300"
+                    }`}
                 >
                   <span
-                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                      isVisible ? "translate-x-6" : "translate-x-0"
-                    }`}
+                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${isVisible ? "translate-x-6" : "translate-x-0"
+                      }`}
                   />
                 </button>
                 <div>
@@ -398,14 +577,12 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
                 <button
                   type="button"
                   onClick={() => setIsOutOfStock(!isOutOfStock)}
-                  className={`relative w-12 h-6 rounded-full transition-colors ${
-                    isOutOfStock ? "bg-red-500" : "bg-gray-300"
-                  }`}
+                  className={`relative w-12 h-6 rounded-full transition-colors ${isOutOfStock ? "bg-red-500" : "bg-gray-300"
+                    }`}
                 >
                   <span
-                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                      isOutOfStock ? "translate-x-6" : "translate-x-0"
-                    }`}
+                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${isOutOfStock ? "translate-x-6" : "translate-x-0"
+                      }`}
                   />
                 </button>
                 <div>
@@ -415,14 +592,14 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
               </div>
             </div>
 
-            {/* Packet Configuration (Max Items) */}
+            {/* Packet Configuration (Shown if Item Type is PACKET) */}
             {itemType === "PACKET" && (
-              <div className="border border-blue-100 rounded-2xl p-5 bg-blue-50/20 space-y-4">
-                <div className="flex items-center justify-between">
+              <div className="border border-blue-100 rounded-2xl p-5 bg-blue-50/20 space-y-6">
+                <div className="flex items-center justify-between border-b border-blue-50 pb-3">
                   <div>
-                    <h3 className="text-base font-bold text-blue-900">Packet Configuration</h3>
+                    <h3 className="text-base font-bold text-blue-900">Packet & Combo Configuration</h3>
                     <p className="text-xs text-blue-600 mt-0.5">
-                      Define the maximum number of selection choice options.
+                      Define the maximum items a customer can choose and create customized sections.
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -435,6 +612,93 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
                       className="w-16 border border-blue-200 rounded-lg px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white font-bold"
                     />
                   </div>
+                </div>
+
+                {/* Packet Sections */}
+                <div className="space-y-4">
+                  {sections.map((sec) => (
+                    <div key={sec.id} className="border border-blue-100 rounded-xl p-4 bg-white shadow-sm space-y-4">
+                      {/* Section Header */}
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex-1 grid grid-cols-3 gap-3">
+                          <div className="col-span-2">
+                            <label className="text-xs font-semibold text-gray-500">Section Name (e.g. Choose Appetizer)</label>
+                            <input
+                              type="text"
+                              value={sec.name}
+                              onChange={(e) => handleSectionChange(sec.id, "name", e.target.value)}
+                              placeholder="Appetizer, Drink, Side, etc."
+                              className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs font-semibold text-gray-500">Max Qty</label>
+                            <input
+                              type="number"
+                              min="1"
+                              value={sec.maxQty}
+                              onChange={(e) => handleSectionChange(sec.id, "maxQty", Number(e.target.value))}
+                              className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 text-center font-semibold"
+                            />
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveSection(sec.id)}
+                          className="mt-4 p-1.5 rounded-lg border border-red-100 hover:bg-red-50 text-red-500 transition-colors"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+
+                      {/* Choice List */}
+                      <div className="pl-6 border-l-2 border-slate-100 space-y-2">
+                        <span className="text-xs font-bold text-gray-600 block mb-1">Choice Options</span>
+                        {sec.choices.map((choice: any) => (
+                          <div key={choice.id} className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              value={choice.name}
+                              onChange={(e) => handleChoiceChange(sec.id, choice.id, "name", e.target.value)}
+                              placeholder="Option name (e.g. French Fries)"
+                              className="flex-1 border border-gray-200 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            />
+                            <input
+                              type="number"
+                              min="1"
+                              value={choice.maxQty}
+                              onChange={(e) => handleChoiceChange(sec.id, choice.id, "maxQty", Number(e.target.value))}
+                              className="w-16 border border-gray-200 rounded-lg px-2 py-1 text-sm text-center focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveChoice(sec.id, choice.id)}
+                              className="p-1 rounded-md text-red-500 hover:bg-red-50"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ))}
+
+                        <button
+                          type="button"
+                          onClick={() => handleAddChoice(sec.id)}
+                          className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 pt-1"
+                        >
+                          <Plus size={12} /> Add Choice Option
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+
+                  <button
+                    type="button"
+                    onClick={handleAddSection}
+                    className="w-full flex items-center justify-center gap-2 border border-dashed border-blue-300 rounded-xl py-3 hover:bg-blue-50/50 text-blue-600 transition-all font-semibold text-sm"
+                  >
+                    <Plus size={16} /> Add Packet Section
+                  </button>
                 </div>
               </div>
             )}

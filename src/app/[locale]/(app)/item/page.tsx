@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState } from "react";
-import { Plus, Search, Filter, Edit3, Trash2, Tag, Layers, CheckCircle2, XCircle } from "lucide-react";
+import { Plus, Search, Edit3, Trash2, Tag, Layers, CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import AddItemModal from "@/components/modal/AddItemModal";
@@ -17,14 +17,31 @@ const ItemManagementPage = () => {
   const t = useTranslations("Menu");
 
   // RTK Queries
-  const { data: itemsRes, isLoading, refetch } = useGetAllItemsQuery();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchValue, setDebouncedSearchValue] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const limit = 10;
+
+  // Debounce search query
+  React.useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchValue(searchQuery);
+      setCurrentPage(1); // Reset to first page when search changes
+    }, 450);
+
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  const { data: itemsRes, isLoading, refetch } = useGetAllItemsQuery({
+    page: currentPage,
+    limit,
+    search: debouncedSearchValue || undefined,
+  });
   const items = itemsRes?.data ?? [];
+  const pagination = itemsRes?.pagination;
+  const totalPages = pagination?.totalPages ?? 1;
 
   const [deleteItem, { isLoading: isDeleting }] = useDeleteItemMutation();
-
-  // Search & Filter state
-  const [searchQuery, setSearchQuery] = useState("");
-  const [typeFilter, setTypeFilter] = useState("ALL");
 
   // Modal controls
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -34,16 +51,31 @@ const ItemManagementPage = () => {
   // Delete Confirmation State
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
 
-  // Filter items based on search query & type filter
-  const filteredItems = React.useMemo(() => {
-    return items.filter((item: any) => {
-      const matchesSearch =
-        item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.slug?.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesType = typeFilter === "ALL" || item.itemType === typeFilter;
-      return matchesSearch && matchesType;
-    });
-  }, [items, searchQuery, typeFilter]);
+  const filteredItems = items;
+
+  const totalItems = pagination?.total ?? 0;
+  const startItem = totalItems > 0 ? (currentPage - 1) * limit + 1 : 0;
+  const endItem = Math.min(currentPage * limit, totalItems);
+
+  const renderPageButtons = () => {
+    const buttons = [];
+    for (let i = 1; i <= totalPages; i++) {
+      buttons.push(
+        <button
+          key={i}
+          onClick={() => setCurrentPage(i)}
+          className={`h-9 w-9 flex items-center justify-center rounded-xl text-sm font-semibold transition-all ${
+            currentPage === i
+              ? "bg-blue-600 text-white shadow-sm"
+              : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+          }`}
+        >
+          {i}
+        </button>
+      );
+    }
+    return buttons;
+  };
 
   const handleDelete = async (itemId: number) => {
     try {
@@ -104,29 +136,6 @@ const ItemManagementPage = () => {
             className="w-full border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 placeholder:text-slate-400"
           />
         </div>
-
-        {/* Filters */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 text-sm text-slate-500 font-medium">
-            <Filter size={15} />
-            <span>Type:</span>
-          </div>
-          <div className="flex gap-1.5">
-            {["ALL", "INDIVIDUAL", "PACKET"].map((type) => (
-              <button
-                key={type}
-                onClick={() => setTypeFilter(type)}
-                className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all ${
-                  typeFilter === type
-                    ? "bg-blue-600 border-blue-600 text-white shadow-sm"
-                    : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-                }`}
-              >
-                {type === "ALL" ? "All Items" : type}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* Items List/Table Container */}
@@ -166,7 +175,6 @@ const ItemManagementPage = () => {
         <div className="grid gap-4">
           {filteredItems.map((item: any) => {
             const parsedPrice = item.price ? Number(item.price) : 0;
-            const parsedPromoPrice = item.promoPrice ? Number(item.promoPrice) : 0;
 
             return (
               <div
@@ -233,22 +241,9 @@ const ItemManagementPage = () => {
 
                   {/* Price info and Status */}
                   <div className="flex items-center gap-6 justify-between w-full md:w-auto md:justify-end">
-                    <div className="space-y-1 text-left md:text-right">
-                      {item.hasPromo ? (
-                        <>
-                          <p className="text-xs text-slate-400 line-through">
-                            Rp{parsedPrice.toLocaleString("en-US")}
-                          </p>
-                          <p className="text-base font-extrabold text-rose-600">
-                            Rp{parsedPromoPrice.toLocaleString("en-US")}
-                          </p>
-                        </>
-                      ) : (
-                        <p className="text-base font-extrabold text-slate-900">
-                          Rp{parsedPrice.toLocaleString("en-US")}
-                        </p>
-                      )}
-                    </div>
+                      <p className="text-base font-extrabold text-slate-900">
+                        Rp{parsedPrice.toLocaleString("en-US")}
+                      </p>
 
                     {/* Visibility status */}
                     <div className="flex flex-col items-center shrink-0">
@@ -323,6 +318,38 @@ const ItemManagementPage = () => {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+          <div className="text-sm text-slate-500 font-medium">
+            Showing {startItem} to {endItem} of {totalItems} entries
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              className="h-9 rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-700 disabled:opacity-50"
+            >
+              Previous
+            </Button>
+            <div className="flex items-center gap-1.5">
+              {renderPageButtons()}
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              className="h-9 rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-700 disabled:opacity-50"
+            >
+              Next
+            </Button>
+          </div>
         </div>
       )}
 

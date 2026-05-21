@@ -162,8 +162,8 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {items.map((item) => (
-                  <tr key={item.itemNumber} className="group transition-colors hover:bg-slate-50/50">
+                {items.map((item, idx) => (
+                  <tr key={`${item.itemNumber}-${idx}`} className="group transition-colors hover:bg-slate-50/50">
                     <td className="py-4 pl-2 text-[15px] text-slate-600">
                       {item.itemNumber.split("-").pop()}
                     </td>
@@ -188,7 +188,7 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
           <div className={isImageListLayout ? "space-y-3" : gridColsClass}>
             {items.map((item, index) => (
               <article
-                key={item.itemNumber}
+                key={`${item.itemNumber}-${index}`}
                 className={
                   isImageListLayout
                     ? "grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:grid-cols-[160px_1fr]"
