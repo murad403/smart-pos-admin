@@ -7,16 +7,16 @@ type Props = {
   open: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  sectionName: string;
+  userName: string;
   isLoading?: boolean;
 };
 
-const DeleteSectionModal: React.FC<Props> = ({ open, onClose, onConfirm, sectionName, isLoading }) => {
+const DeleteUserModal: React.FC<Props> = ({ open, onClose, onConfirm, userName, isLoading }) => {
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-[2px]">
-      <div className="relative w-full max-w-105 rounded-[24px] bg-white p-8 shadow-2xl">
+      <div className="relative w-full max-w-sm rounded-[24px] bg-white p-8 shadow-2xl">
         <button
           type="button"
           onClick={onClose}
@@ -31,9 +31,9 @@ const DeleteSectionModal: React.FC<Props> = ({ open, onClose, onConfirm, section
             <Trash2 size={28} />
           </div>
 
-          <h3 className="mb-2 text-xl font-bold text-slate-900">Delete Section</h3>
+          <h3 className="mb-2 text-xl font-bold text-slate-900">Delete User</h3>
           <p className="mb-8 text-sm text-slate-500 leading-relaxed">
-            Are you sure you want to delete <span className="font-semibold text-slate-800">{`"${sectionName}"`}</span>? This action cannot be undone.
+            Are you sure you want to delete <span className="font-semibold text-slate-800">"{userName}"</span>? This action cannot be undone.
           </p>
 
           <div className="flex w-full items-center gap-3">
@@ -61,4 +61,4 @@ const DeleteSectionModal: React.FC<Props> = ({ open, onClose, onConfirm, section
   );
 };
 
-export default DeleteSectionModal;
+export default DeleteUserModal;

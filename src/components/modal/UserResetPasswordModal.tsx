@@ -1,24 +1,32 @@
 "use client";
 import React from "react";
-import { Key, Lock } from "lucide-react";
+import { Key, Lock, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
 import { ResetFormValues, resetSchema } from "@/validation/auth.validation";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
+import { useChangeUserPasswordMutation, useGetUserByIdQuery } from "@/redux/features/dashboard/dashboard.api";
 
 type Props = {
     open: boolean;
     onClose: () => void;
-    user: { name: string; email: string } | null;
+    userId: number | null;
 };
 
-const UserResetPasswordModal: React.FC<Props> = ({ open, onClose, user }) => {
+const UserResetPasswordModal: React.FC<Props> = ({ open, onClose, userId }) => {
     const t = useTranslations("Profile");
     const tv = useTranslations("Validation");
     const [showNew, setShowNew] = React.useState(false);
     const [showConfirm, setShowConfirm] = React.useState(false);
+    const [changeUserPassword, { isLoading: isChangingPassword }] = useChangeUserPasswordMutation();
+
+    const { data: userRes } = useGetUserByIdQuery(userId as number, {
+        skip: !open || !userId,
+    });
+    const user = userRes?.data ?? null;
 
     const { register, handleSubmit, formState: { errors }, reset } = useForm<ResetFormValues>({
         resolver: zodResolver(resetSchema(tv)),
@@ -30,14 +38,29 @@ const UserResetPasswordModal: React.FC<Props> = ({ open, onClose, user }) => {
 
     if (!open) return null;
 
-    const onSubmit = (data: ResetFormValues) => {
-        console.log("Resetting password for:", user?.name, data);
-        onClose();
+    const onSubmit = async (data: ResetFormValues) => {
+        if (!userId) return;
+
+        try {
+            await changeUserPassword({
+                userId,
+                data: { password: data.newPassword },
+            }).unwrap();
+            toast.success("Password changed successfully");
+            reset();
+            onClose();
+        } catch (error: unknown) {
+            const message = error && typeof error === "object" && "data" in error
+                ? (error as { data?: { message?: string } }).data?.message
+                : undefined;
+            const fallbackMessage = error instanceof Error ? error.message : undefined;
+            toast.error(message || fallbackMessage || "Failed to change password");
+        }
     };
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-[2px]">
-            <div className="relative w-full max-w-[440px] rounded-[32px] bg-white p-8 shadow-2xl">
+            <div className="relative w-full max-w-lg rounded-[32px] bg-white p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
                 <div className="mb-6 flex items-center gap-4">
                     <div className="flex size-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
                         <Key size={28} />
@@ -51,26 +74,6 @@ const UserResetPasswordModal: React.FC<Props> = ({ open, onClose, user }) => {
                 </div>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-                    <div className="space-y-1.5">
-                        <label className="text-[11px] font-bold uppercase tracking-widest text-slate-400">{t("name") || "NAME"}</label>
-                        <input
-                            type="text"
-                            value={user?.name || ""}
-                            readOnly
-                            className="w-full rounded-2xl border-none bg-slate-50 px-4 py-3 text-[15px] text-slate-400 outline-none cursor-not-allowed"
-                        />
-                    </div>
-
-                    <div className="space-y-1.5">
-                        <label className="text-[11px] font-bold uppercase tracking-widest text-slate-400">{t("email") || "EMAIL"}</label>
-                        <input
-                            type="text"
-                            value={user?.email || ""}
-                            readOnly
-                            className="w-full rounded-2xl border-none bg-slate-50 px-4 py-3 text-[15px] text-slate-400 outline-none cursor-not-allowed"
-                        />
-                    </div>
-
                     <div className="space-y-1.5">
                         <label className="text-[11px] font-bold uppercase tracking-widest text-slate-400">{t("newPassword") || "NEW PASSWORD"}</label>
                         <div className="relative">
@@ -129,9 +132,10 @@ const UserResetPasswordModal: React.FC<Props> = ({ open, onClose, user }) => {
                         </button>
                         <Button
                             type="submit"
-                            className="h-12 rounded-2xl bg-[#93b4ff] px-10 text-sm font-bold text-white shadow-lg shadow-blue-500/20 hover:bg-blue-500 transition-all"
+                            disabled={isChangingPassword}
+                            className="h-12 rounded-2xl bg-[#93b4ff] px-10 text-sm font-bold text-white shadow-lg shadow-blue-500/20 hover:bg-blue-500 transition-all disabled:cursor-not-allowed disabled:opacity-70"
                         >
-                            {t("confirmReset") || "Confirm Reset"}
+                            {isChangingPassword ? <Loader2 className="size-4 animate-spin" /> : (t("confirmReset") || "Confirm Reset")}
                         </Button>
                     </div>
                 </form>

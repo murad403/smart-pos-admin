@@ -280,7 +280,7 @@ export interface UserListItem {
     id: number;
     slug: string;
     name: string | null;
-    role: "OWNER" | "ADMIN" | "USER" | string;
+    role: "OWNER" | "ADMIN" | "SERVICE" | "USER" | string;
     email: string | null;
     phone: string | null;
     photoUrl: string | null;
@@ -296,6 +296,49 @@ export interface GetAllUsersQueryParams {
     page?: number;
     limit?: number;
     search?: string;
+}
+
+export interface AddUserBody {
+    name: string;
+    email: string;
+    phone: string;
+    password: string;
+    role: "OWNER" | "ADMIN" | "SERVICE" | "USER";
+    address: string;
+    facebookUrl?: string;
+    instagramUrl?: string;
+}
+
+export interface AddUserResponse {
+    success: boolean;
+    statusCode: number;
+    message: string;
+    data: UserListItem;
+}
+
+export interface GetUserByIdResponse {
+    success: boolean;
+    statusCode: number;
+    message: string;
+    data: UserListItem;
+}
+
+export interface ChangeUserPasswordBody {
+    password: string;
+}
+
+export interface ChangeUserPasswordResponse {
+    success: boolean;
+    statusCode: number;
+    message: string;
+    data: null;
+}
+
+export interface DeleteUserResponse {
+    success: boolean;
+    statusCode: number;
+    message: string;
+    data: UserListItem;
 }
 
 export interface GetAllUsersResponse {

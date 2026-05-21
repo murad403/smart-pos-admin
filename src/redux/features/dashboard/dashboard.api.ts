@@ -1,5 +1,26 @@
 import baseApi from "../../api/api";
-import { AnalyticsQueryParams, AnalyticsResponse, SalesReportResponse, GetPaymentsResponse, GetPaymentsQueryParams, GetPaymentDetailsResponse, GetInventoryReportResponse, GetInventoryReportQueryParams, GetItemsResponse, GetItemsQueryParams, StockAdjustBody, StockAdjustResponse, GetAllUsersResponse, GetAllUsersQueryParams } from "./dashboard.type";
+import {
+    ChangeUserPasswordBody,
+    ChangeUserPasswordResponse,
+    AddUserBody,
+    AddUserResponse,
+    AnalyticsQueryParams,
+    AnalyticsResponse,
+    DeleteUserResponse,
+    GetAllUsersQueryParams,
+    GetAllUsersResponse,
+    GetInventoryReportQueryParams,
+    GetInventoryReportResponse,
+    GetItemsQueryParams,
+    GetItemsResponse,
+    GetPaymentDetailsResponse,
+    GetPaymentsQueryParams,
+    GetPaymentsResponse,
+    GetUserByIdResponse,
+    SalesReportResponse,
+    StockAdjustBody,
+    StockAdjustResponse,
+} from "./dashboard.type";
 
 
 
@@ -119,7 +140,45 @@ const dashboardApi = baseApi.injectEndpoints({
                 };
             },
             providesTags: ["users"]
-        })
+        }),
+        getUserById: builder.query<GetUserByIdResponse, number>({
+            query: (userId) => {
+                return {
+                    url: `/users/${userId}`,
+                    method: "GET"
+                };
+            },
+            providesTags: ["users"]
+        }),
+        addUser: builder.mutation<AddUserResponse, AddUserBody>({
+            query: (data) => {
+                return {
+                    url: `/users`,
+                    method: "POST",
+                    body: data
+                };
+            },
+            invalidatesTags: ["users"],
+        }),
+        changeUserPassword: builder.mutation<ChangeUserPasswordResponse, { userId: number; data: ChangeUserPasswordBody }>({
+            query: ({ userId, data }) => {
+                return {
+                    url: `/users/${userId}/change-password`,
+                    method: "PATCH",
+                    body: data
+                };
+            },
+            invalidatesTags: ["users"],
+        }),
+        deleteUser: builder.mutation<DeleteUserResponse, number>({
+            query: (userId) => {
+                return {
+                    url: `/users/${userId}`,
+                    method: "DELETE"
+                };
+            },
+            invalidatesTags: ["users"],
+        }),
     }),
 });
 
@@ -133,4 +192,8 @@ export const {
     useStockInMutation,
     useStockOutMutation,
     useGetAllUsersQuery,
+    useGetUserByIdQuery,
+    useAddUserMutation,
+    useChangeUserPasswordMutation,
+    useDeleteUserMutation,
 } = dashboardApi;
