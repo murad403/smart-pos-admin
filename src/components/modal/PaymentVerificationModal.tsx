@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { AlertTriangle, X, ImageOff } from "lucide-react";
+import { useState, useEffect } from "react";
+import { AlertTriangle, X, ImageOff, ChevronLeft, ChevronRight } from "lucide-react";
 import { PaymentVerificationItem } from "@/app/[locale]/(app)/payment-verification/PaymentVerificationCard";
 import { useTranslations } from "next-intl";
 import { useGetPaymentDetailsQuery } from "@/redux/features/dashboard/dashboard.api";
@@ -14,6 +15,12 @@ const formatCurrency = (value: number) => `Rp ${value.toLocaleString("en-US")}`;
 
 const PaymentVerificationModal = ({ item, onClose }: PaymentVerificationModalProps) => {
   const t = useTranslations("Payment");
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Reset image index when item changes
+  useEffect(() => {
+    setCurrentImageIndex(0);
+  }, [item?.id]);
   
   // Call detailed API query hook
   const { data: detailsRes, isLoading } = useGetPaymentDetailsQuery(
@@ -97,19 +104,44 @@ const PaymentVerificationModal = ({ item, onClose }: PaymentVerificationModalPro
 
         {/* Proof Images Slider / Scrollable Grid */}
         {imagesToRender.length > 0 ? (
-          <div className="flex gap-2 mb-4 overflow-x-auto pb-1 snap-x snap-mandatory">
-            {imagesToRender.map((img, index) => {
-              const imgSrc = typeof img === "string" ? img : (img as any).src;
-              return (
-                <div key={index} className="relative flex-shrink-0 w-full overflow-hidden rounded-xl snap-center border border-slate-100">
-                  <img
-                    src={imgSrc}
-                    alt={`Payment proof ${index + 1} for order ${item.orderNumber}`}
-                    className="h-52 w-full object-cover sm:h-60"
-                  />
+          <div className="relative mb-4">
+            <div className="relative overflow-hidden rounded-xl border border-slate-100">
+              <img
+                src={typeof imagesToRender[currentImageIndex] === "string" 
+                  ? (imagesToRender[currentImageIndex] as string)
+                  : (imagesToRender[currentImageIndex] as any).src
+                }
+                alt={`Payment proof ${currentImageIndex + 1} for order ${item.orderNumber}`}
+                className="h-52 w-full object-cover sm:h-60"
+              />
+              
+              {imagesToRender.length > 1 && (
+                <div className="absolute bottom-2 right-2 rounded bg-black/60 px-2 py-0.5 text-xs text-white">
+                  {currentImageIndex + 1} / {imagesToRender.length}
                 </div>
-              );
-            })}
+              )}
+            </div>
+
+            {imagesToRender.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setCurrentImageIndex((prev) => (prev === 0 ? imagesToRender.length - 1 : prev - 1))}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white/80 p-1.5 text-slate-700 shadow transition hover:bg-white hover:text-slate-900 active:scale-95 z-10"
+                  aria-label="Previous image"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCurrentImageIndex((prev) => (prev === imagesToRender.length - 1 ? 0 : prev + 1))}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white/80 p-1.5 text-slate-700 shadow transition hover:bg-white hover:text-slate-900 active:scale-95 z-10"
+                  aria-label="Next image"
+                >
+                  <ChevronRight size={18} />
+                </button>
+              </>
+            )}
           </div>
         ) : (
           <div className="h-52 w-full bg-slate-50 flex flex-col items-center justify-center text-slate-400 gap-2 border border-slate-100 rounded-xl mb-4 sm:h-60">
