@@ -112,7 +112,7 @@ const TableManagementPage = () => {
     const handleAdd = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!formTableNumber.trim()) {
-            toast.error("Table number is required");
+            toast.error(t("tableNumberRequired"));
             return;
         }
         try {
@@ -122,12 +122,12 @@ const TableManagementPage = () => {
                 notes: formNotes.trim() || undefined,
                 isActive: formIsActive
             }).unwrap();
-            toast.success("Table created successfully", { id: "table-crud" });
+            toast.success(t("tableCreated"), { id: "table-crud" });
             setIsAddOpen(false);
             resetForm();
             refetch();
         } catch (error: any) {
-            toast.error(error?.data?.message || error?.message || "Failed to create table", { id: "table-crud" });
+            toast.error(error?.data?.message || error?.message || t("tableCreateFailed"), { id: "table-crud" });
         }
     };
 
@@ -135,7 +135,7 @@ const TableManagementPage = () => {
         e.preventDefault();
         if (!selectedTable) return;
         if (!formTableNumber.trim()) {
-            toast.error("Table number is required");
+            toast.error(t("tableNumberRequired"));
             return;
         }
         try {
@@ -153,13 +153,13 @@ const TableManagementPage = () => {
                 data: body
             }).unwrap();
 
-            toast.success("Table updated successfully", { id: "table-crud" });
+            toast.success(t("tableUpdated"), { id: "table-crud" });
             setIsEditOpen(false);
             setSelectedTable(null);
             resetForm();
             refetch();
         } catch (error: any) {
-            toast.error(error?.data?.message || error?.message || "Failed to update table", { id: "table-crud" });
+            toast.error(error?.data?.message || error?.message || t("tableUpdateFailed"), { id: "table-crud" });
         }
     };
 
@@ -168,12 +168,12 @@ const TableManagementPage = () => {
         try {
             toast.loading(t("deletingTable"), { id: "table-crud" });
             await deleteTable(selectedTable.id).unwrap();
-            toast.success("Table deleted successfully", { id: "table-crud" });
+            toast.success(t("tableDeleted"), { id: "table-crud" });
             setIsDeleteOpen(false);
             setSelectedTable(null);
             refetch();
         } catch (error: any) {
-            toast.error(error?.data?.message || error?.message || "Failed to delete table", { id: "table-crud" });
+            toast.error(error?.data?.message || error?.message || t("tableDeleteFailed"), { id: "table-crud" });
         }
     };
 
@@ -188,7 +188,7 @@ const TableManagementPage = () => {
     const handleDownloadQR = async () => {
         if (!selectedTable) return;
         try {
-            toast.loading("Preparing download...", { id: "qr-download" });
+            toast.loading(t("preparingDownload"), { id: "qr-download" });
             const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(customQrUrl)}`;
 
             const res = await fetch(qrImageUrl);
@@ -203,9 +203,9 @@ const TableManagementPage = () => {
             document.body.removeChild(link);
             window.URL.revokeObjectURL(blobUrl);
 
-            toast.success("QR Code downloaded successfully", { id: "qr-download" });
+            toast.success(t("qrDownloaded"), { id: "qr-download" });
         } catch (error) {
-            toast.error("Failed to download QR code", { id: "qr-download" });
+            toast.error(t("qrDownloadFailed"), { id: "qr-download" });
         }
     };
 
@@ -213,7 +213,7 @@ const TableManagementPage = () => {
         if (!selectedTable) return;
         const printWindow = window.open("", "_blank");
         if (!printWindow) {
-            toast.error("Popup blocked! Please allow popups to print the QR code.");
+            toast.error(t("popupBlocked"));
             return;
         }
 
@@ -301,9 +301,9 @@ const TableManagementPage = () => {
             <div class="logo-text">SMART POS</div>
             <div class="sub-logo">Scan & Order</div>
             <div class="qr-container">
-              <img class="qr-image" src="${qrImageUrl}" alt="Table QR Code" />
+              <img class="qr-image" src="${qrImageUrl}" alt="${t("qrCodeTitle")}" />
             </div>
-            <h1 class="table-title">TABLE ${selectedTable.tableNumber}</h1>
+            <h1 class="table-title">${t("tableLabel").toUpperCase()} ${selectedTable.tableNumber}</h1>
             <p class="instructions">${t("scanQrCode")}</p>
           </div>
           <script>
@@ -399,14 +399,14 @@ const TableManagementPage = () => {
                                 onClick={onClose}
                                 className="px-6 py-2.5 rounded-xl text-slate-700 font-semibold text-sm hover:bg-slate-100 transition-all border border-slate-200"
                             >
-                                Cancel
+                                {t("cancel")}
                             </button>
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
                                 className="px-6 py-2.5 rounded-xl bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 transition-all shadow-md shadow-blue-500/10 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {isSubmitting ? "Saving..." : submitLabel}
+                                {isSubmitting ? t("saving") : submitLabel}
                             </button>
                         </div>
                     </form>
@@ -439,7 +439,7 @@ const TableManagementPage = () => {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center justify-between">
                     <div>
-                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Tables</p>
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t("totalTables")}</p>
                         <p className="text-3xl font-bold text-slate-950 mt-1">{totalTables}</p>
                     </div>
                     <div className="h-12 w-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
@@ -448,7 +448,7 @@ const TableManagementPage = () => {
                 </div>
                 <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center justify-between">
                     <div>
-                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Active Tables</p>
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t("activeTables")}</p>
                         <p className="text-3xl font-bold text-emerald-600 mt-1">{activeCount}</p>
                     </div>
                     <div className="h-12 w-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
@@ -457,7 +457,7 @@ const TableManagementPage = () => {
                 </div>
                 <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center justify-between">
                     <div>
-                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Inactive Tables</p>
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t("inactiveTables")}</p>
                         <p className="text-3xl font-bold text-slate-400 mt-1">{inactiveCount}</p>
                     </div>
                     <div className="h-12 w-12 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
@@ -475,7 +475,7 @@ const TableManagementPage = () => {
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search table number or notes..."
+                        placeholder={t("searchPlaceholder")}
                         className="w-full border border-slate-200 rounded-xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 placeholder:text-slate-400"
                     />
                     {searchQuery && (
@@ -496,10 +496,10 @@ const TableManagementPage = () => {
                             ? "bg-white text-blue-600 shadow-sm"
                             : "text-slate-500 hover:text-slate-800"
                             }`}
-                        title="Grid View"
+                        title={t("gridViewTitle")}
                     >
                         <LayoutGrid size={15} />
-                        <span className="hidden md:inline">Grid</span>
+                        <span className="hidden md:inline">{t("gridView")}</span>
                     </button>
                     <button
                         onClick={() => setViewMode("list")}
@@ -507,10 +507,10 @@ const TableManagementPage = () => {
                             ? "bg-white text-blue-600 shadow-sm"
                             : "text-slate-500 hover:text-slate-800"
                             }`}
-                        title="List View"
+                        title={t("listViewTitle")}
                     >
                         <List size={15} />
-                        <span className="hidden md:inline">List</span>
+                        <span className="hidden md:inline">{t("listView")}</span>
                     </button>
                 </div>
             </div>
@@ -574,17 +574,21 @@ const TableManagementPage = () => {
                                     </div>
                                     {table.isActive ? (
                                         <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100">
-                                            Active
+                                            {t("active")}
                                         </span>
                                     ) : (
                                         <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-400 bg-slate-50 px-2.5 py-0.5 rounded-full border border-slate-200">
-                                            Inactive
+                                            {t("inactive")}
                                         </span>
                                     )}
                                 </div>
 
                                 <div className="mt-4">
-                                    <span className="text-xs text-slate-400 font-semibold block">Table Code: {table.slug}</span>
+                                    <span className="text-xs text-slate-400 font-semibold block">
+                                        {t("tableCode", { code: table.slug }).includes("{code}")
+                                            ? t("tableCode").replace("{code}", table.slug)
+                                            : t("tableCode", { code: table.slug })}
+                                    </span>
                                     <h3 className="text-2xl font-black text-slate-900 tracking-tight mt-0.5">
                                         {table.tableNumber}
                                     </h3>
@@ -593,7 +597,7 @@ const TableManagementPage = () => {
                                             {table.notes}
                                         </p>
                                     ) : (
-                                        <p className="mt-2 text-xs text-slate-400 italic">No notes provided</p>
+                                        <p className="mt-2 text-xs text-slate-400 italic">{t("noNotesProvided")}</p>
                                     )}
                                 </div>
                             </div>
@@ -607,13 +611,13 @@ const TableManagementPage = () => {
                                     className="flex-1 h-9 gap-1.5 px-0 rounded-xl text-slate-700 bg-slate-50/50 hover:bg-slate-100 hover:text-slate-900 border-slate-200 text-xs font-bold"
                                 >
                                     <QrCode size={14} className="text-blue-600" />
-                                    QR Code
+                                    {t("qrCode")}
                                 </Button>
                                 <button
                                     type="button"
                                     onClick={() => handleOpenEdit(table)}
                                     className="h-9 w-9 flex items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 border border-slate-200 transition-all hover:text-slate-900 shrink-0"
-                                    title="Edit Table"
+                                    title={t("editTable")}
                                 >
                                     <Edit3 size={14} />
                                 </button>
@@ -621,7 +625,7 @@ const TableManagementPage = () => {
                                     type="button"
                                     onClick={() => handleOpenDelete(table)}
                                     className="h-9 w-9 flex items-center justify-center rounded-xl text-rose-500 hover:bg-rose-50 border border-slate-200 hover:border-rose-100 transition-all shrink-0"
-                                    title="Delete Table"
+                                    title={t("deleteTable")}
                                 >
                                     <Trash2 size={14} />
                                 </button>
@@ -636,8 +640,8 @@ const TableManagementPage = () => {
                         <table className="w-full text-left">
                             <thead>
                                 <tr className="border-b border-slate-100 bg-slate-50/60">
-                                    <th className="py-4 pl-5 pr-3 text-xs font-bold text-slate-500 uppercase tracking-wider">ID</th>
-                                    <th className="py-4 px-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Slug</th>
+                                    <th className="py-4 pl-5 pr-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{t("idHeader")}</th>
+                                    <th className="py-4 px-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{t("slugHeader")}</th>
                                     <th className="py-4 px-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{t("tableNumber")}</th>
                                     <th className="py-4 px-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{t("notes")}</th>
                                     <th className="py-4 px-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">{t("status")}</th>
@@ -658,20 +662,20 @@ const TableManagementPage = () => {
                                                 <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600 shrink-0">
                                                     <Armchair className="size-4" />
                                                 </div>
-                                                <span className="text-sm font-extrabold text-slate-900">Table {table.tableNumber}</span>
+                                                <span className="text-sm font-extrabold text-slate-900">{t("tableLabel")} {table.tableNumber}</span>
                                             </div>
                                         </td>
                                         <td className="py-4 px-3 max-w-xs truncate">
-                                            <span className="text-sm text-slate-600">{table.notes || <span className="text-slate-300 italic">No notes</span>}</span>
+                                            <span className="text-sm text-slate-600">{table.notes || <span className="text-slate-300 italic">{t("noNotes")}</span>}</span>
                                         </td>
                                         <td className="py-4 px-3 text-center">
                                             {table.isActive ? (
                                                 <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100">
-                                                    <CheckCircle2 size={12} /> Active
+                                                    <CheckCircle2 size={12} /> {t("active")}
                                                 </span>
                                             ) : (
                                                 <span className="inline-flex items-center gap-1 text-xs font-semibold text-slate-400 bg-slate-50 px-2.5 py-1 rounded-full border border-slate-200">
-                                                    <XCircle size={12} /> Inactive
+                                                    <XCircle size={12} /> {t("inactive")}
                                                 </span>
                                             )}
                                         </td>
@@ -684,7 +688,7 @@ const TableManagementPage = () => {
                                                     className="h-9 px-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 text-slate-600 border-slate-200 text-xs font-bold gap-1"
                                                 >
                                                     <QrCode size={14} />
-                                                    QR Code
+                                                    {t("qrCode")}
                                                 </Button>
                                                 <Button
                                                     type="button"
@@ -753,7 +757,7 @@ const TableManagementPage = () => {
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img
                                         src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(customQrUrl)}`}
-                                        alt={`Table ${selectedTable.tableNumber} QR Code`}
+                                        alt={`${t("tableLabel")} ${selectedTable.tableNumber} ${t("qrCode")}`}
                                         className="w-48 h-48 block transition-transform duration-300 group-hover:scale-105"
                                     />
                                 </div>
@@ -814,7 +818,7 @@ const TableManagementPage = () => {
                 renderTableForm(
                     handleAdd,
                     isAdding,
-                    "Create Table",
+                    t("createTable"),
                     t("addTable"),
                     () => {
                         setIsAddOpen(false);
@@ -827,7 +831,7 @@ const TableManagementPage = () => {
                 renderTableForm(
                     handleUpdate,
                     isUpdating,
-                    "Save Changes",
+                    t("saveChanges"),
                     t("editTable"),
                     () => {
                         setIsEditOpen(false);
@@ -854,7 +858,7 @@ const TableManagementPage = () => {
                                 }}
                                 className="rounded-xl text-xs font-bold border-slate-200"
                             >
-                                Cancel
+                                {t("cancel")}
                             </Button>
                             <Button
                                 type="button"
@@ -862,7 +866,7 @@ const TableManagementPage = () => {
                                 disabled={isDeleting}
                                 className="bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-md shadow-red-500/10"
                             >
-                                {isDeleting ? "Deleting..." : "Delete"}
+                                {isDeleting ? t("deleting") : t("delete")}
                             </Button>
                         </div>
                     </div>

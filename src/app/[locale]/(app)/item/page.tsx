@@ -79,13 +79,13 @@ const ItemManagementPage = () => {
 
   const handleDelete = async (itemId: number) => {
     try {
-      toast.loading("Deleting item...", { id: "delete-item-toast" });
+      toast.loading(t("deletingItem"), { id: "delete-item-toast" });
       await deleteItem(itemId).unwrap();
-      toast.success("Item deleted successfully", { id: "delete-item-toast" });
+      toast.success(t("itemDeletedSuccessfully"), { id: "delete-item-toast" });
       setConfirmDeleteId(null);
       refetch();
     } catch (err: any) {
-      toast.error(err?.data?.message || err?.message || "Failed to delete item", { id: "delete-item-toast" });
+      toast.error(err?.data?.message || err?.message || t("failedToDeleteItem"), { id: "delete-item-toast" });
     }
   };
 
@@ -108,8 +108,8 @@ const ItemManagementPage = () => {
       {/* Page Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Product Item Management</h1>
-          <p className="mt-1 text-slate-500">Create, customize, and configure individual items or multi-packet combo meals.</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">{t("productItemManagement")}</h1>
+          <p className="mt-1 text-slate-500">{t("productItemManagementDesc")}</p>
         </div>
         <div>
           <Button
@@ -118,7 +118,7 @@ const ItemManagementPage = () => {
             className="h-11 rounded-[14px] bg-blue-600 hover:bg-blue-700 px-6 text-sm font-semibold text-white shadow-md shadow-blue-500/20"
           >
             <Plus className="mr-1.5 size-4" />
-            Add Product Item
+            {t("addProductItem")}
           </Button>
         </div>
       </div>
@@ -132,7 +132,7 @@ const ItemManagementPage = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search items by name or code..."
+            placeholder={t("searchItemsPlaceholder")}
             className="w-full border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 placeholder:text-slate-400"
           />
         </div>
@@ -159,16 +159,16 @@ const ItemManagementPage = () => {
           <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
             <Layers className="size-7" />
           </div>
-          <h2 className="mt-5 text-xl font-bold tracking-tight text-slate-900">No Product Items Found</h2>
+          <h2 className="mt-5 text-xl font-bold tracking-tight text-slate-900">{t("noProductItemsFound")}</h2>
           <p className="mx-auto mt-2 max-w-sm text-sm text-slate-500">
-            Get started by adding your first menu item or packet combo list.
+            {t("noProductItemsFoundDesc")}
           </p>
           <Button
             type="button"
             onClick={() => setIsAddOpen(true)}
             className="mt-6 h-10 rounded-xl bg-blue-600 hover:bg-blue-700 text-sm font-semibold text-white"
           >
-            Create First Item
+            {t("createFirstItem")}
           </Button>
         </div>
       ) : (
@@ -213,12 +213,12 @@ const ItemManagementPage = () => {
                         )}
                       </div>
                       <div className="text-xs text-slate-500 font-medium flex flex-wrap items-center gap-x-3 gap-y-1">
-                        <span>Code: <strong className="text-slate-700">{item.slug}</strong></span>
+                        <span>{t("codeLabel")}: <strong className="text-slate-700">{item.slug}</strong></span>
                         {item.productionStation && (
-                          <span>Station: <strong className="text-slate-700">{item.productionStation.name}</strong></span>
+                          <span>{t("stationLabel")}: <strong className="text-slate-700">{item.productionStation.name}</strong></span>
                         )}
-                        <span>Stock: <strong className={item.isOutOfStock ? "text-rose-600" : "text-slate-700"}>
-                          {item.isOutOfStock ? "Out of Stock" : (item.inventoryQty ?? "Unlimited")}
+                        <span>{t("stockLabel")}: <strong className={item.isOutOfStock ? "text-rose-600" : "text-slate-700"}>
+                          {item.isOutOfStock ? t("outOfStock") : (item.inventoryQty ?? t("unlimited"))}
                         </strong></span>
                       </div>
 
@@ -249,11 +249,11 @@ const ItemManagementPage = () => {
                     <div className="flex flex-col items-center shrink-0">
                       {item.isVisible ? (
                         <span className="flex items-center gap-1 text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100">
-                          <CheckCircle2 size={12} /> Active
+                          <CheckCircle2 size={12} /> {t("active")}
                         </span>
                       ) : (
                         <span className="flex items-center gap-1 text-xs font-semibold text-slate-400 bg-slate-50 px-2.5 py-1 rounded-full border border-slate-200">
-                          <XCircle size={12} /> Hidden
+                          <XCircle size={12} /> {t("hidden")}
                         </span>
                       )}
                     </div>
@@ -287,7 +287,7 @@ const ItemManagementPage = () => {
                 {item.itemType === "PACKET" && item.packetSections && item.packetSections.length > 0 && (
                   <div className="px-5 pb-5 pt-3 border-t border-slate-100 bg-slate-50/40">
                     <span className="text-xs font-extrabold text-slate-400 uppercase tracking-wider block mb-2.5">
-                      Combo Content Configuration (Max: {item.maxPacketItems} selections)
+                      {t("comboContentConfig")} (Max: {item.maxPacketItems} {t("selections")})
                     </span>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                       {item.packetSections.map((sec: any) => (
@@ -295,7 +295,7 @@ const ItemManagementPage = () => {
                           <div className="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-2">
                             <span className="text-xs font-bold text-slate-800">{sec.name}</span>
                             <span className="text-[10px] font-extrabold bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">
-                              Max: {sec.maxQty}
+                              {t("maxLabel")}: {sec.maxQty}
                             </span>
                           </div>
                           <ul className="space-y-1">
@@ -303,11 +303,11 @@ const ItemManagementPage = () => {
                               sec.choices.map((ch: any) => (
                                 <li key={ch.id} className="text-xs text-slate-500 flex items-center justify-between">
                                   <span>• {ch.name}</span>
-                                  <span className="text-[10px] text-slate-400 font-medium">Max: {ch.maxQty}</span>
+                                  <span className="text-[10px] text-slate-400 font-medium">{t("maxLabel")}: {ch.maxQty}</span>
                                 </li>
                               ))
                             ) : (
-                              <li className="text-[11px] text-slate-400 italic">No choice options</li>
+                              <li className="text-[11px] text-slate-400 italic">{t("noChoiceOptions")}</li>
                             )}
                           </ul>
                         </div>
@@ -325,7 +325,7 @@ const ItemManagementPage = () => {
       {totalPages > 1 && (
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
           <div className="text-sm text-slate-500 font-medium">
-            Showing {startItem} to {endItem} of {totalItems} entries
+            {t("showingEntries", { start: startItem, end: endItem, total: totalItems })}
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -335,7 +335,7 @@ const ItemManagementPage = () => {
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               className="h-9 rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-700 disabled:opacity-50"
             >
-              Previous
+              {t("previous")}
             </Button>
             <div className="flex items-center gap-1.5">
               {renderPageButtons()}
@@ -347,7 +347,7 @@ const ItemManagementPage = () => {
               onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
               className="h-9 rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-700 disabled:opacity-50"
             >
-              Next
+              {t("next")}
             </Button>
           </div>
         </div>
@@ -357,9 +357,9 @@ const ItemManagementPage = () => {
       {confirmDeleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 border border-gray-100">
-            <h2 className="text-lg font-bold text-gray-900">Delete Product Item?</h2>
+            <h2 className="text-lg font-bold text-gray-900">{t("deleteProductItemTitle")}</h2>
             <p className="text-sm text-gray-500 mt-2">
-              Are you sure you want to delete this product? This action is permanent and cannot be undone.
+              {t("deleteProductItemDesc")}
             </p>
             <div className="flex items-center justify-end gap-3 mt-6">
               <Button
@@ -368,14 +368,14 @@ const ItemManagementPage = () => {
                 onClick={() => setConfirmDeleteId(null)}
                 className="rounded-xl"
               >
-                Cancel
+                {t("cancel")}
               </Button>
               <Button
                 type="button"
                 onClick={() => handleDelete(confirmDeleteId)}
                 className="bg-red-600 hover:bg-red-700 text-white rounded-xl"
               >
-                Delete
+                {t("delete")}
               </Button>
             </div>
           </div>

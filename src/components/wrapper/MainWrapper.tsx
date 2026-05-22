@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client"
 import React from "react"
+// Trigger MainWrapper rebuild to reload translations
 import Image from "next/image"
 import { Armchair, CalendarRange, ChevronDown, CreditCard, Fuel, Grid2x2, LayoutDashboard, LogOut, Package, ReceiptText, ShoppingBag, User, Utensils } from "lucide-react"
 import brandLogo from "@/assets/logo/logo.png"

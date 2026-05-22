@@ -12,9 +12,11 @@ import {
 } from "@/redux/features/menu/menu.api";
 import { toast } from "sonner";
 import CustomPagination from "@/components/shared/CustomPagination";
+import { useTranslations } from "next-intl";
 
 
 const ProductionStationPage = () => {
+  const t = useTranslations("ProductionStation");
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 15;
 
@@ -64,7 +66,7 @@ const ProductionStationPage = () => {
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formName.trim()) {
-      toast.error("Station name is required");
+      toast.error(t("nameRequired"));
       return;
     }
     try {
@@ -72,20 +74,20 @@ const ProductionStationPage = () => {
       if (formSortOrder !== "") body.sortOrder = Number(formSortOrder);
       if (!formIsActive) body.isActive = false;
 
-      toast.loading("Creating station...", { id: "station-toast" });
+      toast.loading(t("creatingStation"), { id: "station-toast" });
       await addStation(body).unwrap();
-      toast.success("Production station created successfully", { id: "station-toast" });
+      toast.success(t("createdSuccess"), { id: "station-toast" });
       setIsAddOpen(false);
       resetForm();
     } catch (err: any) {
-      toast.error(err?.data?.message || err?.message || "Failed to create station", { id: "station-toast" });
+      toast.error(err?.data?.message || err?.message || t("createdFailed"), { id: "station-toast" });
     }
   };
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formName.trim() || !editingStation) {
-      toast.error("Station name is required");
+      toast.error(t("nameRequired"));
       return;
     }
     try {
@@ -93,25 +95,25 @@ const ProductionStationPage = () => {
       if (formSortOrder !== "") body.sortOrder = Number(formSortOrder);
       body.isActive = formIsActive;
 
-      toast.loading("Updating station...", { id: "station-toast" });
+      toast.loading(t("updatingStation"), { id: "station-toast" });
       await updateStation({ stationId: editingStation.id, data: body }).unwrap();
-      toast.success("Production station updated successfully", { id: "station-toast" });
+      toast.success(t("updatedSuccess"), { id: "station-toast" });
       setIsEditOpen(false);
       setEditingStation(null);
       resetForm();
     } catch (err: any) {
-      toast.error(err?.data?.message || err?.message || "Failed to update station", { id: "station-toast" });
+      toast.error(err?.data?.message || err?.message || t("updatedFailed"), { id: "station-toast" });
     }
   };
 
   const handleDelete = async (stationId: number) => {
     try {
-      toast.loading("Deleting station...", { id: "station-toast" });
+      toast.loading(t("deletingStation"), { id: "station-toast" });
       await deleteStation(stationId).unwrap();
-      toast.success("Production station deleted successfully", { id: "station-toast" });
+      toast.success(t("deletedSuccess"), { id: "station-toast" });
       setConfirmDeleteId(null);
     } catch (err: any) {
-      toast.error(err?.data?.message || err?.message || "Failed to delete station", { id: "station-toast" });
+      toast.error(err?.data?.message || err?.message || t("deletedFailed"), { id: "station-toast" });
     }
   };
 
@@ -140,26 +142,26 @@ const ProductionStationPage = () => {
           <form onSubmit={onSubmit} className="space-y-5">
             {/* Station Name */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Station Name *</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t("stationNameLabel")}</label>
               <input
                 type="text"
                 required
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
-                placeholder="Enter station name (e.g. Kitchen, Bar)"
+                placeholder={t("stationNamePlaceholder")}
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 placeholder:text-gray-400"
               />
             </div>
 
             {/* Sort Order */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Sort Order</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t("sortOrderLabel")}</label>
               <input
                 type="number"
                 min="0"
                 value={formSortOrder}
                 onChange={(e) => setFormSortOrder(e.target.value === "" ? "" : Number(e.target.value))}
-                placeholder="Optional (e.g. 1, 2, 3)"
+                placeholder={t("sortOrderPlaceholder")}
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 placeholder:text-gray-400"
               />
             </div>
@@ -180,8 +182,8 @@ const ProductionStationPage = () => {
                 />
               </button>
               <div>
-                <span className="text-sm font-semibold text-gray-800 block">Active Status</span>
-                <span className="text-xs text-gray-500">{formIsActive ? "This station is active and operational" : "This station is currently inactive"}</span>
+                <span className="text-sm font-semibold text-gray-800 block">{t("activeStatusLabel")}</span>
+                <span className="text-xs text-gray-500">{formIsActive ? t("activeStatusDesc") : t("inactiveStatusDesc")}</span>
               </div>
             </div>
 
@@ -192,14 +194,14 @@ const ProductionStationPage = () => {
                 onClick={onClose}
                 className="px-6 py-2.5 rounded-xl text-gray-700 font-semibold text-sm hover:bg-gray-100 transition-all border border-gray-200"
               >
-                Cancel
+                {t("cancel")}
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
                 className="px-6 py-2.5 rounded-xl bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 transition-all shadow-md shadow-blue-500/10 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? "Saving..." : submitLabel}
+                {isSubmitting ? t("saving") : submitLabel}
               </button>
             </div>
           </form>
@@ -213,8 +215,8 @@ const ProductionStationPage = () => {
       {/* Page Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Production Stations</h1>
-          <p className="mt-1 text-slate-500">Manage kitchen and bar preparation stations for order routing.</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">{t("title")}</h1>
+          <p className="mt-1 text-slate-500">{t("subtitle")}</p>
         </div>
         <div>
           <Button
@@ -223,7 +225,7 @@ const ProductionStationPage = () => {
             className="h-11 rounded-[14px] bg-blue-600 hover:bg-blue-700 px-6 text-sm font-semibold text-white shadow-md shadow-blue-500/20"
           >
             <Plus className="mr-1.5 size-4" />
-            Add Station
+            {t("addStation")}
           </Button>
         </div>
       </div>
@@ -252,16 +254,16 @@ const ProductionStationPage = () => {
           <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
             <Factory className="size-7" />
           </div>
-          <h2 className="mt-5 text-xl font-bold tracking-tight text-slate-900">No Production Stations Found</h2>
+          <h2 className="mt-5 text-xl font-bold tracking-tight text-slate-900">{t("noStationsFound")}</h2>
           <p className="mx-auto mt-2 max-w-sm text-sm text-slate-500">
-            Get started by adding your first production station to route orders.
+            {t("noStationsFoundDesc")}
           </p>
           <Button
             type="button"
             onClick={handleOpenAdd}
             className="mt-6 h-10 rounded-xl bg-blue-600 hover:bg-blue-700 text-sm font-semibold text-white"
           >
-            Create First Station
+            {t("createFirstStation")}
           </Button>
         </div>
       ) : (
@@ -271,12 +273,12 @@ const ProductionStationPage = () => {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50/60">
-                  <th className="py-4 pl-5 pr-3 text-xs font-bold text-slate-500 uppercase tracking-wider">ID</th>
-                  <th className="py-4 px-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Code</th>
-                  <th className="py-4 px-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Station Name</th>
-                  <th className="py-4 px-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Sort Order</th>
-                  <th className="py-4 px-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Status</th>
-                  <th className="py-4 pl-3 pr-5 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+                  <th className="py-4 pl-5 pr-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{t("idHeader")}</th>
+                  <th className="py-4 px-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{t("codeHeader")}</th>
+                  <th className="py-4 px-3 text-xs font-bold text-slate-500 uppercase tracking-wider">{t("stationNameHeader")}</th>
+                  <th className="py-4 px-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">{t("sortOrderHeader")}</th>
+                  <th className="py-4 px-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">{t("statusHeader")}</th>
+                  <th className="py-4 pl-3 pr-5 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">{t("actionsHeader")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -302,11 +304,11 @@ const ProductionStationPage = () => {
                     <td className="py-4 px-3 text-center">
                       {station.isActive ? (
                         <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100">
-                          <CheckCircle2 size={12} /> Active
+                          <CheckCircle2 size={12} /> {t("active")}
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 text-xs font-semibold text-slate-400 bg-slate-50 px-2.5 py-1 rounded-full border border-slate-200">
-                          <XCircle size={12} /> Inactive
+                          <XCircle size={12} /> {t("inactive")}
                         </span>
                       )}
                     </td>
@@ -351,9 +353,9 @@ const ProductionStationPage = () => {
       {confirmDeleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 border border-gray-100">
-            <h2 className="text-lg font-bold text-gray-900">Delete Production Station?</h2>
+            <h2 className="text-lg font-bold text-gray-900">{t("deleteTitle")}</h2>
             <p className="text-sm text-gray-500 mt-2">
-              Are you sure you want to delete this station? This action is permanent and cannot be undone.
+              {t("deleteDesc")}
             </p>
             <div className="flex items-center justify-end gap-3 mt-6">
               <Button
@@ -362,14 +364,14 @@ const ProductionStationPage = () => {
                 onClick={() => setConfirmDeleteId(null)}
                 className="rounded-xl"
               >
-                Cancel
+                {t("cancel")}
               </Button>
               <Button
                 type="button"
                 onClick={() => handleDelete(confirmDeleteId)}
                 className="bg-red-600 hover:bg-red-700 text-white rounded-xl"
               >
-                Delete
+                {t("delete")}
               </Button>
             </div>
           </div>
@@ -381,9 +383,9 @@ const ProductionStationPage = () => {
         renderStationForm(
           handleAdd,
           isAdding,
-          "Create Station",
-          "Add Production Station",
-          "Configure a new production station for order routing.",
+          t("createBtn"),
+          t("addTitle"),
+          t("addSubtitle"),
           () => { setIsAddOpen(false); resetForm(); }
         )
       }
@@ -393,9 +395,9 @@ const ProductionStationPage = () => {
         renderStationForm(
           handleUpdate,
           isUpdating,
-          "Save Changes",
-          "Edit Production Station",
-          "Modify station properties and active status.",
+          t("saveChanges"),
+          t("editTitle"),
+          t("editSubtitle"),
           () => { setIsEditOpen(false); setEditingStation(null); resetForm(); }
         )
       }
