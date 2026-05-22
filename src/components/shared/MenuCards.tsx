@@ -1,9 +1,10 @@
 "use client";
 
+import React, { useState } from "react";
 import Image from "next/image";
 import item1 from "@/assets/images/menu1.jpg";
 import item2 from "@/assets/images/menu2.png";
-import { SquarePen, Trash2 } from "lucide-react";
+import { SquarePen, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionLayoutType } from "@/redux/features/menu/menu.type";
 import { useTranslations } from "next-intl";
@@ -23,6 +24,7 @@ export type MenuItemCardData = {
   imageType: "menu1" | "menu2";
   imageUrl?: string | null;
   badges: [string, string];
+  packetSections?: any[];
 };
 
 type Props = {
@@ -38,6 +40,93 @@ type Props = {
 const imageMap = {
   menu1: item1,
   menu2: item2,
+};
+
+const PacketSlider = ({ packetSections }: { packetSections: any[] }) => {
+  const choices = packetSections.flatMap(section =>
+    (section.choices || []).map((choice: any) => ({
+      ...choice,
+      sectionName: section.name
+    }))
+  );
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  if (choices.length === 0) return null;
+
+  const handlePrev = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentIndex((prev) => (prev === 0 ? choices.length - 1 : prev - 1));
+  };
+
+  const handleNext = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentIndex((prev) => (prev === choices.length - 1 ? 0 : prev + 1));
+  };
+
+  return (
+    <div className="relative mt-3 rounded-xl border border-slate-100 bg-slate-50/50 p-2.5">
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">
+        Packet Options
+      </p>
+
+      <div className="relative overflow-hidden h-12">
+        <div
+          className="flex transition-transform duration-300 ease-in-out h-full"
+          style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+        >
+          {choices.map((choice, index) => (
+            <div key={choice.id || index} className="w-full shrink-0 flex flex-col justify-center px-6 text-center sm:text-left">
+              <span className="text-[10px] font-bold text-blue-500 uppercase leading-none mb-0.5">
+                {choice.sectionName}
+              </span>
+              <span className="text-sm font-semibold text-slate-800 truncate">
+                {choice.name}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {choices.length > 1 && (
+        <>
+          <button
+            type="button"
+            onClick={handlePrev}
+            className="absolute left-1 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full bg-white border border-slate-100 shadow-sm text-slate-600 hover:bg-slate-50 transition-colors"
+          >
+            <ChevronLeft size={14} />
+          </button>
+          <button
+            type="button"
+            onClick={handleNext}
+            className="absolute right-1 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full bg-white border border-slate-100 shadow-sm text-slate-600 hover:bg-slate-50 transition-colors"
+          >
+            <ChevronRight size={14} />
+          </button>
+        </>
+      )}
+
+      {/* Dots indicator */}
+      {choices.length > 1 && (
+        <div className="mt-1 flex justify-center gap-1">
+          {choices.map((_, index) => (
+            <button
+              key={index}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setCurrentIndex(index);
+              }}
+              className={`h-1 rounded-full transition-all duration-200 ${
+                index === currentIndex ? "w-2.5 bg-blue-500" : "w-1 bg-slate-200"
+              }`}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
 };
 
 const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, onEditSection, onDeleteSection }: Props) => {
@@ -74,6 +163,7 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
       imageType: "menu1",
       imageUrl: item.imageUrl || null,
       badges: [item.labels?.[0] || "", item.labels?.[1] || ""],
+      packetSections: item.packetSections || [],
     };
   });
   
@@ -248,6 +338,9 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
                       <p className="text-slate-600">{t("stock")}: {item.stock}</p>
                       <p className="text-right font-medium text-slate-900">{item.statusLabel}</p>
                     </div>
+                    {item.packetSections && item.packetSections.length > 0 && (
+                      <PacketSlider packetSections={item.packetSections} />
+                    )}
                   </div>
 
                   <div className="mt-6 flex items-end justify-between gap-4">
