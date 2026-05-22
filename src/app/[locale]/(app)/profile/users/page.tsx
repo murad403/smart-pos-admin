@@ -125,7 +125,7 @@ const UserManagementPage = ({ params }: { params?: Promise<{ locale: string }> }
                 <p className="mb-6 text-[14px] text-slate-500">{t("resetDescription")}</p>
 
                 {isLoading ? (
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                         {Array.from({ length: 8 }).map((_, index) => (
                             <div key={index} className="rounded-2xl border border-slate-100 p-5">
                                 <div className="mb-4 flex items-start justify-between">
@@ -151,33 +151,33 @@ const UserManagementPage = ({ params }: { params?: Promise<{ locale: string }> }
                     </div>
                 ) : (
                     <>
-                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                             {users.map((user) => {
                                 const displayName = user.name?.trim() || user.email?.trim() || user.slug;
                                 const displayEmail = user.email?.trim() || "No email provided";
                                 const lastActive = new Date(user.updatedAt || user.createdAt).toLocaleString();
 
                                 return (
-                                    <div key={user.id} className="group rounded-2xl border border-slate-100 p-5 transition-all hover:border-blue-200 hover:shadow-md">
-                                        <div className="mb-4 flex items-start justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <div className={`flex size-11 items-center justify-center rounded-xl font-bold ${getUserColorClass(user.role)}`}>
+                                    <div key={user.id} className="group rounded-2xl border border-slate-100 p-5 transition-all hover:border-blue-200 hover:shadow-md flex flex-col justify-between min-w-0">
+                                        <div className="mb-4 flex items-start justify-between gap-2 min-w-0">
+                                            <div className="flex items-center gap-3 min-w-0">
+                                                <div className={`flex size-11 items-center justify-center rounded-xl font-bold shrink-0 ${getUserColorClass(user.role)}`}>
                                                     {getUserInitial(user)}
                                                 </div>
-                                                <div>
-                                                    <div className="flex items-center gap-1.5">
-                                                        <span className="text-[15px] font-bold text-slate-900">{displayName}</span>
-                                                        <span className={`rounded-md px-1.5 py-0.5 text-[9px] font-bold tracking-wider ${getRoleBadgeClass(user.role)}`}>
+                                                <div className="min-w-0">
+                                                    <div className="flex items-center gap-1.5 min-w-0">
+                                                        <span className="text-[15px] font-bold text-slate-900 truncate">{displayName}</span>
+                                                        <span className={`rounded-md px-1.5 py-0.5 text-[9px] font-bold tracking-wider shrink-0 ${getRoleBadgeClass(user.role)}`}>
                                                             {user.role}
                                                         </span>
                                                     </div>
-                                                    <p className="text-[12px] text-slate-500">{displayEmail}</p>
+                                                    <p className="text-[12px] text-slate-500 truncate">{displayEmail}</p>
                                                 </div>
                                             </div>
                                             <button
                                                 type="button"
                                                 onClick={() => handleDeleteUser({ id: user.id, name: displayName, email: displayEmail })}
-                                                className="rounded-full p-2 text-slate-400 transition hover:bg-red-50 hover:text-red-600"
+                                                className="rounded-full p-2 text-slate-400 transition hover:bg-red-50 hover:text-red-600 shrink-0"
                                                 aria-label={`Delete ${displayName}`}
                                             >
                                                 <Trash2 className="size-4" />

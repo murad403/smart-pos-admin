@@ -183,12 +183,12 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
             <Plus className="mr-1.5 size-4" />
             {t("addNewSection")}
           </Button>
-          <Button
+          {/* <Button
             type="button"
             className="h-11 rounded-[14px] bg-[#FF3B30] px-8 text-[15px] font-semibold text-white shadow-lg shadow-red-500/25 hover:bg-red-600"
           >
             {t("save")}
-          </Button>
+          </Button> */}
         </div>
       </div>
 

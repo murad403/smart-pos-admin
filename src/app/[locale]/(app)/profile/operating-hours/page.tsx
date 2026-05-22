@@ -161,7 +161,7 @@ const OperatingHoursPage = ({ params }: { params?: Promise<{ locale: string }> }
           </div>
         </div>
 
-        <div className="grid gap-x-6 gap-y-4 md:grid-cols-2">
+        <div className="grid gap-x-6 gap-y-4 lg:grid-cols-2">
           {days.map((config, idx) => (
             <div key={config.key} className={cn("rounded-2xl border border-slate-100 p-5 transition-all", !config.isOpen && "bg-slate-50/50 opacity-60")}>
               <div className="flex items-center justify-between">
@@ -173,8 +173,8 @@ const OperatingHoursPage = ({ params }: { params?: Promise<{ locale: string }> }
                 />
               </div>
               
-              <div className="mt-4 flex items-center gap-3">
-                <div className="flex-1">
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+                <div className="flex-1 min-w-0">
                   <input
                     type="time"
                     value={config.startTime}
@@ -183,8 +183,8 @@ const OperatingHoursPage = ({ params }: { params?: Promise<{ locale: string }> }
                     className="w-full rounded-xl border border-slate-100 bg-white px-4 py-2.5 text-[14px] text-slate-600 outline-none focus:border-blue-500/50"
                   />
                 </div>
-                <span className="text-slate-300">-</span>
-                <div className="flex-1">
+                <span className="text-slate-300 hidden sm:inline">-</span>
+                <div className="flex-1 min-w-0">
                   <input
                     type="time"
                     value={config.endTime}
