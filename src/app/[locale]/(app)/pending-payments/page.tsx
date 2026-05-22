@@ -52,10 +52,10 @@ const PendingPaymentsPage = ({ params }: { params?: Promise<{ locale: string }> 
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-[32px] font-bold tracking-tight text-slate-900">
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900">
             {tPending("title") || "Pending Payment Orders"}
           </h1>
-          <p className="mt-1 text-slate-500">
+          <p className="mt-1 text-slate-600 text-sm">
             {tPending("subtitle") || "Review and process orders awaiting payment completion."}
           </p>
         </div>

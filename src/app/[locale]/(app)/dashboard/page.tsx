@@ -36,7 +36,7 @@ const DashboardPage = ({ params }: { params?: Promise<{ locale: string }> }) => 
     <div className="bg-slate-50">
       {/* Page Header */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">{t("title")}</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-slate-900">{t("title")}</h1>
         <DateRangePicker
           startDate={startDate}
           endDate={endDate}

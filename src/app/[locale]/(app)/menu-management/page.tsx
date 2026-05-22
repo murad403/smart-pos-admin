@@ -134,8 +134,8 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
     <div className="space-y-4 md:space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">{t("menuTab")}</h1>
-        <p className="mt-1 text-slate-500">Track stock levels and identify shortages</p>
+        <h1 className="text-2xl md:text-3xl font-bold text-slate-900">{t("menuTab")}</h1>
+        <p className="mt-1 text-sm text-slate-600">Track stock levels and identify shortages</p>
       </div>
 
       {/* Control Bar */}

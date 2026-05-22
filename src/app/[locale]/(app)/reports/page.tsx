@@ -35,7 +35,7 @@ const ReportsPage = ({ params }: { params?: Promise<{ locale: string }> }) => {
     <div>
       {/* Header */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold text-slate-900">{t("title")}</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-slate-900">{t("title")}</h1>
 
         <div className="flex flex-wrap items-center gap-2">
           {/* Date range */}

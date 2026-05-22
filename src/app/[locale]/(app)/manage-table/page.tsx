@@ -420,8 +420,8 @@ const TableManagementPage = () => {
             {/* Top Hero and Action Section */}
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
-                    <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">{t("title")}</h1>
-                    <p className="mt-1 text-slate-500">{t("description")}</p>
+                    <h1 className="text-2xl md:text-3xl font-bold text-slate-900">{t("title")}</h1>
+                    <p className="mt-1 text-slate-600 text-sm">{t("description")}</p>
                 </div>
                 <div>
                     <Button

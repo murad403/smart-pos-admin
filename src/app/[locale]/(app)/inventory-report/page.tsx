@@ -23,8 +23,8 @@ const InventoryReportPage = ({ params }: { params?: Promise<{ locale: string }> 
     <div>
       <div className="flex items-start justify-between mb-6 gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
-          <p className="text-sm text-gray-400 mt-1">{t("subtitle")}</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900">{t("title")}</h1>
+          <p className="text-sm text-slate-600 mt-1">{t("subtitle")}</p>
         </div>
         <div className="flex gap-2">
           <button

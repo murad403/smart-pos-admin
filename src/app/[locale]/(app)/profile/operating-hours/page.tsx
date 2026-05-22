@@ -141,8 +141,8 @@ const OperatingHoursPage = ({ params }: { params?: Promise<{ locale: string }> }
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">{t("operatingHoursSettings")}</h1>
-          <p className="mt-1 text-slate-500">{t("subtitle")}</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900">{t("operatingHoursSettings")}</h1>
+          <p className="mt-1 text-slate-600 text-sm">{t("subtitle")}</p>
         </div>
         <div className="inline-flex items-center rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-bold tracking-wide text-blue-600">
           {t("verified")}
