@@ -1,11 +1,30 @@
 "use client";
 
-import { Link } from "@/i18n/routing";
+import { Link, useRouter } from "@/i18n/routing";
 import { Lock, User, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useCustomerSignInMutation } from "@/redux/features/auth/auth.api";
+import { saveUserData } from "@/utils/auth";
+
+
 
 const Welcome = () => {
     const t = useTranslations("welcome");
+    const router = useRouter();
+    const [customerSignIn, { isLoading: isSigningIn }] = useCustomerSignInMutation();
+
+    const handleCustomerSignIn = async () => {
+        try {
+            const result = await customerSignIn().unwrap();
+            saveUserData(result.data, true);
+            // toast.success(result.message || "Login successful", { id: toastId });
+            router.push("/auth/customer-welcome");
+
+        } catch (err: any) {
+            // console.error("Customer sign-in error:", err);
+            const errorMessage = err?.data?.message || err?.message || "An unexpected error occurred.";
+        }
+    };
 
     return (
         <section className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
@@ -32,16 +51,18 @@ const Welcome = () => {
 
                     <div className="flex flex-col gap-4">
 
-                        <Link
-                            href="/auth/customer-welcome"
+                        <button
+                            type="button"
+                            disabled={isSigningIn}
+                            onClick={handleCustomerSignIn}
                             aria-label={t("customerAria")}
-                            className="flex w-full items-center gap-2.5 rounded-xl bg-[#f5a623] px-3.5 py-4 text-[13px] font-semibold text-white transition-all duration-150 hover:-translate-y-0.5 hover:saturate-[1.1] active:scale-[0.98]"
+                            className="flex w-full items-center gap-2.5 rounded-xl bg-[#f5a623] px-3.5 py-4 text-[13px] font-semibold text-white transition-all duration-150 hover:-translate-y-0.5 hover:saturate-[1.1] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
                         >
                             <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/20">
                                 <Users size={13} strokeWidth={2.2} />
                             </span>
                             {t("customer")}
-                        </Link>
+                        </button>
 
                         {/* Staff */}
                         <Link

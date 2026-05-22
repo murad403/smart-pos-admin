@@ -542,7 +542,8 @@
     "customer": "Customer",
     "customerAria": "Navigate to Customer welcome page",
     "owner": "Owner",
-    "ownerAria": "Navigate to Owner login"
+    "ownerAria": "Navigate to Owner login",
+    "signingIn": "Signing in..."
   },
   "customerWelcome": {
     "welcome": "Welcome",

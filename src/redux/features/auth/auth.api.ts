@@ -1,14 +1,8 @@
 import baseApi from "../../api/api";
-import {
-    SignInResponse,
-    ForgotPasswordRequest,
-    ForgotPasswordResponse,
-    VerifyOtpRequest,
-    VerifyOtpResponse,
-    ResetPasswordRequest,
-    ResetPasswordResponse
-} from "./auth.type";
+import { SignInResponse, ForgotPasswordRequest, ForgotPasswordResponse, VerifyOtpRequest, VerifyOtpResponse, ResetPasswordRequest, ResetPasswordResponse } from "./auth.type";
 import { SignInFormValues } from "@/validation/auth.validation";
+
+
 
 const authApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -40,6 +34,13 @@ const authApi = baseApi.injectEndpoints({
                 body: data,
             }),
         }),
+
+        customerSignIn: builder.mutation<SignInResponse, void>({
+            query: () => ({
+                url: "/auth/user-login",
+                method: "POST",
+            }),
+        }),
     }),
 });
 
@@ -48,4 +49,5 @@ export const {
     useForgotPasswordMutation,
     useVerifyOtpMutation,
     useResetPasswordMutation,
+    useCustomerSignInMutation,
 } = authApi;

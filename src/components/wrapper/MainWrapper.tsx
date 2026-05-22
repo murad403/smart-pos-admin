@@ -40,7 +40,7 @@ function AppSidebar() {
   const handleLogout = () => {
     clearUserData();
     toast.success("Logged out successfully!");
-    router.push("/auth/sign-in");
+    router.push("/auth/welcome");
   };
 
   const navigationItems = [

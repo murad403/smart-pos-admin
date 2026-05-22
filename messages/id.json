@@ -544,7 +544,8 @@
     "customer": "Pelanggan",
     "customerAria": "Navigasi ke halaman selamat datang Pelanggan",
     "owner": "Pemilik",
-    "ownerAria": "Navigasi ke login Pemilik"
+    "ownerAria": "Navigasi ke login Pemilik",
+    "signingIn": "Masuk..."
   },
   "customerWelcome": {
     "welcome": "Selamat Datang",
