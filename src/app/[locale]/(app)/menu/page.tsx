@@ -3,13 +3,14 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import React from "react";
-import { Plus, SquarePen } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import React, { useState } from "react";
+import { SquarePen, ArrowRight } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslations } from "next-intl";
 import { useGetAllMenuQuery, useGetAllSectionByMenuIdQuery } from "@/redux/features/menu/menu.api";
 import CustomerMenuCards from "@/components/shared/CustomerMenuCards";
+import SelectPacketChoicesModal from "@/components/modal/SelectPacketChoicesModal";
+import CreateOrderModal from "@/components/modal/CreateOrderModal";
 
 const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
     if (params) React.use(params);
@@ -20,6 +21,92 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
     const menus = menuRes?.data ?? [];
 
     const [selectedCategory, setSelectedCategory] = React.useState("");
+
+    // Cart and Order States
+    const [cartItems, setCartItems] = useState<any[]>([]);
+    const [isCreateOrderModalOpen, setIsCreateOrderModalOpen] = useState(false);
+    const [isPacketChoicesModalOpen, setIsPacketChoicesModalOpen] = useState(false);
+    const [selectedPacketItem, setSelectedPacketItem] = useState<any>(null);
+
+    const handleAddItem = (item: any) => {
+        if (item.packetSections && item.packetSections.length > 0) {
+            setSelectedPacketItem(item);
+            setIsPacketChoicesModalOpen(true);
+        } else {
+            setCartItems((prev) => {
+                const existing = prev.find((ci) => ci.itemId === item.id && !ci.packetChoices);
+                if (existing) {
+                    return prev;
+                }
+                return [
+                    ...prev,
+                    {
+                        itemId: item.id,
+                        itemName: item.itemName,
+                        price: item.promoPrice || item.price,
+                        quantity: 1,
+                        imageUrl: item.imageUrl,
+                    },
+                ];
+            });
+        }
+    };
+
+    const handleConfirmPacketChoices = (choices: any[]) => {
+        if (!selectedPacketItem) return;
+        setCartItems((prev) => {
+            const choiceKey = JSON.stringify(choices.sort((a, b) => a.section.localeCompare(b.section)));
+            const existing = prev.find(
+                (ci) =>
+                    ci.itemId === selectedPacketItem.id &&
+                    ci.packetChoices &&
+                    JSON.stringify(ci.packetChoices.sort((a: any, b: any) => a.section.localeCompare(b.section))) === choiceKey
+            );
+
+            if (existing) {
+                return prev;
+            }
+
+            return [
+                ...prev,
+                {
+                    itemId: selectedPacketItem.id,
+                    itemName: selectedPacketItem.itemName,
+                    price: selectedPacketItem.promoPrice || selectedPacketItem.price,
+                    quantity: 1,
+                    imageUrl: selectedPacketItem.imageUrl,
+                    packetChoices: choices,
+                },
+            ];
+        });
+        setIsPacketChoicesModalOpen(false);
+        setSelectedPacketItem(null);
+    };
+
+    const handleUpdateCartItemQuantity = (itemId: number, packetChoices: any[] | undefined, delta: number) => {
+        setCartItems((prev) => {
+            const targetChoicesKey = packetChoices
+                ? JSON.stringify(packetChoices.sort((a, b) => a.section.localeCompare(b.section)))
+                : undefined;
+
+            return prev
+                .map((ci) => {
+                    const ciChoicesKey = ci.packetChoices
+                        ? JSON.stringify(ci.packetChoices.sort((a: any, b: any) => a.section.localeCompare(b.section)))
+                        : undefined;
+
+                    if (ci.itemId === itemId && ciChoicesKey === targetChoicesKey) {
+                        return { ...ci, quantity: ci.quantity + delta };
+                    }
+                    return ci;
+                })
+                .filter((ci) => ci.quantity > 0);
+        });
+    };
+
+    const handleClearCart = () => {
+        setCartItems([]);
+    };
     // Find currently selected menu
     const currentMenu = React.useMemo(
         () => menus.find((m) => m.name === selectedCategory),
@@ -88,12 +175,6 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
                             <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                                 <div className="space-y-2">
                                     <Skeleton className="h-7 w-48" />
-                                    <Skeleton className="h-4 w-32" />
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Skeleton className="h-10 w-28 rounded-xl" />
-                                    <Skeleton className="h-10 w-28 rounded-xl" />
-                                    <Skeleton className="h-10 w-28 rounded-xl" />
                                 </div>
                             </div>
                             <div className="grid gap-4 lg:grid-cols-3">
@@ -127,10 +208,62 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
                             sectionNumber={index + 1}
                             sectionName={section.name}
                             layout={section.layout}
+                            onAddItem={handleAddItem}
+                            cartItems={cartItems}
                         />
                     ))}
                 </div>
             )}
+
+            {/* Floating bottom bar for Cart preview */}
+            {cartItems.length > 0 && (
+                <div className="fixed bottom-0 left-0 right-0 md:left-[var(--sidebar-width,16rem)] bg-white border-t border-slate-205 px-6 py-4 flex justify-between items-center z-40 shadow-[0_-10px_35px_rgba(15,23,42,0.06)] animate-in slide-in-from-bottom duration-300 pb-safe">
+                    <div className="flex items-center gap-3">
+                        <span className="flex size-7 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-650">
+                            {cartItems.reduce((acc, ci) => acc + ci.quantity, 0)}
+                        </span>
+                        <span className="text-slate-800 font-semibold text-sm md:text-base">
+                            items selected
+                        </span>
+                        <span className="text-slate-400 font-medium text-xs md:text-sm shrink-0">
+                            • Total: Rp{cartItems.reduce((acc, ci) => acc + ci.price * ci.quantity, 0).toLocaleString("en-US")}
+                        </span>
+                    </div>
+                    <div className="flex gap-3">
+                        <button 
+                            onClick={handleClearCart}
+                            className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-50 transition-all active:scale-95"
+                        >
+                            Cancel
+                        </button>
+                        <button 
+                            onClick={() => setIsCreateOrderModalOpen(true)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6 py-2.5 font-bold text-sm flex items-center gap-2 transition-all shadow-md shadow-blue-500/20 active:scale-95"
+                        >
+                            Next <ArrowRight size={16} />
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Modals */}
+            <SelectPacketChoicesModal
+                open={isPacketChoicesModalOpen}
+                onClose={() => {
+                    setIsPacketChoicesModalOpen(false);
+                    setSelectedPacketItem(null);
+                }}
+                item={selectedPacketItem}
+                onConfirm={handleConfirmPacketChoices}
+            />
+
+            <CreateOrderModal
+                open={isCreateOrderModalOpen}
+                onClose={() => setIsCreateOrderModalOpen(false)}
+                cartItems={cartItems}
+                onUpdateCartItemQuantity={handleUpdateCartItemQuantity}
+                onClearCart={handleClearCart}
+            />
         </div>
     );
 };

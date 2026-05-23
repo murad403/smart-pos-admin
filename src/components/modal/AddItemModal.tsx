@@ -53,7 +53,6 @@ const AddItemModal: React.FC<Props> = ({ open, onClose, onSuccess }) => {
   const [promoPrice, setPromoPrice] = useState<number | "">("");
 
   // Packet States
-  const [maxPacketItems, setMaxPacketItems] = useState<number | "">("");
   const [sections, setSections] = useState<UISection[]>([]);
 
   // Image Upload States
@@ -194,9 +193,7 @@ const AddItemModal: React.FC<Props> = ({ open, onClose, onSuccess }) => {
         if (promoName.trim()) payload.promoName = promoName;
         if (promoPrice !== "" && promoPrice > 0) payload.promoPrice = Number(promoPrice);
       }
-      if (itemType === "PACKET") {
-        payload.maxPacketItems = maxPacketItems === "" ? 0 : Number(maxPacketItems);
-      }
+
 
       // Create FormData
       const formData = new FormData();
@@ -259,7 +256,6 @@ const AddItemModal: React.FC<Props> = ({ open, onClose, onSuccess }) => {
       setHasPromo(false);
       setPromoName("");
       setPromoPrice("");
-      setMaxPacketItems("");
       setSections([]);
       setImageFile(null);
       setImagePreview(null);
@@ -548,18 +544,8 @@ const AddItemModal: React.FC<Props> = ({ open, onClose, onSuccess }) => {
                   <div>
                     <h3 className="text-base font-bold text-blue-900">Packet & Combo Configuration</h3>
                     <p className="text-xs text-blue-600 mt-0.5">
-                      Define the maximum items a customer can choose and create customized sections.
+                      Define choice sections and customize options for this combo packet.
                     </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <label className="text-sm font-semibold text-blue-900 whitespace-nowrap">Max Choices:</label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={maxPacketItems}
-                      onChange={(e) => setMaxPacketItems(e.target.value === "" ? "" : Number(e.target.value))}
-                      className="w-16 border border-blue-200 rounded-lg px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white font-bold"
-                    />
                   </div>
                 </div>
 

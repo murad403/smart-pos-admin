@@ -23,6 +23,7 @@ export type MenuItemCardData = {
   imageUrl?: string | null;
   badges: [string, string];
   packetSections?: any[];
+  maxPacketItems?: number | null;
 };
 
 type Props = {
@@ -30,6 +31,8 @@ type Props = {
   sectionNumber: number;
   sectionName: string;
   layout: SectionLayoutType;
+  onAddItem: (item: MenuItemCardData) => void;
+  cartItems: any[];
 };
 
 const imageMap = {
@@ -113,9 +116,8 @@ const PacketSlider = ({ packetSections }: { packetSections: any[] }) => {
                 e.stopPropagation();
                 setCurrentIndex(index);
               }}
-              className={`h-1 rounded-full transition-all duration-200 ${
-                index === currentIndex ? "w-2.5 bg-blue-500" : "w-1 bg-slate-200"
-              }`}
+              className={`h-1 rounded-full transition-all duration-200 ${index === currentIndex ? "w-2.5 bg-blue-500" : "w-1 bg-slate-200"
+                }`}
             />
           ))}
         </div>
@@ -124,7 +126,7 @@ const PacketSlider = ({ packetSections }: { packetSections: any[] }) => {
   );
 };
 
-const CustomerMenuCards = ({ sectionId, sectionNumber, sectionName, layout }: Props) => {
+const CustomerMenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, cartItems }: Props) => {
   const t = useTranslations("Menu");
 
   const { data: sectionDetailsRes, isLoading } = useGetAllSectionDetailsByMenuIdQuery(sectionId);
@@ -146,9 +148,10 @@ const CustomerMenuCards = ({ sectionId, sectionNumber, sectionName, layout }: Pr
       imageUrl: item.imageUrl || null,
       badges: [item.labels?.[0] || "", item.labels?.[1] || ""],
       packetSections: item.packetSections || [],
+      maxPacketItems: item.maxPacketItems || null,
     };
   });
-  
+
   const layoutLabel: Record<SectionLayoutType, string> = {
     SINGLE: t("1-image") || "1 Large Image",
     DOUBLE: t("2-image") || "2 Images Side-by-Side",
@@ -223,81 +226,103 @@ const CustomerMenuCards = ({ sectionId, sectionNumber, sectionName, layout }: Pr
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {items.map((item, idx) => (
-                  <tr key={`${item.itemNumber}-${idx}`} className="group transition-colors hover:bg-slate-50/50">
-                    <td className="py-4 pl-2 text-[15px] text-slate-600">
-                      {item.itemNumber.split("-").pop()}
-                    </td>
-                    <td className="py-4 text-[15px] font-medium text-slate-900">
-                      {item.itemName}
-                    </td>
-                    <td className="py-4 text-[15px] text-slate-600 text-center">
-                      {item.inventory}
-                    </td>
-                    <td className="py-4 text-[15px] text-slate-600">
-                      Rp{item.price.toLocaleString("en-US")}
-                    </td>
-                    <td className="py-4 text-[15px] text-slate-600">
-                      {item.promoPrice ? `Rp${item.promoPrice.toLocaleString("en-US")}` : "-"}
-                    </td>
-                  </tr>
-                ))}
+                {items.map((item, idx) => {
+                  const isSelected = cartItems.some(ci => ci.itemId === item.id);
+                  const totalQty = cartItems.filter(ci => ci.itemId === item.id).reduce((acc, curr) => acc + curr.quantity, 0);
+
+                  return (
+                    <tr
+                      key={`${item.itemNumber}-${idx}`}
+                      onClick={() => onAddItem(item)}
+                      className={`group transition-all duration-150 hover:bg-slate-50/70 cursor-pointer ${isSelected ? "bg-blue-50/30 text-blue-900 border-l-4 border-l-blue-600" : ""
+                        }`}
+                    >
+                      <td className="py-4 pl-2 text-[15px] text-slate-600">
+                        {item.itemNumber.split("-").pop()}
+                      </td>
+                      <td className="py-4 text-[15px] font-bold text-slate-900 flex items-center gap-2">
+                        {item.itemName}
+                        {isSelected && (
+                          <span className="inline-flex size-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+                            {totalQty}
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-4 text-[15px] text-slate-600 text-center">
+                        {item.inventory}
+                      </td>
+                      <td className="py-4 text-[15px] text-slate-600">
+                        Rp{item.price.toLocaleString("en-US")}
+                      </td>
+                      <td className="py-4 text-[15px] text-slate-600">
+                        {item.promoPrice ? `Rp${item.promoPrice.toLocaleString("en-US")}` : "-"}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         ) : (
           <div className={isImageListLayout ? "space-y-3" : gridColsClass}>
-            {items.map((item, index) => (
-              <article
-                key={`${item.itemNumber}-${index}`}
-                className={
-                  isImageListLayout
-                    ? "grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:grid-cols-[160px_1fr]"
-                    : "overflow-hidden rounded-2xl border border-slate-200 bg-white"
-                }
-              >
-                <div className={isImageListLayout ? "relative h-40 overflow-hidden rounded-2xl sm:h-full w-full" : "relative h-72 overflow-hidden w-full"}>
-                  <Image
-                    src={item.imageUrl || imageMap[item.imageType]}
-                    alt={item.itemName}
-                    fill
-                    className="h-full w-full object-cover"
-                    priority={index === 0}
-                  />
+            {items.map((item, index) => {
+              const isSelected = cartItems.some(ci => ci.itemId === item.id);
+              const totalQty = cartItems.filter(ci => ci.itemId === item.id).reduce((acc, curr) => acc + curr.quantity, 0);
 
-                  <div className="absolute left-3 top-3 flex flex-wrap gap-2">
-                    <span className="rounded-lg bg-white/92 px-3 py-1 text-[11px] font-semibold text-red-500 shadow-sm backdrop-blur">
-                      {item.badges[0]}
-                    </span>
-                    <span className="rounded-lg bg-[#16A34A] px-3 py-1 text-[11px] font-semibold text-white shadow-sm">
-                      {item.badges[1]}
-                    </span>
-                  </div>
-                </div>
+              return (
+                <article
+                  key={`${item.itemNumber}-${index}`}
+                  onClick={() => onAddItem(item)}
+                  className={
+                    (isImageListLayout
+                      ? "grid gap-4 rounded-2xl border bg-slate-50 p-3 sm:grid-cols-[160px_1fr] cursor-pointer transition-all duration-200"
+                      : "overflow-hidden rounded-2xl border bg-white cursor-pointer transition-all duration-200") +
+                    ` ${isSelected ? "border-blue-600 bg-blue-50/10 ring-1 ring-blue-600 shadow-md" : "border-slate-200 hover:border-slate-350 hover:shadow-sm"}`
+                  }
+                >
+                  <div className={isImageListLayout ? "relative h-40 overflow-hidden rounded-2xl sm:h-full w-full" : "relative h-72 overflow-hidden w-full"}>
+                    <Image
+                      src={item.imageUrl || imageMap[item.imageType]}
+                      alt={item.itemName}
+                      fill
+                      className="h-full w-full object-cover"
+                      priority={index === 0}
+                    />
 
-                <div className={isImageListLayout ? "flex flex-col justify-between gap-5 py-1 sm:pr-2" : "flex flex-col justify-between p-4"}>
-                  <div className="space-y-3">
-                    <p className="text-lg font-bold tracking-tight text-red-500">{item.itemNumber}</p>
-                    <h3 className="text-[1.35rem] font-bold tracking-tight text-red-500">{item.itemName}</h3>
-                    <div className="grid grid-cols-3 gap-3 text-sm text-slate-700">
-                      <p className="text-slate-600">{t("inventory")}: {item.inventory}</p>
-                      <p className="text-slate-600">{t("stock")}: {item.stock}</p>
-                      <p className="text-right font-medium text-slate-900">{item.statusLabel}</p>
-                    </div>
-                    {item.packetSections && item.packetSections.length > 0 && (
-                      <PacketSlider packetSections={item.packetSections} />
-                    )}
-                  </div>
-
-                  <div className="mt-6 flex items-end justify-between gap-4">
-                    <div className="text-sm text-slate-600">
-                      <p className="text-slate-500">{t("promoPrice")}</p>
-                      <p className="font-semibold text-slate-900">Rp{item.promoPrice.toLocaleString("en-US")}</p>
+                    <div className="absolute left-3 top-3 flex flex-wrap gap-2">
+                      <span className="rounded-lg bg-white/92 px-3 py-1 text-[11px] font-semibold text-red-500 shadow-sm backdrop-blur">
+                        {item.badges[0]}
+                      </span>
+                      <span className="rounded-lg bg-[#16A34A] px-3 py-1 text-[11px] font-semibold text-white shadow-sm">
+                        {item.badges[1]}
+                      </span>
                     </div>
                   </div>
-                </div>
-              </article>
-            ))}
+
+                  <div className={isImageListLayout ? "flex flex-col justify-between gap-5 py-1 sm:pr-2" : "flex flex-col justify-between p-4"}>
+                    <div className="space-y-3">
+                      <p className="text-lg font-bold tracking-tight text-red-500">{item.itemNumber}</p>
+                      <h3 className="text-[1.35rem] font-bold tracking-tight text-red-500">{item.itemName}</h3>
+                      <div className="grid grid-cols-3 gap-3 text-sm text-slate-700">
+                        <p className="text-slate-600">{t("inventory")}: {item.inventory}</p>
+                        <p className="text-slate-600">{t("stock")}: {item.stock}</p>
+                        <p className="text-right font-medium text-slate-900">{item.statusLabel}</p>
+                      </div>
+                      {item.packetSections && item.packetSections.length > 0 && (
+                        <PacketSlider packetSections={item.packetSections} />
+                      )}
+                    </div>
+
+                    <div className="mt-6 flex items-end justify-between gap-4">
+                      <div className="text-sm text-slate-600">
+                        <p className="text-slate-550 text-xs">{item.promoPrice ? t("promoPrice") : t("price")}</p>
+                        <p className="font-bold text-slate-900 text-lg">Rp{(item.promoPrice || item.price).toLocaleString("en-US")}</p>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         )}
       </div>

@@ -45,7 +45,6 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
   const [promoPrice, setPromoPrice] = useState<number | "">("");
 
   // Packet States
-  const [maxPacketItems, setMaxPacketItems] = useState<number | "">("");
   const [sections, setSections] = useState<any[]>([]);
 
   // Image Upload States
@@ -78,7 +77,6 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
       setHasPromo(item.hasPromo ?? false);
       setPromoName(item.promoName || "");
       setPromoPrice(item.promoPrice ? Number(item.promoPrice) : "");
-      setMaxPacketItems(item.maxPacketItems ? Number(item.maxPacketItems) : "");
       setImageFile(null);
       setImagePreview(item.imageUrl || null);
 
@@ -215,7 +213,6 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
       payload.labels = selectedLabels;
       payload.promoName = hasPromo && promoName.trim() ? promoName : undefined;
       payload.promoPrice = hasPromo && promoPrice !== "" ? Number(promoPrice) : undefined;
-      payload.maxPacketItems = itemType === "PACKET" && maxPacketItems !== "" ? Number(maxPacketItems) : undefined;
 
       // Create FormData for multipart request
       const formData = new FormData();
@@ -599,18 +596,8 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
                   <div>
                     <h3 className="text-base font-bold text-blue-900">Packet & Combo Configuration</h3>
                     <p className="text-xs text-blue-600 mt-0.5">
-                      Define the maximum items a customer can choose and create customized sections.
+                      Define choice sections and customize options for this combo packet.
                     </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <label className="text-sm font-semibold text-blue-900 whitespace-nowrap">Max Choices:</label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={maxPacketItems}
-                      onChange={(e) => setMaxPacketItems(e.target.value === "" ? "" : Number(e.target.value))}
-                      className="w-16 border border-blue-200 rounded-lg px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white font-bold"
-                    />
                   </div>
                 </div>
 

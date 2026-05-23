@@ -31,7 +31,17 @@ const orderApi = baseApi.injectEndpoints({
                 };
             },
             providesTags: ["orders"]
-        })
+        }),
+        createOrder: builder.mutation({
+            query: (data) => {
+                return {
+                    url: `/orders`,
+                    method: "POST",
+                    body: data
+                };
+            },
+            invalidatesTags: ["orders"]
+        }),
     }),
 });
 
@@ -39,4 +49,5 @@ export const {
     useGetAllOrdersQuery,
     useGetOrderDetailsQuery,
     useGetPendingPaymentOrdersQuery,
+    useCreateOrderMutation,
 } = orderApi;
