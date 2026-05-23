@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useMemo, useState } from "react";
 import { CheckCircle2, Eye, Loader2, Package2, ShoppingBag, XCircle } from "lucide-react";
 import { toast } from "sonner";
@@ -10,7 +9,16 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import OrderDetailsModal from "@/components/modal/OrderDetailsModal";
 
+
+
+declare global {
+  interface Window {
+    io?: any;
+  }
+}
+
 type OrderAction = "accept" | "cancel" | "ready" | "pickup";
+
 
 const statusPriority: Record<ProductionOrderStatus, number> = {
   PENDING_PROCESSING: 0,
@@ -93,17 +101,100 @@ const ProductionPage = ({ params }: { params?: Promise<{ locale: string }> }) =>
   const [readyOrder] = useReadyOrderMutation();
   const [pickupOrder] = usePickupOrderMutation();
 
-  const orders = useMemo(() => data?.data ?? [], [data?.data]);
+  const [localOrders, setLocalOrders] = useState<ProductionOrder[]>([]);
+
+  // Sync local orders with RTK query data
+  React.useEffect(() => {
+    if (data?.data) {
+      setLocalOrders(data.data);
+    }
+  }, [data?.data]);
+
+  // Keep a ref to the current source filter to prevent stale closures in socket events
+  const sourceFilterRef = React.useRef(sourceFilter);
+  React.useEffect(() => {
+    sourceFilterRef.current = sourceFilter;
+  }, [sourceFilter]);
+
+  // Handle Socket connection and events
+  React.useEffect(() => {
+    let socket: any = null;
+
+    const connectSocket = () => {
+      if (!window.io) return;
+
+      socket = window.io("https://plbck79v-7956.inc1.devtunnels.ms", {
+        transports: ["websocket"],
+      });
+
+      socket.on("connect", () => {
+        console.log("Socket connected successfully to Production Namespace");
+      });
+
+      socket.on("newOrder", (newOrder: any) => {
+        console.log("Received newOrder socket event:", newOrder);
+
+        const mappedOrder: ProductionOrder = {
+          ...newOrder,
+          status: newOrder.status === "PENDING" ? "PENDING_PROCESSING" : newOrder.status,
+        };
+
+        const currentFilter = sourceFilterRef.current;
+        if (!currentFilter || mappedOrder.source === currentFilter) {
+          setLocalOrders((prev) => {
+            // Check for duplicates
+            if (prev.some((o) => o.id === mappedOrder.id)) {
+              return prev;
+            }
+            return [mappedOrder, ...prev];
+          });
+        }
+      });
+
+      socket.on("connect_error", (err: any) => {
+        console.error("Socket connection error:", err);
+      });
+    };
+
+    const scriptId = "socket-io-cdn-script";
+    let script = document.getElementById(scriptId) as HTMLScriptElement;
+
+    if (!script) {
+      script = document.createElement("script");
+      script.id = scriptId;
+      script.src = "https://cdn.socket.io/4.7.5/socket.io.min.js";
+      script.async = true;
+      script.onload = () => {
+        connectSocket();
+      };
+      document.body.appendChild(script);
+    } else {
+      if (window.io) {
+        connectSocket();
+      } else {
+        script.addEventListener("load", connectSocket);
+      }
+    }
+
+    return () => {
+      if (socket) {
+        socket.disconnect();
+      }
+      if (script) {
+        script.removeEventListener("load", connectSocket);
+      }
+    };
+  }, []);
 
   const sortedOrders = useMemo(() => {
-    return [...orders].sort((left, right) => {
+    return [...localOrders].sort((left, right) => {
       const statusDiff = statusPriority[left.status] - statusPriority[right.status];
 
       if (statusDiff !== 0) return statusDiff;
 
       return new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime();
     });
-  }, [orders]);
+  }, [localOrders]);
 
   const groupedOrders = useMemo(() => {
     const groups: Record<ProductionOrderStatus, ProductionOrder[]> = {

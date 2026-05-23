@@ -10,16 +10,23 @@ interface OrderBreakdownProps {
 }
 
 const RADIAN = Math.PI / 180;
-const renderLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, name, percent }: any) => {
+const renderLabel = ({ cx, cy, midAngle, outerRadius, name, percent }: any) => {
     if (!percent || percent <= 0) return null;
-    const x = cx + (outerRadius + 28) * Math.cos(-midAngle * RADIAN);
-    const y = cy + (outerRadius + 28) * Math.sin(-midAngle * RADIAN);
+    const radius = outerRadius + 16;
+    const anchorX = cx + radius * Math.cos(-midAngle * RADIAN);
+    const anchorY = cy + radius * Math.sin(-midAngle * RADIAN);
+    const textX = cx + (outerRadius + 28) * Math.cos(-midAngle * RADIAN);
+    const textY = cy + (outerRadius + 28) * Math.sin(-midAngle * RADIAN);
     const pct = (percent * 100).toFixed(0);
     const color = name === "Dine-in" ? "#2563eb" : "#ca8a04";
+    const textAnchor = textX > cx ? "start" : "end";
     return (
-        <text x={x} y={y} fill={color} textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={500}>
-            {name}: {pct}%
-        </text>
+        <g>
+            <line x1={cx} y1={cy} x2={anchorX} y2={anchorY} stroke={color} strokeWidth={1.2} opacity={0.55} />
+            <text x={textX} y={textY} fill={color} textAnchor={textAnchor} dominantBaseline="central" fontSize={11} fontWeight={500}>
+                {name}: {pct}%
+            </text>
+        </g>
     );
 };
 
@@ -29,14 +36,14 @@ const OrderBreakdown = ({ breakdown, isLoading }: OrderBreakdownProps) => {
 
     if (isLoading) {
         return (
-            <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm h-[380px] animate-pulse flex flex-col justify-between">
+            <div className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm h-95 animate-pulse flex flex-col justify-between">
                 <div className="h-6 w-40 bg-slate-100 rounded mb-4" />
                 <div className="flex-1 flex items-center justify-center">
                     <div className="h-40 w-40 rounded-full border-8 border-slate-50" />
                 </div>
                 <div className="grid grid-cols-2 gap-3 mt-4">
-                    <div className="rounded-xl bg-slate-50 py-4 h-[72px]" />
-                    <div className="rounded-xl bg-slate-50 py-4 h-[72px]" />
+                    <div className="rounded-xl bg-slate-50 py-4 h-18" />
+                    <div className="rounded-xl bg-slate-50 py-4 h-18" />
                 </div>
             </div>
         );
@@ -59,13 +66,13 @@ const OrderBreakdown = ({ breakdown, isLoading }: OrderBreakdownProps) => {
 
             <div className="flex justify-center">
                 {hasData ? (
-                    <ResponsiveContainer width={260} height={220}>
+                    <ResponsiveContainer width={260} height={280}>
                         <PieChart style={{ outline: "none" }}>
                             <Pie
                                 data={data}
                                 cx="50%"
                                 cy="50%"
-                                outerRadius={90}
+                                outerRadius={82}
                                 dataKey="value"
                                 labelLine={false}
                                 label={renderLabel}
@@ -80,7 +87,7 @@ const OrderBreakdown = ({ breakdown, isLoading }: OrderBreakdownProps) => {
                         </PieChart>
                     </ResponsiveContainer>
                 ) : (
-                    <div className="h-[220px] flex items-center justify-center text-sm text-slate-400">
+                    <div className="h-55 flex items-center justify-center text-sm text-slate-400">
                         No orders recorded
                     </div>
                 )}

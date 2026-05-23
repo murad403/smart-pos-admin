@@ -43,6 +43,16 @@ const orderApi = baseApi.injectEndpoints({
             },
             invalidatesTags: ["orders"]
         }),
+        editOrder: builder.mutation({
+            query: ({ data, orderId }) => {
+                return {
+                    url: `/orders/${orderId}`,
+                    method: "PATCH",
+                    body: data
+                };
+            },
+            invalidatesTags: ["orders"]
+        }),
         sendOrderToProduction: builder.mutation({
             query: (orderId) => {
                 return {
@@ -70,6 +80,17 @@ const orderApi = baseApi.injectEndpoints({
             },
             invalidatesTags: ["orders"]
         }),
+
+        // current customer order*********************
+        getCurrentCustomerOrders: builder.query<GetAllOrdersResponse, number | string | null | undefined>({
+            query: (userId) => {
+                return {
+                    url: `/orders/active?page=1&limit=100&userId=${userId}`,
+                    method: "GET"
+                };
+            },
+            providesTags: ["orders"]
+        }),
     }),
 });
 
@@ -79,5 +100,6 @@ export const {
     useGetPendingPaymentOrdersQuery,
     useCreateOrderMutation,
     useSendOrderToProductionMutation,
-    useSubmitOrderPaymentMutation
+    useSubmitOrderPaymentMutation,
+    useGetCurrentCustomerOrdersQuery
 } = orderApi;
