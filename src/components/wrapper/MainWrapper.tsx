@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client"
 import React from "react"
 // Trigger MainWrapper rebuild to reload translations
 import Image from "next/image"
-import { Armchair, CalendarRange, ChevronDown, CreditCard, Fuel, Grid2x2, HandCoins, LayoutDashboard, LogOut, Package, ReceiptText, Repeat, ShoppingBag, User, Utensils } from "lucide-react"
+import { Armchair, Boxes, CalendarRange, ChevronDown, CreditCard, Fuel, Grid2x2, HandCoins, LayoutDashboard, LogOut, Package, ReceiptText, Repeat, ShoppingBag, User, Utensils } from "lucide-react"
 import brandLogo from "@/assets/logo/logo.png"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger} from "@/components/ui/dropdown-menu"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
@@ -12,6 +13,8 @@ import { usePathname, useRouter, Link } from "@/i18n/routing"
 import { useLocale, useTranslations } from "next-intl"
 import { clearUserData, getUserData } from "@/utils/auth"
 import { toast } from "sonner"
+
+
 
 function SidebarBrand() {
   return (
@@ -53,6 +56,7 @@ function AppSidebar() {
     { label: t("orderLifeCycle"), icon: Repeat, href: "/order-life-cycle" },
     { label: t("item"), icon: Utensils, href: "/item" },
     { label: t("productionStation"), icon: Fuel, href: "/production-station" },
+    { label: t("collection"), icon: Boxes, href: "/collection" },
     { label: t("manageTable"), icon: Armchair, href: "/manage-table" },
     { label: t("shiftWorkflow"), icon: CalendarRange, href: "/shift-workflow" },
     { label: t("order"), icon: ShoppingBag, href: "/order" },
@@ -212,7 +216,7 @@ function Topbar() {
               <button className="flex items-center gap-3 text-left outline-none">
                 <div className="flex size-10 items-center justify-center rounded-full bg-[#1A56DB] text-white shadow-sm sm:size-11 overflow-hidden">
                   {user?.photoUrl ? (
-                    <img src={user.photoUrl} alt="Avatar" className="h-full w-full object-cover" />
+                    <Image width={500} height={500} src={user.photoUrl} alt="Avatar" className="h-full w-full object-cover" />
                   ) : (
                     <User className="size-5" />
                   )}

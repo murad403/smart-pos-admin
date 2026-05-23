@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { Search, Eye, Filter, Calendar } from "lucide-react";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useGetAllOrdersQuery } from "@/redux/features/order/order.api";
 import CustomPagination from "@/components/shared/CustomPagination";
 import OrderDetailsModal from "@/components/modal/OrderDetailsModal";
@@ -11,7 +11,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 const OrdersPage = ({ params }: { params?: Promise<{ locale: string }> }) => {
   if (params) React.use(params);
   const t = useTranslations("Order");
-  const locale = useLocale();
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
@@ -41,6 +40,8 @@ const OrdersPage = ({ params }: { params?: Promise<{ locale: string }> }) => {
     date: dateFilter || undefined,
     search: debouncedSearchValue.trim() || undefined,
   });
+  // const isPaid = ordersRes?.data?.[0]?.payment?.some((s) => s.status === "PAID");
+  // console.log(ordersRes?.data?.[0])
 
   const orders = ordersRes?.data ?? [];
   const pagination = ordersRes?.pagination;
@@ -115,7 +116,7 @@ const OrdersPage = ({ params }: { params?: Promise<{ locale: string }> }) => {
                 setStatusFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-600 outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 min-w-[140px]"
+              className="h-11 min-w-35 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-600 outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10"
             >
               <option value="">{t("allStatus") || "All Status"}</option>
               <option value="PENDING">PENDING</option>
@@ -133,7 +134,7 @@ const OrdersPage = ({ params }: { params?: Promise<{ locale: string }> }) => {
                 setSourceFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-600 outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 min-w-[140px]"
+              className="h-11 min-w-35 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-600 outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10"
             >
               <option value="">{t("allSource") || "All Sources"}</option>
               <option value="ADMIN">ADMIN</option>
@@ -152,7 +153,7 @@ const OrdersPage = ({ params }: { params?: Promise<{ locale: string }> }) => {
                   setDateFilter(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="h-11 rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm text-slate-600 outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 min-w-[160px]"
+                className="h-11 min-w-40 rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm text-slate-600 outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10"
               />
             </div>
 
@@ -210,38 +211,45 @@ const OrdersPage = ({ params }: { params?: Promise<{ locale: string }> }) => {
                 </tr>
               ) : (
                 // Orders Rows
-                orders.map((order: Order) => (
-                  <tr key={order.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-4 font-bold text-slate-900">{order.slug}</td>
-                    <td className="px-6 py-4 font-medium text-slate-700">{order.customerName || "-"}</td>
-                    <td className="px-6 py-4 font-semibold text-slate-700">
-                      {order.table ? order.table.tableNumber : "-"}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${getSourceBadgeClass(order.source)}`}>
-                        {order.source}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${getStatusBadgeClass(order.status)}`}>
-                        {order.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 font-bold text-slate-900">{formatCurrency(order.totalAmount)}</td>
-                    <td className="px-6 py-4 text-xs font-medium text-slate-500">
-                      {new Date(order.createdAt).toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <button
-                        onClick={() => setSelectedOrderId(order.id)}
-                        className="rounded-full p-2 text-slate-400 hover:bg-blue-50 hover:text-blue-600 transition"
-                        title={t("viewDetails") || "View Details"}
-                      >
-                        <Eye size={16} />
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                orders.map((order: Order) => {
+                  const isPaid = order.payment?.some((payment) => payment.status === "PAID");
+
+                  return (
+                    <tr key={order.id} className="hover:bg-slate-50/50 transition-colors">
+                      <td className="px-6 py-4 font-bold text-slate-900">{order.slug}</td>
+                      <td className="px-6 py-4 font-medium text-slate-700">{order.customerName || "-"}</td>
+                      <td className="px-6 py-4 font-semibold text-slate-700">
+                        {order.table ? order.table.tableNumber : "-"}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${getSourceBadgeClass(order.source)}`}>
+                          {order.source}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 space-x-1">
+                        <span className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${getStatusBadgeClass(order.status)}`}>
+                          {order.status}
+                        </span>
+                        <span className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${isPaid ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+                          {isPaid ? "Paid" : "Unpaid"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 font-bold text-slate-900">{formatCurrency(order.totalAmount)}</td>
+                      <td className="px-6 py-4 text-xs font-medium text-slate-500">
+                        {new Date(order.createdAt).toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <button
+                          onClick={() => setSelectedOrderId(order.id)}
+                          className="rounded-full p-2 text-slate-400 hover:bg-blue-50 hover:text-blue-600 transition"
+                          title={t("viewDetails") || "View Details"}
+                        >
+                          <Eye size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

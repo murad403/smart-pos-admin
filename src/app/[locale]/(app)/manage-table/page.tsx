@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState, useEffect } from "react";
@@ -71,11 +73,11 @@ const TableManagementPage = () => {
     // Synchronize QR target URL
     useEffect(() => {
         if (selectedTable && typeof window !== "undefined") {
-            const origin = window.location.origin;
+            // const origin = window.location.origin;
             const pathname = window.location.pathname;
             const segments = pathname.split("/").filter(Boolean);
             const locale = segments[0] || "en";
-            setCustomQrUrl(`${origin}/${locale}/menu?table=${selectedTable.tableNumber}`);
+            setCustomQrUrl(`http://172.19.16.1:3000/${locale}/menu?table=${selectedTable.tableNumber}`);
         }
     }, [selectedTable]);
 
@@ -563,7 +565,7 @@ const TableManagementPage = () => {
                             className="group bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-md hover:border-blue-100 transition-all duration-300 relative flex flex-col justify-between overflow-hidden"
                         >
                             {/* Subtle top indicator bar */}
-                            <div className={`absolute top-0 left-0 right-0 h-1 transition-colors duration-300 ${table.isActive ? "bg-gradient-to-r from-blue-500 to-indigo-500" : "bg-slate-200"
+                            <div className={`absolute top-0 left-0 right-0 h-1 transition-colors duration-300 ${table.isActive ? "bg-linear-to-r from-blue-500 to-indigo-500" : "bg-slate-200"
                                 }`} />
 
                             <div>
@@ -730,7 +732,7 @@ const TableManagementPage = () => {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 px-4 backdrop-blur-sm animate-fade-in">
                     <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md border border-slate-100 animate-scale-up overflow-hidden">
                         {/* Modal Header */}
-                        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white relative">
+                        <div className="bg-linear-to-r from-blue-600 to-indigo-600 p-6 text-white relative">
                             <h2 className="text-2xl font-bold tracking-tight">{t("qrCodeTitle")}</h2>
                             <p className="text-blue-100 text-sm mt-1">
                                 {t("qrCodeSubtitle", { number: selectedTable.tableNumber }).includes("{number}")
