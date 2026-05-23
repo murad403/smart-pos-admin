@@ -142,6 +142,7 @@
     "shiftWorkflow": "Alur Kerja Shift",
     "order": "Pesanan",
     "collection": "Pengambilan",
+    "production": "Produksi",
     "menuManagement": "Manajemen Menu",
     "pendingPayments": "Menunggu Pembayaran",
     "orderLifeCycle": "Siklus Hidup Pesanan"

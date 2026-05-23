@@ -142,6 +142,7 @@
     "shiftWorkflow": "Shift Workflow",
     "order": "Order",
     "collection": "Collection",
+    "production": "Production",
     "menuManagement": "Menu Management",
     "pendingPayments": "Pending Payments",
     "orderLifeCycle": "Order Life Cycle"

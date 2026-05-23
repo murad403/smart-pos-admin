@@ -57,6 +57,7 @@ function AppSidebar() {
     { label: t("item"), icon: Utensils, href: "/item" },
     { label: t("productionStation"), icon: Fuel, href: "/production-station" },
     { label: t("collection"), icon: Boxes, href: "/collection" },
+    { label: t("production"), icon: Boxes, href: "/production" },
     { label: t("manageTable"), icon: Armchair, href: "/manage-table" },
     { label: t("shiftWorkflow"), icon: CalendarRange, href: "/shift-workflow" },
     { label: t("order"), icon: ShoppingBag, href: "/order" },
