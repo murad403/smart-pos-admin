@@ -48,7 +48,7 @@ const productionApi = baseApi.injectEndpoints({
                     method: "PATCH"
                 };
             },
-            invalidatesTags: ["productions"]
+            invalidatesTags: ["productions", "collection"]
         }),
     }),
 });

@@ -4,11 +4,7 @@ import React, { useMemo, useState } from "react";
 import { CheckCircle2, Loader2, Package2, ShoppingBag, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import {
-  useAcceptOrderMutation,
-  useCancelOrderMutation,
-  useGetAllProductionsQuery,
-  usePickupOrderMutation,
-  useReadyOrderMutation,
+  useAcceptOrderMutation, useCancelOrderMutation, useGetAllProductionsQuery, usePickupOrderMutation, useReadyOrderMutation,
 } from "@/redux/features/production/production.api";
 import { ProductionOrder, ProductionOrderStatus, ProductionSource } from "@/redux/features/production/production.type";
 import { Button } from "@/components/ui/button";
@@ -271,9 +267,9 @@ const ProductionPage = ({ params }: { params?: Promise<{ locale: string }> }) =>
               if (ordersByStatus.length === 0) return null;
 
               return (
-                <section key={status} className="space-y-3">
+                <section key={status} className="space-y-2">
                   {(status === "READY" || status === "PICKED_UP" || status === "CANCELLED") && (
-                    <h2 className={`text-3xl font-semibold tracking-tight ${statusView[status].statusClass}`}>
+                    <h2 className={`text-base font-bold uppercase tracking-wider ${statusView[status].statusClass}`}>
                       {statusView[status].sectionLabel}
                     </h2>
                   )}
@@ -286,28 +282,30 @@ const ProductionPage = ({ params }: { params?: Promise<{ locale: string }> }) =>
                         <article key={order.id} className={`rounded-xl border border-slate-200 p-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)] border-l-3 ${statusView[order.status].cardClass}`}>
                           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                             <div className="min-w-0">
-                              <div className="flex flex-wrap items-center gap-2 text-[28px] font-bold uppercase tracking-tight text-slate-800">
-                                <span className="text-[28px]">ORDER {order.slug.toUpperCase()}</span>
-                                <span className="text-base font-semibold text-slate-500">-</span>
-                                <span className="text-[22px] font-semibold text-slate-600">{toClock(order.createdAt)}</span>
-                                <span className={`text-xl font-semibold ${statusView[order.status].statusClass}`}>{statusView[order.status].statusText}</span>
+                              <div className="flex flex-wrap items-center gap-2 text-slate-800">
+                                <span className="text-sm font-bold uppercase tracking-tight">ORDER {order.slug.toUpperCase()}</span>
+                                <span className="text-xs font-semibold text-slate-450">-</span>
+                                <span className="text-xs font-semibold text-slate-500">{toClock(order.createdAt)}</span>
+                                <span className={`text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-md border ${statusView[order.status].statusClass} bg-white/70`}>
+                                  {statusView[order.status].statusText}
+                                </span>
                                 {(order.status === "PROCESSING" || order.status === "READY") && elapsed && (
-                                  <span className="text-base font-semibold text-blue-500">{elapsed}</span>
+                                  <span className="text-xs font-semibold text-blue-500">{elapsed}</span>
                                 )}
                               </div>
 
                               <div className="mt-3 space-y-2">
                                 {order.orderItems.map((item, index) => (
-                                  <div key={item.id} className="space-y-1">
-                                    <div className="flex items-center gap-3 text-[24px] font-semibold tracking-tight text-slate-700">
+                                  <div key={item.id} className="space-y-0.5">
+                                    <div className="flex items-center gap-2 text-sm font-semibold tracking-tight text-slate-700">
                                       <span>{String.fromCharCode(65 + index)}) {item.itemName}</span>
-                                      <span className="text-[22px] text-slate-600">Qty: {item.quantity}</span>
+                                      <span className="text-xs font-medium text-slate-500">Qty: {item.quantity}</span>
                                     </div>
 
                                     {item.packetChoices && item.packetChoices.length > 0 && (
-                                      <div className="ml-8 space-y-0.5">
+                                      <div className="ml-5 space-y-0.5 border-l border-slate-200 pl-2">
                                         {item.packetChoices.map((choice, choiceIndex) => (
-                                          <p key={`${choice.section}-${choice.choice}-${choiceIndex}`} className="text-[18px] font-medium text-slate-500">
+                                          <p key={`${choice.section}-${choice.choice}-${choiceIndex}`} className="text-xs font-medium text-slate-500">
                                             {choice.choice} x{choice.quantity}
                                           </p>
                                         ))}
@@ -318,8 +316,8 @@ const ProductionPage = ({ params }: { params?: Promise<{ locale: string }> }) =>
                               </div>
                             </div>
 
-                            <div className="flex flex-col items-end gap-3">
-                              <p className="text-[30px] font-bold text-blue-600">
+                            <div className="flex flex-col items-end gap-2.5">
+                              <p className="text-sm font-bold text-blue-600">
                                 {order.table ? `Table ${order.table.tableNumber}` : "No Table"}
                                 {order.customerName ? ` | ${order.customerName}` : ""}
                               </p>
