@@ -196,7 +196,7 @@ const CustomerMenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAd
           ) : layout === "LIST_WITH_IMAGE" ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="grid gap-4 rounded-[18px] border border-blue-500 bg-white p-3 grid-cols-[160px_1fr] items-center">
+                <div key={i} className="grid gap-4 rounded-[18px] border border-blue-500 bg-white p-3 grid-cols-[280px_1fr] items-center">
                   <div className="h-24 w-full rounded-xl bg-[#E2E8F0]" />
                 </div>
               ))}
@@ -275,7 +275,7 @@ const CustomerMenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAd
                   onClick={() => onAddItem(item)}
                   className={
                     (isImageListLayout
-                      ? "grid gap-4 rounded-2xl border bg-slate-50 p-3 sm:grid-cols-[160px_1fr] cursor-pointer transition-all duration-200"
+                      ? "grid gap-4 rounded-2xl border bg-slate-50 p-3 sm:grid-cols-[280px_1fr] cursor-pointer transition-all duration-200"
                       : "overflow-hidden rounded-2xl border bg-white cursor-pointer transition-all duration-200") +
                     ` ${isSelected ? "border-blue-600 bg-blue-50/10 ring-1 ring-blue-600 shadow-md" : "border-slate-200 hover:border-slate-350 hover:shadow-sm"}`
                   }

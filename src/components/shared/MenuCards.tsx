@@ -236,7 +236,7 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
           ) : layout === "LIST_WITH_IMAGE" ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="grid gap-4 rounded-[18px] border border-blue-500 bg-white p-3 grid-cols-[160px_1fr] items-center">
+                <div key={i} className="grid gap-4 rounded-[18px] border border-blue-500 bg-white p-3 grid-cols-[280px_1fr] items-center">
                   <div className="h-24 w-full rounded-xl bg-[#E2E8F0]" />
                 </div>
               ))}
@@ -306,7 +306,7 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
                 key={`${item.itemNumber}-${index}`}
                 className={
                   isImageListLayout
-                    ? "grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:grid-cols-[160px_1fr]"
+                    ? "grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:grid-cols-[280px_1fr]"
                     : "overflow-hidden rounded-2xl border border-slate-200 bg-white"
                 }
               >
