@@ -4,7 +4,7 @@
 import React from "react"
 // Trigger MainWrapper rebuild to reload translations
 import Image from "next/image"
-import { Armchair, Boxes, CalendarRange, ChevronDown, CreditCard, Fuel, Grid2x2, HandCoins, LayoutDashboard, LogOut, Package, ReceiptText, Repeat, ShoppingBag, Speaker, User, Utensils } from "lucide-react"
+import { Armchair, Boxes, CalendarRange, ChevronDown, CreditCard, Fuel, Grid2x2, HandCoins, LayoutDashboard, LogOut, Package, ReceiptText, Repeat, ShoppingBag, Speaker, User, Utensils, QrCode, Monitor, Shield, Smartphone } from "lucide-react"
 import brandLogo from "@/assets/logo/logo.png"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger} from "@/components/ui/dropdown-menu"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
@@ -165,10 +165,36 @@ function Topbar() {
   const router = useRouter();
   const pathname = usePathname();
   const [user, setUser] = React.useState<any>(null);
+  const [selectedDevice, setSelectedDevice] = React.useState<string>("qrcode");
 
   React.useEffect(() => {
     setUser(getUserData());
   }, [pathname]);
+
+  React.useEffect(() => {
+    const saved = localStorage.getItem("selectedDevice");
+    if (saved) {
+      setSelectedDevice(saved);
+    } else {
+      localStorage.setItem("selectedDevice", "qrcode");
+    }
+  }, []);
+
+  const handleDeviceChange = (device: string) => {
+    setSelectedDevice(device);
+    localStorage.setItem("selectedDevice", device);
+    // toast.success(`Selected device: ${device.toUpperCase()}`);
+  };
+
+  const devices: Record<string, { label: string; icon: React.ComponentType<any> }> = {
+    qrcode: { label: "QR Code", icon: QrCode },
+    touchscreen: { label: "Touchscreen", icon: Monitor },
+    admin: { label: "Admin", icon: Shield },
+    service: { label: "Service", icon: Smartphone }
+  };
+
+  const SelectedDeviceIcon = devices[selectedDevice]?.icon || QrCode;
+  const selectedDeviceLabel = devices[selectedDevice]?.label || "QR Code";
 
   const handleLocaleChange = (newLocale: string) => {
     router.replace(pathname, { locale: newLocale });
@@ -191,6 +217,38 @@ function Topbar() {
         </div>
 
         <div className="flex items-center gap-4 sm:gap-6">
+          {/* Device Selector Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex h-10 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3.5 text-xs font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50 cursor-pointer outline-none">
+                <SelectedDeviceIcon className="size-4 text-slate-500" />
+                <span className="hidden sm:inline">{selectedDeviceLabel}</span>
+                <ChevronDown className="size-3.5 text-slate-400" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48 rounded-2xl p-1.5 shadow-lg border border-slate-100 bg-white z-30">
+              <DropdownMenuLabel className="text-[10px] font-bold text-slate-400 px-2.5 py-1.5 uppercase tracking-wider">Choose Device</DropdownMenuLabel>
+              <DropdownMenuSeparator className="my-1 bg-slate-100" />
+              {Object.entries(devices).map(([key, value]) => {
+                const IconComponent = value.icon;
+                return (
+                  <DropdownMenuItem
+                    key={key}
+                    onClick={() => handleDeviceChange(key)}
+                    className={`flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer outline-none ${
+                      selectedDevice === key
+                        ? "bg-blue-50 text-[#1A56DB]"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                    }`}
+                  >
+                    <IconComponent className={`size-4 ${selectedDevice === key ? "text-[#1A56DB]" : "text-slate-400"}`} />
+                    <span>{value.label}</span>
+                  </DropdownMenuItem>
+                );
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <div className="flex items-center rounded-2xl border border-slate-200 bg-[#f3f4f6] p-1 shadow-sm">
             <button
               onClick={(e) => {

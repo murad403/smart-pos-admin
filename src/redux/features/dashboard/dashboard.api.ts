@@ -126,6 +126,7 @@ const dashboardApi = baseApi.injectEndpoints({
                 if (params?.page) queryParams.page = String(params.page);
                 if (params?.limit) queryParams.limit = String(params.limit);
                 if (params?.search) queryParams.search = params.search;
+                if (params?.role) queryParams.role = params.role;
 
                 return {
                     url: "/users",

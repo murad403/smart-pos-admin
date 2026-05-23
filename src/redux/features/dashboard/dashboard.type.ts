@@ -296,6 +296,7 @@ export interface GetAllUsersQueryParams {
     page?: number;
     limit?: number;
     search?: string;
+    role?: "OWNER" | "ADMIN" | "SERVICE" | "USER" | "";
 }
 
 export interface AddUserBody {
