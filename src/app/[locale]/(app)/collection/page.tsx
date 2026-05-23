@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from "react";
 import { Eye, Loader2, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { useGetAllCollectionQuery, usePickupOrderCollectionMutation } from "@/redux/features/collection/collection.api";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,12 +13,10 @@ const statusView = {
   READY: {
     cardClass: "border-l-emerald-500 bg-emerald-50/35",
     statusClass: "text-emerald-600",
-    statusText: "Completed",
   },
   PICKED_UP: {
     cardClass: "border-l-slate-400 bg-slate-100/70",
     statusClass: "text-slate-600",
-    statusText: "Picked Up",
   },
 };
 
@@ -42,6 +41,7 @@ const toElapsed = (startDateString: string | null | undefined) => {
 };
 
 const CollectionPage = () => {
+  const t = useTranslations("CollectionPage");
   const [activeTab, setActiveTab] = useState<"READY" | "PICKED_UP">("READY");
   const [activeActionId, setActiveActionId] = useState<number | null>(null);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
@@ -66,21 +66,26 @@ const CollectionPage = () => {
     setActiveActionId(orderId);
     try {
       await pickupOrder(orderId).unwrap();
-      toast.success("Order status updated successfully.");
+      toast.success(t("successMessage"));
     } catch (error: unknown) {
       const apiError = error as { data?: { message?: string }; message?: string };
-      toast.error(apiError?.data?.message || apiError?.message || "Failed to update order status.");
+      toast.error(apiError?.data?.message || apiError?.message || t("errorMessage"));
     } finally {
       setActiveActionId(null);
     }
+  };
+
+  const statusTextKeys: Record<string, string> = {
+    READY: "readyTab",
+    PICKED_UP: "completedTab",
   };
 
   return (
     <div className="space-y-6 pb-10">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Collection</h1>
-          <p className="mt-1 text-sm text-slate-600">Track ready orders and coordinate customer pickups.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">{t("title")}</h1>
+          <p className="mt-1 text-sm text-slate-600">{t("subtitle")}</p>
         </div>
 
         <div className="flex bg-slate-100 p-1 rounded-xl w-fit border border-slate-200">
@@ -92,7 +97,7 @@ const CollectionPage = () => {
                 : "text-slate-600 hover:text-slate-800"
             }`}
           >
-            Ready
+            {t("readyTab")}
           </button>
           <button
             onClick={() => setActiveTab("PICKED_UP")}
@@ -102,7 +107,7 @@ const CollectionPage = () => {
                 : "text-slate-600 hover:text-slate-800"
             }`}
           >
-            Completed
+            {t("completedTab")}
           </button>
         </div>
       </div>
@@ -120,7 +125,7 @@ const CollectionPage = () => {
           </div>
         ) : sortedOrders.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-5 py-10 text-center text-sm text-slate-500">
-            No orders found in this section.
+            {t("noOrders")}
           </div>
         ) : (
           <div className="space-y-3">
@@ -138,15 +143,15 @@ const CollectionPage = () => {
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2 text-slate-800">
-                        <span className="text-sm font-bold uppercase tracking-tight">ORDER {order.slug.toUpperCase()}</span>
-                        <span className="text-xs font-semibold text-slate-450">-</span>
+                        <span className="text-sm font-bold uppercase tracking-tight">{t("orderLabel")} {order.slug.toUpperCase()}</span>
+                        <span className="text-xs font-semibold text-slate-455">-</span>
                         <span className="text-xs font-semibold text-slate-500">{toClock(order.createdAt)}</span>
                         <span
                           className={`text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-md border ${
-                            statusView[order.status as keyof typeof statusView]?.statusClass || "text-slate-600"
+                            statusView[order.status as keyof typeof statusView]?.statusClass || "text-slate-605"
                           } bg-white/70`}
                         >
-                          {statusView[order.status as keyof typeof statusView]?.statusText || order.status}
+                          {t(statusTextKeys[order.status])}
                         </span>
                         {order.status === "READY" && elapsed && (
                           <span className="text-xs font-semibold text-blue-500">{elapsed}</span>
@@ -158,7 +163,7 @@ const CollectionPage = () => {
                           <div key={item.id} className="space-y-0.5">
                             <div className="flex items-center gap-2 text-sm font-semibold tracking-tight text-slate-700">
                               <span>{String.fromCharCode(65 + index)}) {item.itemName}</span>
-                              <span className="text-xs font-medium text-slate-500">Qty: {item.quantity}</span>
+                              <span className="text-xs font-medium text-slate-500">{t("qtyLabel")}: {item.quantity}</span>
                             </div>
 
                             {item.packetChoices && item.packetChoices.length > 0 && (
@@ -205,7 +210,7 @@ const CollectionPage = () => {
                             ) : (
                               <ShoppingBag className="size-3.5" />
                             )}
-                            <span>Pick Up</span>
+                            <span>{t("pickup")}</span>
                           </Button>
                         )}
                       </div>
