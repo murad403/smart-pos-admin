@@ -1,5 +1,6 @@
 import baseApi from "../../api/api";
-import { GetAllOrdersResponse, GetOrderDetailsResponse } from "./order.type";
+import { GetAllOrdersResponse, GetOrderDetailsResponse, SubmitOrderPaymentRequest, SubmitOrderPaymentResponse } from "./order.type";
+
 
 const orderApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -13,7 +14,7 @@ const orderApi = baseApi.injectEndpoints({
             },
             providesTags: ["orders"]
         }),
-        getOrderDetails: builder.query<GetOrderDetailsResponse, number>({
+        getOrderDetails: builder.query<GetOrderDetailsResponse, number | null>({
             query: (id) => {
                 return {
                     url: `/orders/${id}`,
@@ -42,6 +43,24 @@ const orderApi = baseApi.injectEndpoints({
             },
             invalidatesTags: ["orders"]
         }),
+        submitOrderPayment: builder.mutation<SubmitOrderPaymentResponse, SubmitOrderPaymentRequest>({
+            query: ({ orderId, method, proofImages }) => {
+                const formData = new FormData();
+
+                formData.append("method", method);
+
+                proofImages?.forEach((proofImage) => {
+                    formData.append("proofImages", proofImage);
+                });
+
+                return {
+                    url: `/orders/${orderId}/payment`,
+                    method: "POST",
+                    body: formData
+                };
+            },
+            invalidatesTags: ["orders"]
+        }),
     }),
 });
 
@@ -50,4 +69,5 @@ export const {
     useGetOrderDetailsQuery,
     useGetPendingPaymentOrdersQuery,
     useCreateOrderMutation,
+    useSubmitOrderPaymentMutation
 } = orderApi;

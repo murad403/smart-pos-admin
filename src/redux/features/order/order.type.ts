@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export type PaymentMethod = "CASH" | "TRANSFER" | "OTHER";
+
 export interface Table {
     id: number;
     slug: string;
@@ -45,7 +48,7 @@ export interface Payment {
     id: number;
     slug: string;
     orderId: number;
-    method: string;
+    method: PaymentMethod;
     status: string;
     subtotal: string;
     chargesTotal: string;
@@ -57,6 +60,7 @@ export interface Payment {
     paidAt: string | null;
     createdAt: string;
     updatedAt: string;
+    order?: Pick<Order, "id" | "slug" | "source" | "type" | "status" | "customerName" | "tableId" | "assignedToId" | "subtotal" | "totalAmount" | "createdAt" | "updatedAt">;
 }
 
 export interface Order {
@@ -71,6 +75,7 @@ export interface Order {
     subtotal: string;
     totalAmount: string;
     createdAt: string;
+    updatedAt: string;
     processedAt: string | null;
     readyAt: string | null;
     pickedUpAt: string | null;
@@ -100,4 +105,17 @@ export interface GetOrderDetailsResponse {
     statusCode: number;
     message: string;
     data: Order;
+}
+
+export interface SubmitOrderPaymentRequest {
+    orderId: number;
+    method: PaymentMethod;
+    proofImages?: File[];
+}
+
+export interface SubmitOrderPaymentResponse {
+    success: boolean;
+    statusCode: number;
+    message: string;
+    data: Payment;
 }

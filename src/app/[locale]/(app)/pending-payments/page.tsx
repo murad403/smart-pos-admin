@@ -1,12 +1,14 @@
 "use client";
 import React, { useState } from "react";
-import { Eye } from "lucide-react";
+import { BadgeDollarSign, Eye } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useGetPendingPaymentOrdersQuery } from "@/redux/features/order/order.api";
 import CustomPagination from "@/components/shared/CustomPagination";
 import OrderDetailsModal from "@/components/modal/OrderDetailsModal";
+import SubmitOrderPaymentModal from "@/components/modal/SubmitOrderPaymentModal";
 import { Order } from "@/redux/features/order/order.type";
 import { Skeleton } from "@/components/ui/skeleton";
+import Image from "next/image";
 
 const PendingPaymentsPage = ({ params }: { params?: Promise<{ locale: string }> }) => {
   if (params) React.use(params);
@@ -16,6 +18,7 @@ const PendingPaymentsPage = ({ params }: { params?: Promise<{ locale: string }> 
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 15;
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
+  const [selectedPaymentOrder, setSelectedPaymentOrder] = useState<Order | null>(null);
 
   const { data: ordersRes, isLoading, isFetching } = useGetPendingPaymentOrdersQuery({
     page: currentPage,
@@ -114,7 +117,9 @@ const PendingPaymentsPage = ({ params }: { params?: Promise<{ locale: string }> 
                       <td className="px-6 py-4">
                         <div className="relative h-10 w-10 overflow-hidden rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center font-bold text-xs text-blue-600">
                           {imageUrl ? (
-                            <img
+                            <Image
+                              width={500}
+                              height={500}
                               src={imageUrl}
                               alt={firstItem?.itemName || "Item"}
                               className="h-full w-full object-cover"
@@ -134,7 +139,7 @@ const PendingPaymentsPage = ({ params }: { params?: Promise<{ locale: string }> 
                           {order.source}
                         </span>
                       </td>
-                      <td className="px-6 py-4 font-medium text-slate-600 max-w-[200px] truncate" title={itemNames}>
+                      <td className="px-6 py-4 font-medium text-slate-600 max-w-50 truncate" title={itemNames}>
                         {itemNames}
                       </td>
                       <td className="px-6 py-4 font-bold text-slate-900">{formatCurrency(order.totalAmount)}</td>
@@ -144,10 +149,19 @@ const PendingPaymentsPage = ({ params }: { params?: Promise<{ locale: string }> 
                       <td className="px-6 py-4 text-center">
                         <button
                           onClick={() => setSelectedOrderId(order.id)}
-                          className="rounded-full p-2 text-slate-400 hover:bg-blue-50 hover:text-blue-600 transition"
+                          className="rounded-full p-2 text-slate-400 cursor-pointer hover:bg-blue-50 hover:text-blue-600 transition"
                           title={tOrder("viewDetails") || "View Details"}
                         >
                           <Eye size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedPaymentOrder(order)}
+                          className="rounded-full p-2 text-slate-400 cursor-pointer hover:bg-blue-50 hover:text-blue-600 transition"
+                          title={tPending("submitPayment") || "Submit Payment"}
+                          
+                        >
+                          <BadgeDollarSign size={16} />
                         </button>
                       </td>
                     </tr>
@@ -174,6 +188,12 @@ const PendingPaymentsPage = ({ params }: { params?: Promise<{ locale: string }> 
       <OrderDetailsModal
         orderId={selectedOrderId}
         onClose={() => setSelectedOrderId(null)}
+      />
+
+      <SubmitOrderPaymentModal
+        key={selectedPaymentOrder?.id ?? "payment-modal"}
+        order={selectedPaymentOrder}
+        onClose={() => setSelectedPaymentOrder(null)}
       />
     </div>
   );

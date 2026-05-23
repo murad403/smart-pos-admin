@@ -251,7 +251,7 @@ const OrderDetailsModal = ({ orderId, onClose }: OrderDetailsModalProps) => {
           {order.table && order.table.notes && (
             <div className="flex items-center gap-1 border-l border-slate-200 pl-3">
               <ClipboardList size={12} className="text-slate-400" />
-              <span className="truncate max-w-[200px]" title={order.table.notes}>
+              <span className="truncate max-w-50" title={order.table.notes}>
                 {t("notes")}: {order.table.notes}
               </span>
             </div>
