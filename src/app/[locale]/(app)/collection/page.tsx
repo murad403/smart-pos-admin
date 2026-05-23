@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { Loader2, ShoppingBag } from "lucide-react";
+import { Eye, Loader2, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { useGetAllCollectionQuery, usePickupOrderCollectionMutation } from "@/redux/features/collection/collection.api";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import OrderDetailsModal from "@/components/modal/OrderDetailsModal";
 
 const statusView = {
   READY: {
@@ -43,6 +44,7 @@ const toElapsed = (startDateString: string | null | undefined) => {
 const CollectionPage = () => {
   const [activeTab, setActiveTab] = useState<"READY" | "PICKED_UP">("READY");
   const [activeActionId, setActiveActionId] = useState<number | null>(null);
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
 
   const { data, isLoading, isFetching } = useGetAllCollectionQuery({
     status: activeTab,
@@ -182,21 +184,31 @@ const CollectionPage = () => {
                         {order.customerName ? ` | ${order.customerName}` : ""}
                       </p>
 
-                      {order.status === "READY" && (
+                      <div className="flex items-center gap-2">
                         <Button
                           type="button"
-                          className="h-9 rounded-md bg-slate-900 px-4 text-xs font-semibold text-white hover:bg-slate-800 flex items-center gap-1.5"
-                          onClick={() => handlePickup(order.id)}
-                          disabled={isActionBusy}
+                          variant="outline"
+                          className="h-9 w-9 rounded-md border-slate-200 bg-white p-0 text-slate-500 hover:bg-slate-50 hover:text-slate-700 flex items-center justify-center"
+                          onClick={() => setSelectedOrderId(order.id)}
                         >
-                          {isActionBusy ? (
-                            <Loader2 className="size-3.5 animate-spin" />
-                          ) : (
-                            <ShoppingBag className="size-3.5" />
-                          )}
-                          <span>Pick Up</span>
+                          <Eye className="size-4" />
                         </Button>
-                      )}
+                        {order.status === "READY" && (
+                          <Button
+                            type="button"
+                            className="h-9 rounded-md bg-slate-900 px-4 text-xs font-semibold text-white hover:bg-slate-800 flex items-center gap-1.5"
+                            onClick={() => handlePickup(order.id)}
+                            disabled={isActionBusy}
+                          >
+                            {isActionBusy ? (
+                              <Loader2 className="size-3.5 animate-spin" />
+                            ) : (
+                              <ShoppingBag className="size-3.5" />
+                            )}
+                            <span>Pick Up</span>
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </article>
@@ -205,6 +217,11 @@ const CollectionPage = () => {
           </div>
         )}
       </div>
+
+      <OrderDetailsModal
+        orderId={selectedOrderId}
+        onClose={() => setSelectedOrderId(null)}
+      />
     </div>
   );
 };

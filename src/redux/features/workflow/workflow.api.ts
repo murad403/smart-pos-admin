@@ -1,5 +1,6 @@
 import baseApi from "../../api/api";
-import { ShiftSession, OpenShiftBody, CloseShiftBody, CashProof, ShiftResponse } from "./workflow.type";
+import { GetAllUsersQueryParams, GetAllUsersResponse } from "../dashboard/dashboard.type";
+import { ShiftSession, OpenShiftBody, CloseShiftBody, CashProof, ShiftResponse, GetShiftHistoryResponse } from "./workflow.type";
 
 const workflowApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -41,6 +42,15 @@ const workflowApi = baseApi.injectEndpoints({
             },
             providesTags: ["shift-workflow"]
         }),
+        getShiftHistory: builder.query<GetShiftHistoryResponse, string | number>({
+            query: (userId) => {
+                return {
+                    url: `/shift/history/${userId}`,
+                    method: "GET",
+                };
+            },
+            providesTags: ["shift-workflow"]
+        }),
         uploadCashProof: builder.mutation<ShiftResponse<CashProof>, { shiftId: string; currentUserId: number; data: FormData }>({
             query: ({ shiftId, currentUserId, data }) => {
                 return {
@@ -61,6 +71,21 @@ const workflowApi = baseApi.injectEndpoints({
             },
             invalidatesTags: ["shift-workflow"]
         }),
+        getAllShiftUsers: builder.query<GetAllUsersResponse, GetAllUsersQueryParams | void>({
+            query: (params) => {
+                const queryParams: Record<string, string> = {};
+                if (params?.page) queryParams.page = String(params.page);
+                if (params?.limit) queryParams.limit = String(params.limit);
+                if (params?.search) queryParams.search = params.search;
+
+                return {
+                    url: "/users/for-shift",
+                    method: "GET",
+                    params: queryParams,
+                };
+            },
+            providesTags: ["users"]
+        }),
     }),
 });
 
@@ -69,6 +94,8 @@ export const {
     useGetCurrentShiftQuery,
     useCloseShiftMutation,
     useGetShiftQuery,
+    useGetShiftHistoryQuery,
     useUploadCashProofMutation,
-    useVerifyCashProofMutation
+    useVerifyCashProofMutation,
+    useGetAllShiftUsersQuery
 } = workflowApi;

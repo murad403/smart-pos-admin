@@ -2,13 +2,12 @@
 import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Play, Loader2, Clock } from "lucide-react";
+import { Play, Loader2, Clock, ClipboardClock } from "lucide-react";
 import { getUserData } from "@/utils/auth";
-import { useGetAllUsersQuery } from "@/redux/features/dashboard/dashboard.api";
-import { useOpenShiftMutation, useGetCurrentShiftQuery } from "@/redux/features/workflow/workflow.api";
+import { useOpenShiftMutation, useGetCurrentShiftQuery, useGetAllShiftUsersQuery } from "@/redux/features/workflow/workflow.api";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useRouter } from "@/i18n/routing";
+import { Link, useRouter } from "@/i18n/routing";
 
 
 const ShiftWorkflowPage = () => {
@@ -20,7 +19,7 @@ const ShiftWorkflowPage = () => {
   const [selectedUserId, setSelectedUserId] = useState<number>(0);
 
   // Fetch users for selection (e.g. for owner/admin workflow)
-  const { data: usersRes, isLoading: isUsersLoading } = useGetAllUsersQuery({ limit: 100 });
+  const { data: usersRes, isLoading: isUsersLoading } = useGetAllShiftUsersQuery({ limit: 100 });
   const users = usersRes?.data || [];
 
   useEffect(() => {
@@ -73,7 +72,7 @@ const ShiftWorkflowPage = () => {
   };
 
   const currentSelectedUserObj = users.find((u) => u.id === selectedUserId);
-
+  // console.log(currentSelectedUserObj)
   return (
     <div className="space-y-6">
       {/* Top Banner Header */}
@@ -103,6 +102,16 @@ const ShiftWorkflowPage = () => {
                 </option>
               ))}
             </select>
+
+            <Link href={`/shift-workflow/shift-history/${selectedUserId}`}>
+              <Button
+                type="button"
+                className="h-9 rounded-md bg-blue-600 px-4 text-xs font-semibold text-white hover:bg-blue-700"
+              >
+                <ClipboardClock size={16} />
+                <span>Shift History</span>
+              </Button>
+            </Link>
           </div>
         )}
       </div>

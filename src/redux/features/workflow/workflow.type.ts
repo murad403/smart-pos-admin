@@ -53,3 +53,17 @@ export interface ShiftResponse<T> {
     message: string;
     data: T;
 }
+
+export interface GetShiftHistoryResponse {
+    success: boolean;
+    statusCode: number;
+    message: string;
+    pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+    };
+    data: ShiftSession[];
+}
+

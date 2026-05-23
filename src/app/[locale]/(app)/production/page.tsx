@@ -1,14 +1,14 @@
 "use client";
-
 import React, { useMemo, useState } from "react";
-import { CheckCircle2, Loader2, Package2, ShoppingBag, XCircle } from "lucide-react";
+import { CheckCircle2, Eye, Loader2, Package2, ShoppingBag, XCircle } from "lucide-react";
 import { toast } from "sonner";
-import {
-  useAcceptOrderMutation, useCancelOrderMutation, useGetAllProductionsQuery, usePickupOrderMutation, useReadyOrderMutation,
-} from "@/redux/features/production/production.api";
+import { useAcceptOrderMutation, useCancelOrderMutation, useGetAllProductionsQuery, usePickupOrderMutation, useReadyOrderMutation } from "@/redux/features/production/production.api";
 import { ProductionOrder, ProductionOrderStatus, ProductionSource } from "@/redux/features/production/production.type";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import OrderDetailsModal from "@/components/modal/OrderDetailsModal";
+
+
 
 type OrderAction = "accept" | "cancel" | "ready" | "pickup";
 
@@ -91,6 +91,7 @@ const ProductionPage = ({ params }: { params?: Promise<{ locale: string }> }) =>
 
   const [sourceFilter, setSourceFilter] = useState<ProductionSource | "">("");
   const [activeAction, setActiveAction] = useState<{ orderId: number; action: OrderAction } | null>(null);
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
 
   const { data, isLoading, isFetching } = useGetAllProductionsQuery({
     page: 1,
@@ -321,7 +322,17 @@ const ProductionPage = ({ params }: { params?: Promise<{ locale: string }> }) =>
                                 {order.table ? `Table ${order.table.tableNumber}` : "No Table"}
                                 {order.customerName ? ` | ${order.customerName}` : ""}
                               </p>
-                              {renderActions(order)}
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  className="h-9 w-9 rounded-md border-slate-200 bg-white p-0 text-slate-500 hover:bg-slate-50 hover:text-slate-700 flex items-center justify-center"
+                                  onClick={() => setSelectedOrderId(order.id)}
+                                >
+                                  <Eye className="size-4" />
+                                </Button>
+                                {renderActions(order)}
+                              </div>
                             </div>
                           </div>
                         </article>
@@ -334,6 +345,11 @@ const ProductionPage = ({ params }: { params?: Promise<{ locale: string }> }) =>
           </div>
         )}
       </div>
+
+      <OrderDetailsModal
+        orderId={selectedOrderId}
+        onClose={() => setSelectedOrderId(null)}
+      />
     </div>
   );
 };
