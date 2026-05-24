@@ -169,32 +169,25 @@ function AppSidebar() {
   )
 }
 
-function Topbar() {
+function Topbar({
+  selectedDevice,
+  onDeviceChange,
+}: {
+  selectedDevice: string;
+  onDeviceChange: (device: string) => void;
+}) {
   const t = useTranslations("Common");
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
   const [user, setUser] = React.useState<any>(null);
-  const [selectedDevice, setSelectedDevice] = React.useState<string>("qrcode");
 
   React.useEffect(() => {
     setUser(getUserData());
   }, [pathname]);
 
-  React.useEffect(() => {
-    const saved = localStorage.getItem("selectedDevice");
-    if (saved) {
-      setSelectedDevice(saved);
-    } else {
-      localStorage.setItem("selectedDevice", "qrcode");
-    }
-  }, []);
-
   const handleDeviceChange = (device: string) => {
-    setSelectedDevice(device);
-    localStorage.setItem("selectedDevice", device);
-    window.dispatchEvent(new Event("selectedDeviceChanged"));
-    // toast.success(`Selected device: ${device.toUpperCase()}`);
+    onDeviceChange(device);
   };
 
   const devices: Record<string, { label: string; icon: React.ComponentType<any> }> = {
@@ -251,7 +244,18 @@ function Topbar() {
     <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white">
       <div className="flex py-3.5 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <div className="flex min-w-0 items-center gap-3">
-          <SidebarTrigger className="-ml-1 text-slate-700 hover:bg-slate-100" />
+          {selectedDevice !== "touchscreen" ? (
+            <SidebarTrigger className="-ml-1 text-slate-700 hover:bg-slate-100" />
+          ) : (
+            <Link href="/dashboard" className="flex items-center gap-3 px-1 py-0.5">
+              <div className="flex size-11 items-center justify-center rounded-2xl bg-[#F7F7F7] shadow-sm ring-1 ring-slate-200">
+                <Image src={brandLogo} alt="SmartPOS" className="h-7 w-7 object-contain" priority />
+              </div>
+              <div className="min-w-0">
+                <p className="text-lg font-semibold tracking-tight text-slate-950">SmartPOS</p>
+              </div>
+            </Link>
+          )}
           {/* <div className="min-w-0">
             <h1 className="truncate text-[1.05rem] font-semibold tracking-tight text-slate-950 sm:text-[1.15rem]">{t("dashboard")}</h1>
           </div> */}
@@ -372,6 +376,22 @@ const MainWrapper = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const [isChecking, setIsChecking] = React.useState(true);
   const [isAuthorized, setIsAuthorized] = React.useState(false);
+  const [selectedDevice, setSelectedDevice] = React.useState<string>("qrcode");
+
+  React.useEffect(() => {
+    const saved = localStorage.getItem("selectedDevice");
+    if (saved) {
+      setSelectedDevice(saved);
+    } else {
+      localStorage.setItem("selectedDevice", "qrcode");
+    }
+  }, []);
+
+  const handleDeviceChange = (device: string) => {
+    setSelectedDevice(device);
+    localStorage.setItem("selectedDevice", device);
+    window.dispatchEvent(new Event("selectedDeviceChanged"));
+  };
 
   React.useEffect(() => {
     const currentUser = getUserData();
@@ -402,10 +422,10 @@ const MainWrapper = ({ children }: { children: React.ReactNode }) => {
   return (
     <SidebarProvider defaultOpen>
       <div className="flex min-h-screen w-full bg-[#F7F7F7] text-slate-900">
-        <AppSidebar />
+        {selectedDevice !== "touchscreen" && <AppSidebar />}
 
         <SidebarInset className="flex min-h-screen flex-col bg-[#F7F7F7]">
-          <Topbar />
+          <Topbar selectedDevice={selectedDevice} onDeviceChange={handleDeviceChange} />
           <main className="flex flex-1 flex-col p-4 md:p-6 lg:p-8">{children}</main>
         </SidebarInset>
       </div>
