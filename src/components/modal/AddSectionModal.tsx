@@ -52,18 +52,6 @@ const layouts: Array<{
     ),
   },
   {
-    id: "QUADRUPLE",
-    title: "4-Image Row",
-    previewContent: (
-      <div className="flex h-12 w-full items-center justify-center gap-1 px-1">
-        <div className="h-full flex-1 rounded-sm bg-[#E2E8F0]" />
-        <div className="h-full flex-1 rounded-sm bg-[#E2E8F0]" />
-        <div className="h-full flex-1 rounded-sm bg-[#E2E8F0]" />
-        <div className="h-full flex-1 rounded-sm bg-[#E2E8F0]" />
-      </div>
-    ),
-  },
-  {
     id: "LIST_WITH_IMAGE",
     title: "Images List View",
     previewContent: (

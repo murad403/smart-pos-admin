@@ -9,6 +9,7 @@ import {
   useAddItemMutation,
   useAddPacketSectionMutation,
   useAddPacketSectionChoiceMutation,
+  useAddItemToSectionMutation,
 } from "@/redux/features/menu/menu.api";
 import { toast } from "sonner";
 
@@ -16,6 +17,7 @@ type Props = {
   open: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  sectionId?: number | null;
 };
 
 interface UISection {
@@ -25,7 +27,7 @@ interface UISection {
   choices: Array<{ id: string; name: string; maxQty: number }>;
 }
 
-const AddItemModal: React.FC<Props> = ({ open, onClose, onSuccess }) => {
+const AddItemModal: React.FC<Props> = ({ open, onClose, onSuccess, sectionId }) => {
   const t = useTranslations("Menu");
 
   // Fetch production stations with limit 100
@@ -36,6 +38,7 @@ const AddItemModal: React.FC<Props> = ({ open, onClose, onSuccess }) => {
   const [addItem, { isLoading: isAddingItem }] = useAddItemMutation();
   const [addPacketSection] = useAddPacketSectionMutation();
   const [addPacketSectionChoice] = useAddPacketSectionChoiceMutation();
+  const [addItemToSection] = useAddItemToSectionMutation();
 
   // Basic Form States
   const [name, setName] = useState("");
@@ -240,6 +243,14 @@ const AddItemModal: React.FC<Props> = ({ open, onClose, onSuccess }) => {
             }
           }
         }
+      }
+
+      if (sectionId) {
+        toast.loading("Adding item to section...", { id: "add-item-toast" });
+        await addItemToSection({
+          sectionId,
+          data: { itemId },
+        }).unwrap();
       }
 
       toast.success("Item created successfully!", { id: "add-item-toast" });

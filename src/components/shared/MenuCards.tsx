@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import item1 from "@/assets/images/menu1.jpg";
 import item2 from "@/assets/images/menu2.png";
-import { SquarePen, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { SquarePen, Trash2, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionLayoutType } from "@/redux/features/menu/menu.type";
 import { useTranslations } from "next-intl";
@@ -198,10 +198,6 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
         </div>
 
         <div className="flex items-center gap-2">
-          <Button type="button" onClick={onAddItem} className="h-10 rounded-xl bg-[#3B82F6] px-5 text-sm font-semibold text-white hover:bg-blue-600">
-            <span className="mr-1 text-lg leading-none">+</span>
-            {t("addItem")}
-          </Button>
           <Button
             type="button"
             variant="outline"
@@ -224,7 +220,7 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
       </div>
 
       <div className="p-5 sm:p-6">
-        {isLoading || items.length === 0 ? (
+        {isLoading ? (
           layout === "LIST_NO_IMAGE" ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
@@ -243,14 +239,11 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
             </div>
           ) : (
             <div className={gridColsClass}>
-              {Array.from({ length: ({ SINGLE: 1, DOUBLE: 2, TRIPLE: 3, QUADRUPLE: 4 }[layout] || 1) }).map((_, i) => (
+              {Array.from({ length: (layout === "SINGLE" ? 1 : layout === "DOUBLE" ? 2 : layout === "TRIPLE" ? 3 : 1) }).map((_, i) => (
                 <div key={i} className="flex flex-col gap-4 rounded-[22px] border border-blue-500 bg-white p-4 shadow-sm">
                   <div className={`relative w-full overflow-hidden rounded-[18px] bg-[#E2E8F0] ${
                     layout === "SINGLE" ? "h-96 md:h-[480px]" : "h-72"
                   }`} />
-                  {/* <div className="text-center text-sm font-semibold text-slate-500 pb-1">
-                    1 Large Image
-                  </div> */}
                 </div>
               ))}
             </div>
@@ -298,6 +291,14 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
                     </td>
                   </tr>
                 ))}
+                {/* Clickable placeholder row to add item in LIST_NO_IMAGE */}
+                <tr className="group transition-colors hover:bg-slate-50/50 cursor-pointer font-medium" onClick={onAddItem}>
+                  <td colSpan={6} className="py-4 text-center bg-[#E2E8F0]">
+                    <div className="inline-flex items-center gap-2 text-[15px] font-semibold text-blue-500 group-hover:text-blue-600 transition-colors">
+                      <Plus size={16} />
+                    </div>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -368,6 +369,40 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
                 </div>
               </article>
             ))}
+
+            {/* Clickable placeholders for empty slots in grid layouts (SINGLE, DOUBLE, TRIPLE) */}
+            {["SINGLE", "DOUBLE", "TRIPLE"].includes(layout) &&
+              Array.from({
+                length: Math.max(0, (layout === "SINGLE" ? 1 : layout === "DOUBLE" ? 2 : layout === "TRIPLE" ? 3 : 0) - items.length),
+              }).map((_, i) => (
+                <div
+                  key={`placeholder-${i}`}
+                  className="flex flex-col rounded-[22px] border border-blue-500 bg-white p-4 shadow-sm w-full h-full"
+                >
+                  <button
+                    type="button"
+                    onClick={onAddItem}
+                    className={`group relative w-full overflow-hidden rounded-[18px] bg-[#E2E8F0] hover:bg-[#D9E2EC] flex items-center justify-center transition-all duration-300 flex-1 min-h-[18rem] ${
+                      layout === "SINGLE" ? "min-h-[24rem] md:min-h-[30rem]" : ""
+                    }`}
+                  >
+                    <Plus size={36} className="text-white opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300" />
+                  </button>
+                </div>
+              ))}
+
+            {/* Clickable list view placeholder for LIST_WITH_IMAGE */}
+            {isImageListLayout && (
+              <button
+                type="button"
+                onClick={onAddItem}
+                className="group w-full grid gap-4 rounded-2xl border border-dashed border-blue-400 bg-white hover:bg-slate-50 p-3 sm:grid-cols-[280px_1fr] items-center text-left transition-all duration-300"
+              >
+                <div className="relative h-40 rounded-xl bg-[#E2E8F0] group-hover:bg-[#D9E2EC] flex items-center justify-center transition-all duration-300">
+                  <Plus size={36} className="text-white opacity-90 group-hover:scale-110 transition-all duration-300" />
+                </div>
+              </button>
+            )}
           </div>
         )}
       </div>

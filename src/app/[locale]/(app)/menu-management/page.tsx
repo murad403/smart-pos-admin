@@ -7,7 +7,7 @@ import React from "react";
 import { Plus, SquarePen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import AddMenuModal from "@/components/modal/AddMenuModal";
+import AddItemModal from "@/components/modal/AddItemModal";
 import AddSectionModal, { SectionDraft } from "@/components/modal/AddSectionModal";
 import EditSectionModal from "@/components/modal/EditSectionModal";
 import AddCategoryModal from "@/components/modal/AddCategoryModal";
@@ -27,7 +27,7 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
 
   const [selectedCategory, setSelectedCategory] = React.useState("");
   const [isAddSectionOpen, setIsAddSectionOpen] = React.useState(false);
-  const [isAddMenuOpen, setIsAddMenuOpen] = React.useState(false);
+  const [isAddItemOpen, setIsAddItemOpen] = React.useState(false);
   const [isEditSectionOpen, setIsEditSectionOpen] = React.useState(false);
   const [isAddCategoryOpen, setIsAddCategoryOpen] = React.useState(false);
   const [isDeleteSectionOpen, setIsDeleteSectionOpen] = React.useState(false);
@@ -122,12 +122,12 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
 
   const handleOpenAddItem = (sectionId: number) => {
     setActiveSectionId(sectionId);
-    setIsAddMenuOpen(true);
+    setIsAddItemOpen(true);
   };
 
   const handleSaveItem = () => {
     refetchSections();
-    setIsAddMenuOpen(false);
+    setIsAddItemOpen(false);
   };
 
   return (
@@ -193,7 +193,6 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
               <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                 <div className="space-y-2">
                   <Skeleton className="h-7 w-48" />
-                  <Skeleton className="h-4 w-32" />
                 </div>
                 <div className="flex items-center gap-2">
                   <Skeleton className="h-10 w-28 rounded-xl" />
@@ -253,10 +252,10 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
         defaultCategory={selectedCategory}
       />
 
-      <AddMenuModal
-        open={isAddMenuOpen}
-        onClose={() => setIsAddMenuOpen(false)}
-        onSave={handleSaveItem}
+      <AddItemModal
+        open={isAddItemOpen}
+        onClose={() => setIsAddItemOpen(false)}
+        onSuccess={handleSaveItem}
         sectionId={activeSectionId}
       />
 
