@@ -2,10 +2,10 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Power, CheckCircle2, AlertCircle, Upload, Check, Clock, X, Loader2, Image as ImageIcon } from "lucide-react";
+import { Power, Upload, Check, Clock, Loader2, Image as ImageIcon } from "lucide-react";
 import { getUserData } from "@/utils/auth";
 import { useSearchParams } from "next/navigation";
-import { useGetCurrentShiftQuery, useCloseShiftMutation, useGetShiftQuery, useUploadCashProofMutation, useVerifyCashProofMutation } from "@/redux/features/workflow/workflow.api";
+import { useGetCurrentShiftQuery, useCloseShiftMutation, useUploadCashProofMutation } from "@/redux/features/workflow/workflow.api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -127,7 +127,6 @@ const OpenShiftInner = () => {
     // Mutations
     const [closeShift, { isLoading: isCloseShiftLoading }] = useCloseShiftMutation();
     const [uploadCashProof, { isLoading: isUploadingProof }] = useUploadCashProofMutation();
-    const [verifyCashProof, { isLoading: isVerifyingProof }] = useVerifyCashProofMutation();
 
     // Close shift state form
     const [openingCashAmount, setOpeningCashAmount] = useState<string>("");
@@ -143,15 +142,7 @@ const OpenShiftInner = () => {
     const [salesConfirmed, setSalesConfirmed] = useState<boolean>(false);
     const [skippedCash, setSkippedCash] = useState<boolean>(false);
 
-    // Closed shift lookup for summary modal
-    const [closedShiftId, setClosedShiftId] = useState<string | null>(null);
-    const [isSummaryOpen, setIsSummaryOpen] = useState<boolean>(false);
 
-    const { data: closedShiftRes, isLoading: isClosedShiftLoading } = useGetShiftQuery(
-        closedShiftId as string,
-        { skip: !closedShiftId }
-    );
-    const closedShiftDetails = closedShiftRes?.data;
 
     // Live timer for active shift duration
     const [duration, setDuration] = useState<string>("");
@@ -218,14 +209,9 @@ const OpenShiftInner = () => {
                 skippedCash
             };
 
-            const res = await closeShift({ shiftId: currentShift.id, data: payload }).unwrap();
+            await closeShift({ shiftId: currentShift.id, data: payload }).unwrap();
             toast.success(t("shiftClosedSuccessfully"));
-
-            // Open the summary modal using the closed shift id
-            if (res.data?.id) {
-                setClosedShiftId(res.data.id);
-                setIsSummaryOpen(true);
-            }
+            router.push("/shift-workflow");
 
             // Reset form states
             setOpeningCashAmount("");
@@ -260,20 +246,6 @@ const OpenShiftInner = () => {
         }
     };
 
-    const handleVerifyProof = async (proofId: string) => {
-        if (!currentShift || !currentUser) return;
-        try {
-            await verifyCashProof({
-                shiftId: currentShift.id,
-                proofId,
-                data: { verifiedById: currentUser.id }
-            }).unwrap();
-            toast.success(t("cashProofVerified"));
-        } catch (err: any) {
-            toast.error(err?.data?.message || err?.message || "Failed to verify proof");
-        }
-    };
-
     const formatDateTime = (dateStr?: string) => {
         if (!dateStr) return "";
         try {
@@ -287,7 +259,7 @@ const OpenShiftInner = () => {
         }
     };
 
-    if (isShiftLoading || isShiftFetching || !currentShift) {
+    if (isShiftLoading || !currentShift) {
         return <ActiveShiftSkeleton />;
     }
 
@@ -594,36 +566,15 @@ const OpenShiftInner = () => {
                                                 </p>
 
                                                 {/* Verification badge */}
-                                                <div className="pt-1">
-                                                    {proof.verifiedBy ? (
+                                                {proof.verifiedBy && (
+                                                    <div className="pt-1">
                                                         <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
                                                             <Check className="size-3" />
                                                             {t("verifiedBy", { name: proof.verifiedBy.name || proof.verifiedBy.email })}
                                                         </span>
-                                                    ) : (
-                                                        <span className="inline-flex items-center gap-1 rounded-lg bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
-                                                            <AlertCircle className="size-3" />
-                                                            {t("notVerified")}
-                                                        </span>
-                                                    )}
-                                                </div>
+                                                    </div>
+                                                )}
                                             </div>
-
-                                            {/* Verify Action Button */}
-                                            {!proof.verifiedBy && (
-                                                <Button
-                                                    type="button"
-                                                    onClick={() => handleVerifyProof(proof.id)}
-                                                    disabled={isVerifyingProof}
-                                                    className="h-9 rounded-xl bg-[#1A56DB] px-3 text-xs font-bold text-white shadow-sm hover:bg-blue-700 disabled:opacity-50 transition cursor-pointer"
-                                                >
-                                                    {isVerifyingProof ? (
-                                                        <Loader2 className="size-3 animate-spin" />
-                                                    ) : (
-                                                        t("verify")
-                                                    )}
-                                                </Button>
-                                            )}
                                         </div>
                                     ))}
                                 </div>
@@ -633,155 +584,7 @@ const OpenShiftInner = () => {
                 </div>
             </div>
 
-            {/* ================= SHIFT CLOSED SUMMARY MODAL ================= */}
-            {isSummaryOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-[2px] animate-fade-in">
-                    <div className="relative w-full max-w-lg rounded-[28px] bg-white p-6 shadow-2xl animate-zoom-in border border-slate-100 max-h-[90vh] overflow-y-auto">
 
-                        {/* Close Modal trigger */}
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setIsSummaryOpen(false);
-                                setClosedShiftId(null);
-                                router.push("/shift-workflow");
-                            }}
-                            className="absolute right-5 top-5 rounded-full p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition cursor-pointer"
-                        >
-                            <X className="size-5" />
-                        </button>
-
-                        {isClosedShiftLoading ? (
-                            <div className="py-12 space-y-4 flex flex-col items-center">
-                                <Loader2 className="size-10 animate-spin text-blue-500" />
-                                <p className="text-sm font-semibold text-slate-500">Retrieving shift details...</p>
-                            </div>
-                        ) : closedShiftDetails ? (
-                            <div className="space-y-6">
-
-                                {/* Header status */}
-                                <div className="flex flex-col items-center text-center pb-4 border-b border-slate-100">
-                                    <div className="mb-4 flex size-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-500 shadow-md">
-                                        <CheckCircle2 size={32} />
-                                    </div>
-                                    <h3 className="text-2xl font-bold text-slate-900">
-                                        {t("shiftClosedSummary")}
-                                    </h3>
-                                    <p className="text-xs text-slate-400 font-semibold font-mono mt-1">
-                                        ID: {closedShiftDetails.id}
-                                    </p>
-                                </div>
-
-                                {/* Metadata details */}
-                                <div className="grid grid-cols-2 gap-4 rounded-2xl bg-slate-50 p-4 border border-slate-100 text-sm">
-                                    <div className="space-y-1">
-                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">User</p>
-                                        <p className="font-bold text-slate-800">
-                                            {closedShiftDetails.user?.name || closedShiftDetails.user?.email}
-                                        </p>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Date Closed</p>
-                                        <p className="font-bold text-slate-800">
-                                            {formatDateTime(closedShiftDetails.createdAt)}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* Financial tallies */}
-                                <div className="space-y-3">
-                                    <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Reconciliation details</h4>
-                                    <div className="rounded-2xl border border-slate-200 divide-y divide-slate-100 overflow-hidden">
-                                        <div className="flex items-center justify-between p-4 bg-white text-sm font-medium">
-                                            <span className="text-slate-500">Opening Cash Amount</span>
-                                            <span className="font-bold text-slate-800">
-                                                Rp {Number(closedShiftDetails.openingCashAmount || 0).toLocaleString()}
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center justify-between p-4 bg-white text-sm font-medium">
-                                            <span className="text-slate-500">Closing Cash Amount</span>
-                                            <span className="font-bold text-slate-800">
-                                                Rp {Number(closedShiftDetails.closingCashAmount || 0).toLocaleString()}
-                                            </span>
-                                        </div>
-
-                                        {/* Discrepancy block */}
-                                        <div className="flex items-center justify-between p-4 bg-slate-50/50 text-sm font-bold">
-                                            <span className="text-slate-600">{t("discrepancy")}</span>
-                                            <span className={`inline-flex items-center gap-1 rounded-xl px-3 py-1 font-bold ${Number(closedShiftDetails.closingDiscrepancy || 0) < 0
-                                                ? "bg-red-100 text-red-700"
-                                                : "bg-emerald-100 text-emerald-700"
-                                                }`}>
-                                                Rp {Number(closedShiftDetails.closingDiscrepancy || 0).toLocaleString()}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Checklist Summary details */}
-                                <div className="space-y-2">
-                                    <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Checklist status</h4>
-                                    <div className="grid grid-cols-3 gap-2">
-                                        {/* Inventory */}
-                                        <div className={`rounded-xl border p-3 text-center ${closedShiftDetails.inventoryAccurate
-                                            ? "border-emerald-100 bg-emerald-50/30 text-emerald-700"
-                                            : "border-slate-100 bg-slate-50 text-slate-500"
-                                            }`}>
-                                            <p className="text-[10px] font-bold uppercase tracking-wider">Inventory</p>
-                                            <p className="mt-1 text-xs font-extrabold">
-                                                {closedShiftDetails.inventoryAccurate ? "Accurate" : "Skipped"}
-                                            </p>
-                                        </div>
-
-                                        {/* Promotions */}
-                                        <div className={`rounded-xl border p-3 text-center ${closedShiftDetails.promotionConfirmed
-                                            ? "border-emerald-100 bg-emerald-50/30 text-emerald-700"
-                                            : "border-slate-100 bg-slate-50 text-slate-500"
-                                            }`}>
-                                            <p className="text-[10px] font-bold uppercase tracking-wider">Promotions</p>
-                                            <p className="mt-1 text-xs font-extrabold">
-                                                {closedShiftDetails.promotionConfirmed ? "Verified" : "Skipped"}
-                                            </p>
-                                        </div>
-
-                                        {/* Sales */}
-                                        <div className={`rounded-xl border p-3 text-center ${closedShiftDetails.salesConfirmed
-                                            ? "border-emerald-100 bg-emerald-50/30 text-emerald-700"
-                                            : "border-slate-100 bg-slate-50 text-slate-500"
-                                            }`}>
-                                            <p className="text-[10px] font-bold uppercase tracking-wider">Sales/Cash</p>
-                                            <p className="mt-1 text-xs font-extrabold">
-                                                {closedShiftDetails.salesConfirmed ? "Verified" : "Skipped"}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Cash Proof count */}
-                                <div className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3 text-sm border border-slate-100">
-                                    <span className="font-semibold text-slate-500">Cash Proofs Count</span>
-                                    <span className="font-bold text-slate-800">{closedShiftDetails.cashProofs?.length || 0} files</span>
-                                </div>
-
-                                {/* Close Button */}
-                                <Button
-                                    type="button"
-                                    onClick={() => {
-                                        setIsSummaryOpen(false);
-                                        setClosedShiftId(null);
-                                        router.push("/shift-workflow");
-                                    }}
-                                    className="w-full h-12 rounded-xl bg-slate-900 text-sm font-bold text-white hover:bg-slate-800 transition cursor-pointer"
-                                >
-                                    {t("close")}
-                                </Button>
-                            </div>
-                        ) : (
-                            <div className="py-8 text-center text-slate-400">Failed to load closed shift details.</div>
-                        )}
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

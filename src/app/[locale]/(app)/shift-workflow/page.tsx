@@ -160,7 +160,7 @@ const ShiftWorkflowPage = () => {
       </div>
 
       {/* Main Content Area */}
-      {isShiftLoading || isShiftFetching ? (
+      {isShiftLoading ? (
         <div className="flex flex-col items-center justify-center rounded-[32px] border border-slate-200 bg-white px-6 py-20 text-center shadow-sm">
           <Skeleton className="mx-auto size-20 rounded-3xl bg-slate-200" />
           <Skeleton className="mt-8 h-8 w-64 mx-auto rounded-lg bg-slate-200" />
