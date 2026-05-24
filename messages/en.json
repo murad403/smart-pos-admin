@@ -495,7 +495,14 @@
     "shiftClosedSummary": "Shift Closed Summary",
     "discrepancy": "Discrepancy",
     "viewSummary": "View Summary",
-    "close": "Close"
+    "close": "Close",
+    "alreadyOpened": "Already has an opened shift",
+    "notOpened": "Shift is not opened yet",
+    "startedAt": "Started At",
+    "runningTime": "Running Time",
+    "uploadedProofs": "Uploaded Proofs",
+    "filesCount": "{count} files",
+    "openingCashBrief": "Opening Cash"
   },
   "ProductionStation": {
     "title": "Production Stations",

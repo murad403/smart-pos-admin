@@ -113,7 +113,7 @@ const OpenShiftInner = () => {
         isLoading: isShiftLoading,
         isFetching: isShiftFetching
     } = useGetCurrentShiftQuery(targetUserId, { skip: !targetUserId });
-    const currentShift = currentShiftRes?.data;
+    const currentShift = currentShiftRes?.data && (currentShiftRes.data as any).id ? currentShiftRes.data : null;
 
     // Redirect back if shift load completes and there is no active session
     useEffect(() => {
@@ -254,7 +254,7 @@ const OpenShiftInner = () => {
                 currentUserId: currentUser?.id || targetUserId,
                 data: formData
             }).unwrap();
-            toast.success(t("cashProofUploaded"));
+            // toast.success(t("cashProofUploaded"));
         } catch (err: any) {
             toast.error(err?.data?.message || err?.message || "Failed to upload proof");
         }

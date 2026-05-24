@@ -497,7 +497,14 @@
     "shiftClosedSummary": "Ringkasan Penutupan Shift",
     "discrepancy": "Selisih",
     "viewSummary": "Lihat Ringkasan",
-    "close": "Tutup"
+    "close": "Tutup",
+    "alreadyOpened": "Sudah memiliki shift yang terbuka",
+    "notOpened": "Shift belum dibuka",
+    "startedAt": "Dimulai Pada",
+    "runningTime": "Waktu Berjalan",
+    "uploadedProofs": "Bukti Diunggah",
+    "filesCount": "{count} file",
+    "openingCashBrief": "Kas Awal"
   },
   "ProductionStation": {
     "title": "Stasiun Produksi",

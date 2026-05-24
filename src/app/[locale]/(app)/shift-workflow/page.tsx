@@ -48,20 +48,63 @@ const ShiftWorkflowPage = () => {
     isLoading: isShiftLoading,
     isFetching: isShiftFetching,
   } = useGetCurrentShiftQuery(selectedUserId, { skip: !selectedUserId });
-  const currentShift = currentShiftRes?.data;
+  const currentShift = currentShiftRes?.data && (currentShiftRes.data as any).id ? currentShiftRes.data : null;
 
   // Mutations
   const [openShift, { isLoading: isOpenShiftLoading }] = useOpenShiftMutation();
+
+  // Live timer for active shift duration
+  const [duration, setDuration] = useState<string>("");
+
+  useEffect(() => {
+    if (!currentShift?.createdAt) {
+      setDuration("");
+      return;
+    }
+
+    const updateTimer = () => {
+      const start = new Date(currentShift.createdAt).getTime();
+      const now = new Date().getTime();
+      const diff = now - start;
+      if (diff < 0) {
+        setDuration("00:00:00");
+        return;
+      }
+      const hrs = Math.floor(diff / 3600000);
+      const mins = Math.floor((diff % 3600000) / 60000);
+      const secs = Math.floor((diff % 60000) / 1000);
+      setDuration(
+        `${String(hrs).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`
+      );
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [currentShift?.createdAt]);
+
+  const formatDateTime = (dateStr?: string) => {
+    if (!dateStr) return "";
+    try {
+      const date = new Date(dateStr);
+      return date.toLocaleString(undefined, {
+        dateStyle: "medium",
+        timeStyle: "short"
+      });
+    } catch {
+      return dateStr;
+    }
+  };
 
   const handleOpenShift = async () => {
     if (!selectedUserId) {
       toast.error("Please select a user first");
       return;
     }
-    // if (currentShift) {
-    //   router.push(`/shift-workflow/open-shift?userId=${selectedUserId}`);
-    //   return;
-    // }
+    if (currentShift) {
+      router.push(`/shift-workflow/open-shift?userId=${selectedUserId}`);
+      return;
+    }
     try {
       await openShift({ userId: selectedUserId }).unwrap();
       toast.success(t("shiftOpenedSuccessfully"));
@@ -142,7 +185,20 @@ const ShiftWorkflowPage = () => {
               <Play className="size-10 fill-[#1A56DB] ml-1 animate-pulse" />
             )}
           </div>
-          <h2 className="mt-8 text-2xl font-bold text-slate-900">
+
+          {currentShift ? (
+            <div className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3.5 py-1 text-xs font-bold text-emerald-800 animate-pulse">
+              <span className="size-2 rounded-full bg-emerald-500" />
+              {t("alreadyOpened")}
+            </div>
+          ) : (
+            <div className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-slate-50 border border-slate-200 px-3.5 py-1 text-xs font-bold text-slate-600">
+              <span className="size-2 rounded-full bg-slate-400" />
+              {t("notOpened")}
+            </div>
+          )}
+
+          <h2 className="mt-6 text-2xl font-bold text-slate-900">
             {currentShift ? t("activeShiftTitle") : t("openShiftTitle")}
           </h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-slate-400">
@@ -164,6 +220,40 @@ const ShiftWorkflowPage = () => {
                   }`}>
                   {currentSelectedUserObj.name || currentSelectedUserObj.email}
                 </p>
+              </div>
+            </div>
+          )}
+
+          {currentShift && (
+            <div className="mt-6 w-full max-w-sm rounded-2xl border border-slate-100 bg-slate-50/50 p-4 text-left text-sm animate-fade-in">
+              <h4 className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-3 border-b border-slate-100 pb-2">
+                {t("shiftDetails")}
+              </h4>
+              <div className="grid grid-cols-2 gap-y-3 gap-x-4">
+                <div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("startedAt")}</p>
+                  <p className="font-semibold text-slate-800 text-xs mt-0.5">
+                    {formatDateTime(currentShift.createdAt)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("runningTime")}</p>
+                  <p className="font-bold font-mono text-emerald-600 text-xs mt-0.5">
+                    {duration || "00:00:00"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("openingCashBrief")}</p>
+                  <p className="font-semibold text-slate-800 text-xs mt-0.5">
+                    Rp {currentShift.openingCashAmount ? Number(currentShift.openingCashAmount).toLocaleString() : "0"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("uploadedProofs")}</p>
+                  <p className="font-semibold text-slate-800 text-xs mt-0.5">
+                    {t("filesCount", { count: currentShift.cashProofs?.length || 0 })}
+                  </p>
+                </div>
               </div>
             </div>
           )}
