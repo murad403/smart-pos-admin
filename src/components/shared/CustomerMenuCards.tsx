@@ -303,7 +303,7 @@ const CustomerMenuCards = ({
                   className={
                     (isImageListLayout
                       ? "grid gap-4 rounded-2xl border bg-slate-50 p-3 sm:grid-cols-[280px_1fr] cursor-pointer transition-all duration-200"
-                      : "overflow-hidden rounded-2xl border bg-white cursor-pointer transition-all duration-200") +
+                      : "flex flex-col h-full overflow-hidden rounded-2xl border bg-white cursor-pointer transition-all duration-200") +
                     ` ${isSelected ? "border-blue-600 bg-blue-50/10 ring-1 ring-blue-600 shadow-md" : "border-slate-200 hover:border-slate-350 hover:shadow-sm"}`
                   }
                 >
@@ -328,7 +328,7 @@ const CustomerMenuCards = ({
 
                   </div>
 
-                  <div className={isImageListLayout ? "flex flex-col justify-between gap-5 py-1 sm:pr-2" : "flex flex-col justify-between p-4"}>
+                  <div className={isImageListLayout ? "flex flex-col justify-between gap-5 py-1 sm:pr-2" : "flex-1 flex flex-col justify-between p-4"}>
                     <div className="space-y-3">
                       <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{item.itemNumber}</p>
                       <h3 className="text-xl font-bold text-slate-900">{item.itemName}</h3>
