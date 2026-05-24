@@ -222,9 +222,9 @@ function Topbar() {
       <div className="flex py-3.5 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <SidebarTrigger className="-ml-1 text-slate-700 hover:bg-slate-100" />
-          <div className="min-w-0">
+          {/* <div className="min-w-0">
             <h1 className="truncate text-[1.05rem] font-semibold tracking-tight text-slate-950 sm:text-[1.15rem]">{t("dashboard")}</h1>
-          </div>
+          </div> */}
         </div>
 
         <div className="flex items-center gap-4 sm:gap-6">

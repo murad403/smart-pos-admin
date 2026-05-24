@@ -8,7 +8,7 @@ import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail } from "lucide-react";
 import authIllustration from "@/assets/auth/signin.png";
 import { SignInFormValues, signInSchema } from "@/validation/auth.validation";
 import AuthPageWrapper from "@/components/wrapper/AuthWrapper";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { saveUserData } from "@/utils/auth";
 import { toast } from "sonner";
 import { useSignInMutation } from "@/redux/features/auth/auth.api";
@@ -27,6 +27,8 @@ const Illustration = () => (
 export default function SignInPage({ params }: { params?: Promise<{ locale: string }> }) {
     if (params) use(params);
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const roleParam = searchParams.get("role");
     const [showPassword, setShowPassword] = useState(false);
     const [authError, setAuthError] = useState<string | null>(null);
     const [signIn, { isLoading }] = useSignInMutation();
@@ -140,22 +142,24 @@ export default function SignInPage({ params }: { params?: Promise<{ locale: stri
                     </label>
 
                     {/* Remember me + Forgot */}
-                    <div className="flex items-center justify-between gap-3 pt-1 text-sm">
-                        <label className="inline-flex cursor-pointer items-center gap-2 text-slate-500">
-                            <input
-                                type="checkbox"
-                                className="size-4 rounded border-slate-300 text-[#2f6de3] focus:ring-[#2f6de3]"
-                                {...register("rememberMe")}
-                            />
-                            <span>Remember Me</span>
-                        </label>
-                        <Link
-                            href="/auth/forgot-password"
-                            className="font-medium text-[#f97316] hover:underline"
-                        >
-                            Forgot Password?
-                        </Link>
-                    </div>
+                    {roleParam === "owner" && (
+                        <div className="flex items-center justify-between gap-3 pt-1 text-sm">
+                            <label className="inline-flex cursor-pointer items-center gap-2 text-slate-500">
+                                <input
+                                    type="checkbox"
+                                    className="size-4 rounded border-slate-300 text-[#2f6de3] focus:ring-[#2f6de3]"
+                                    {...register("rememberMe")}
+                                />
+                                <span>Remember Me</span>
+                            </label>
+                            <Link
+                                href="/auth/forgot-password"
+                                className="font-medium text-[#f97316] hover:underline"
+                            >
+                                Forgot Password?
+                            </Link>
+                        </div>
+                    )}
 
                     <button
                         type="submit"

@@ -290,6 +290,13 @@ export interface UserListItem {
     isActive: boolean;
     createdAt: string;
     updatedAt: string;
+    productionStation?: {
+        id: number;
+        slug: string;
+        name: string;
+        sortOrder: number;
+        isActive: boolean;
+    } | null;
 }
 
 export interface GetAllUsersQueryParams {

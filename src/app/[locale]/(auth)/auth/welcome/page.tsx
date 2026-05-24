@@ -65,7 +65,7 @@ const Welcome = () => {
 
                         {/* Staff */}
                         <Link
-                            href="/auth/sign-in"
+                            href="/auth/sign-in?role=staff"
                             aria-label={t("staffAria")}
                             className="flex w-full items-center gap-2.5 rounded-xl bg-[#1db974] px-3.5 py-4 text-[13px] font-semibold text-white no-underline transition-all duration-150 hover:-translate-y-0.5 hover:saturate-[1.1] active:scale-[0.98]"
                         >
@@ -77,7 +77,7 @@ const Welcome = () => {
 
                         {/* Admin */}
                         <Link
-                            href="/auth/sign-in"
+                            href="/auth/sign-in?role=admin"
                             aria-label={t("adminAria")}
                             className="flex w-full items-center gap-2.5 rounded-xl bg-[#3b6ef6] px-3.5 py-4 text-[13px] font-semibold text-white no-underline transition-all duration-150 hover:-translate-y-0.5 hover:saturate-[1.1] active:scale-[0.98]"
                         >
@@ -92,7 +92,7 @@ const Welcome = () => {
                         {/* Customer */}
 
                         <Link
-                            href="/auth/sign-in"
+                            href="/auth/sign-in?role=owner"
                             aria-label={t("ownerAria")}
                             className="flex w-full items-center gap-2.5 rounded-xl bg-orange-500 px-3.5 py-4 text-[13px] font-semibold text-white transition-all duration-150 hover:-translate-y-0.5 hover:saturate-[1.1] active:scale-[0.98]"
                         >
