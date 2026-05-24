@@ -65,7 +65,7 @@ function AppSidebar() {
     { label: t("collection"), icon: BellDot, href: "/collection" },
     { label: t("production"), icon: Speaker, href: "/production" },
     { label: t("manageTable"), icon: Armchair, href: "/manage-table" },
-    { label: t("shiftWorkflow"), icon: CalendarRange, href: "/shift-workflow" },
+    // { label: t("shiftWorkflow"), icon: CalendarRange, href: "/shift-workflow" },
     { label: t("order"), icon: ShoppingBag, href: "/order" },
     { label: t("pendingPayments"), icon: CreditCard, href: "/pending-payments" },
   ]
