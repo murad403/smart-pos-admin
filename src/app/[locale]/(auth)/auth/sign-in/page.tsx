@@ -53,11 +53,10 @@ export default function SignInPage({ params }: { params?: Promise<{ locale: stri
                 const validRoles = ["OWNER", "ADMIN", "SERVICE", "USER"];
 
                 if (validRoles.includes(userRole)) {
-                    // Save user data in cookies using the auth.ts helper
                     saveUserData(result.data, values.rememberMe);
                     toast.success(result.message || "Login successful!");
                     
-                    const defaultRoute = DEFAULT_ROLE_ROUTE[userRole] || "/dashboard";
+                    const defaultRoute = DEFAULT_ROLE_ROUTE[userRole];
                     router.push(defaultRoute);
                 } else {
                     const errorMsg = "Access denied. Role not authorized for this panel.";

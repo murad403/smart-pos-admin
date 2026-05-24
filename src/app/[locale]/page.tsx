@@ -22,8 +22,23 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
   useEffect(() => {
     if (!showSplash) {
       const userData = getUserData();
-      if (userData) {
-        router.push(`/${p.locale}/dashboard`);
+      let route = "";
+      if (userData?.role === "ADMIN") {
+        route = "/payment-verification";
+      }
+      else if(userData?.role === "OWNER"){
+        route = "/payment-verification";
+      }
+      else if(userData?.role === "SERVICE"){
+        route = "/collection";
+      }
+      else {
+        route = "/menu";
+      }
+
+
+      if (route && userData) {
+        router.push(`/${p.locale}${route}`);
       } else {
         router.push(`/${p.locale}/auth/welcome`);
       }

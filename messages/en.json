@@ -124,8 +124,8 @@
     "dashboard": "Dashboard",
     "salesReports": "Sales Reports",
     "paymentVerification": "Payment Verification",
-    "inventoryReport": "Inventory Report",
-    "menu": "Menu",
+    "inventoryReport": "Inventory",
+    "menu": "POS",
     "item": "Item",
     "productionStation": "Production Station",
     "profile": "Profile",
@@ -146,8 +146,8 @@
     "order": "Order",
     "collection": "Collection",
     "production": "Production",
-    "menuManagement": "Menu Management",
-    "pendingPayments": "Pending Payments",
+    "menuManagement": "Edit",
+    "pendingPayments": "Payments",
     "orderLifeCycle": "Order Life Cycle"
   },
   "OrderLifeCycle": {
