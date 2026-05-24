@@ -655,6 +655,7 @@
     "cancel": "Cancel",
     "ready": "Ready",
     "pickup": "Pick Up",
+    "sendAgainToCollection": "Send again to collection",
     "orderLabel": "ORDER",
     "qtyLabel": "Qty",
     "successMessage": "Order status updated successfully.",

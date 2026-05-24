@@ -1,13 +1,20 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Eye, Loader2, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useGetAllCollectionQuery, usePickupOrderCollectionMutation } from "@/redux/features/collection/collection.api";
+import { CollectionOrder } from "@/redux/features/collection/collection.type";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import OrderDetailsModal from "@/components/modal/OrderDetailsModal";
+
+declare global {
+  interface Window {
+    io?: any;
+  }
+}
 
 const statusView = {
   READY: {
@@ -54,13 +61,92 @@ const CollectionPage = () => {
 
   const [pickupOrder] = usePickupOrderCollectionMutation();
 
-  const orders = useMemo(() => data?.data ?? [], [data?.data]);
+  const [localOrders, setLocalOrders] = useState<CollectionOrder[]>([]);
+
+  // Sync local orders with RTK query data
+  useEffect(() => {
+    if (data?.data) {
+      setLocalOrders(data.data);
+    }
+  }, [data?.data]);
+
+  // Keep a ref to the current tab to prevent stale closures in socket events
+  const activeTabRef = useRef(activeTab);
+  useEffect(() => {
+    activeTabRef.current = activeTab;
+  }, [activeTab]);
+
+  // Handle Socket connection and events
+  useEffect(() => {
+    let socket: any = null;
+
+    const connectSocket = () => {
+      if (!window.io) return;
+
+      socket = window.io("https://plbck79v-7956.inc1.devtunnels.ms", {
+        transports: ["websocket"],
+      });
+
+      socket.on("connect", () => {
+        console.log("Socket connected successfully to Collection/OrderReady Namespace");
+      });
+
+      socket.on("orderReady", (newOrder: any) => {
+        console.log("Received orderReady socket event:", newOrder);
+
+        if (activeTabRef.current === "READY") {
+          setLocalOrders((prev) => {
+            // Check for duplicates
+            if (prev.some((o) => o.id === newOrder.id)) {
+              return prev;
+            }
+            return [newOrder, ...prev];
+          });
+        }
+      });
+
+      socket.on("connect_error", (err: any) => {
+        console.error("Socket connection error:", err);
+      });
+    };
+
+    const scriptId = "socket-io-cdn-script";
+    let script = document.getElementById(scriptId) as HTMLScriptElement;
+
+    if (!script) {
+      script = document.createElement("script");
+      script.id = scriptId;
+      script.src = "https://cdn.socket.io/4.7.5/socket.io.min.js";
+      script.async = true;
+      script.onload = () => {
+        connectSocket();
+      };
+      document.body.appendChild(script);
+    } else {
+      if (window.io) {
+        connectSocket();
+      } else {
+        script.addEventListener("load", connectSocket);
+      }
+    }
+
+    return () => {
+      if (socket) {
+        socket.disconnect();
+      }
+      if (script) {
+        script.removeEventListener("load", connectSocket);
+      }
+    };
+  }, []);
 
   const sortedOrders = useMemo(() => {
-    return [...orders].sort((left, right) => {
-      return new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime();
+    return [...localOrders].sort((left, right) => {
+      const leftTime = new Date(left.readyAt || left.createdAt).getTime();
+      const rightTime = new Date(right.readyAt || right.createdAt).getTime();
+      return rightTime - leftTime;
     });
-  }, [orders]);
+  }, [localOrders]);
 
   const handlePickup = async (orderId: number) => {
     setActiveActionId(orderId);

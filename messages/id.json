@@ -657,6 +657,7 @@
     "cancel": "Batal",
     "ready": "Selesai",
     "pickup": "Ambil",
+    "sendAgainToCollection": "Kirim ulang ke koleksi",
     "orderLabel": "PESANAN",
     "qtyLabel": "Jumlah",
     "successMessage": "Status pesanan berhasil diperbarui.",

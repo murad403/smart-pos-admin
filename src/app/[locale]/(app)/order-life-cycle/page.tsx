@@ -76,7 +76,7 @@ const OrderLifeCycle = () => {
             },
             {
                 label: t("pickUp"),
-                color: activeIdx >= 3 ? "bg-gray-400 text-white" : "bg-gray-100 text-slate-400 border border-slate-200/50",
+                color: activeIdx >= 3 ? "bg-yellow-500 text-white" : "bg-gray-100 text-slate-400 border border-slate-200/50",
                 textColor: activeIdx >= 3 ? "text-white" : "text-slate-400",
                 subLabel: t("clearFromScreen"),
                 desc: t("clearDesc"),

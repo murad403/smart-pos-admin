@@ -294,15 +294,26 @@ const ProductionPage = ({ params }: { params?: Promise<{ locale: string }> }) =>
 
     if (order.status === "READY") {
       return (
-        <Button
-          type="button"
-          className="h-9 rounded-md bg-slate-900 px-4 text-xs font-semibold text-white hover:bg-slate-800"
-          onClick={() => runAction(order.id, "pickup")}
-          disabled={isActionBusy}
-        >
-          {isActionBusy && activeAction?.action === "pickup" ? <Loader2 className="size-3.5 animate-spin" /> : <ShoppingBag className="size-3.5" />}
-          <span>{t("pickup")}</span>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            className="h-9 rounded-md bg-blue-600 px-4 text-xs font-semibold text-white hover:bg-blue-700"
+            onClick={() => runAction(order.id, "ready")}
+            disabled={isActionBusy}
+          >
+            {isActionBusy && activeAction?.action === "ready" ? <Loader2 className="size-3.5 animate-spin" /> : <Package2 className="size-3.5" />}
+            <span>{t("sendAgainToCollection")}</span>
+          </Button>
+          {/* <Button
+            type="button"
+            className="h-9 rounded-md bg-slate-900 px-4 text-xs font-semibold text-white hover:bg-slate-800"
+            onClick={() => runAction(order.id, "pickup")}
+            disabled={isActionBusy}
+          >
+            {isActionBusy && activeAction?.action === "pickup" ? <Loader2 className="size-3.5 animate-spin" /> : <ShoppingBag className="size-3.5" />}
+            <span>{t("pickup")}</span>
+          </Button> */}
+        </div>
       );
     }
 
