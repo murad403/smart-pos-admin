@@ -217,6 +217,36 @@ function Topbar() {
     router.push("/auth/sign-in");
   };
 
+  const getRoleBasedDisplay = () => {
+    if (!user) return { name: "", role: "", email: "" };
+    const roleUpper = (user.role || "").toUpperCase();
+    let nameFallback = t("restaurantOwner");
+    let roleLabel = t("owner");
+    let emailFallback = "owner@smartpos.com";
+
+    if (roleUpper === "ADMIN") {
+      nameFallback = t("admin");
+      roleLabel = t("admin");
+      emailFallback = "admin@smartpos.com";
+    } else if (roleUpper === "SERVICE") {
+      nameFallback = t("service");
+      roleLabel = t("service");
+      emailFallback = "service@smartpos.com";
+    } else if (roleUpper === "USER") {
+      nameFallback = t("staff");
+      roleLabel = t("staff");
+      emailFallback = "staff@smartpos.com";
+    }
+
+    return {
+      name: user.name || nameFallback,
+      role: user.role || roleLabel,
+      email: user.email || emailFallback
+    };
+  };
+
+  const displayUser = getRoleBasedDisplay();
+
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white">
       <div className="flex py-3.5 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
@@ -280,55 +310,57 @@ function Topbar() {
             </button>
           </div>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-3 text-left outline-none">
-                <div className="flex size-10 items-center justify-center rounded-full bg-[#1A56DB] text-white shadow-sm sm:size-11 overflow-hidden">
-                  {user?.photoUrl ? (
-                    <Image width={500} height={500} src={user.photoUrl} alt="Avatar" className="h-full w-full object-cover" />
-                  ) : (
-                    <User className="size-5" />
-                  )}
-                </div>
-                <div className="min-w-0 leading-tight">
-                  <div className="text-sm font-medium text-slate-950 sm:text-base">{user?.name || t("restaurantOwner")}</div>
-                  <div className="text-xs text-slate-500 sm:text-sm">{user?.role || t("owner")}</div>
-                </div>
-                <ChevronDown className="size-4 text-slate-400" />
-              </button>
-            </DropdownMenuTrigger>
+          {user && user.role?.toUpperCase() !== "USER" && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-3 text-left outline-none">
+                  <div className="flex size-10 items-center justify-center rounded-full bg-[#1A56DB] text-white shadow-sm sm:size-11 overflow-hidden">
+                    {user?.photoUrl ? (
+                      <Image width={500} height={500} src={user.photoUrl} alt="Avatar" className="h-full w-full object-cover" />
+                    ) : (
+                      <User className="size-5" />
+                    )}
+                  </div>
+                  <div className="min-w-0 leading-tight">
+                    <div className="text-sm font-medium text-slate-950 sm:text-base">{displayUser.name}</div>
+                    <div className="text-xs text-slate-500 sm:text-sm">{displayUser.role}</div>
+                  </div>
+                  <ChevronDown className="size-4 text-slate-400" />
+                </button>
+              </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end" sideOffset={12} className="w-68 rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl">
-              <DropdownMenuLabel className="px-2 py-1.5">
-                <div className="text-base font-medium text-slate-950">{user?.name || t("restaurantOwner")}</div>
-                <div className="text-sm font-normal text-slate-400">{user?.email || "owner@smartpos.com"}</div>
-              </DropdownMenuLabel>
+              <DropdownMenuContent align="end" sideOffset={12} className="w-68 rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl">
+                <DropdownMenuLabel className="px-2 py-1.5">
+                  <div className="text-base font-medium text-slate-950">{displayUser.name}</div>
+                  <div className="text-sm font-normal text-slate-400">{displayUser.email}</div>
+                </DropdownMenuLabel>
 
-              {user && isRouteAllowed(user.role, "/profile") && (
-                <>
-                  <DropdownMenuSeparator className="my-1 bg-slate-200" />
-                  <DropdownMenuItem asChild className="cursor-pointer rounded-lg px-3 py-2 text-base text-slate-800 focus:bg-slate-50 focus:text-slate-950">
-                    <Link href="/profile" className="flex items-center gap-3">
-                      <User className="size-4 text-slate-500" />
-                      <span>{t("profile")}</span>
-                    </Link>
-                  </DropdownMenuItem>
-                </>
-              )}
+                {user && isRouteAllowed(user.role, "/profile") && (
+                  <>
+                    <DropdownMenuSeparator className="my-1 bg-slate-200" />
+                    <DropdownMenuItem asChild className="cursor-pointer rounded-lg px-3 py-2 text-base text-slate-800 focus:bg-slate-50 focus:text-slate-950">
+                      <Link href="/profile" className="flex items-center gap-3">
+                        <User className="size-4 text-slate-500" />
+                        <span>{t("profile")}</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
 
-              <DropdownMenuSeparator className="my-1 bg-slate-200" />
+                <DropdownMenuSeparator className="my-1 bg-slate-200" />
 
-              <DropdownMenuItem
-                onClick={handleLogout}
-                className="cursor-pointer rounded-lg px-3 py-2 text-base text-red-500 focus:bg-red-50 focus:text-red-600"
-              >
-                <div className="flex w-full items-center gap-3 text-left">
-                  <LogOut className="size-4 text-slate-500" />
-                  <span>{t("logout")}</span>
-                </div>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="cursor-pointer rounded-lg px-3 py-2 text-base text-red-500 focus:bg-red-50 focus:text-red-600"
+                >
+                  <div className="flex w-full items-center gap-3 text-left">
+                    <LogOut className="size-4 text-slate-500" />
+                    <span>{t("logout")}</span>
+                  </div>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </div>
     </header>

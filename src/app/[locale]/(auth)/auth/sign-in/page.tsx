@@ -13,6 +13,8 @@ import { saveUserData } from "@/utils/auth";
 import { toast } from "sonner";
 import { useSignInMutation } from "@/redux/features/auth/auth.api";
 
+import { DEFAULT_ROLE_ROUTE } from "@/utils/rbac";
+
 const Illustration = () => (
     <Image
         src={authIllustration}
@@ -47,13 +49,18 @@ export default function SignInPage({ params }: { params?: Promise<{ locale: stri
             }).unwrap();
 
             if (result.success) {
-                if (result.data.role === "OWNER") {
+                const userRole = result.data.role?.toUpperCase();
+                const validRoles = ["OWNER", "ADMIN", "SERVICE", "USER"];
+
+                if (validRoles.includes(userRole)) {
                     // Save user data in cookies using the auth.ts helper
                     saveUserData(result.data, values.rememberMe);
                     toast.success(result.message || "Login successful!");
-                    router.push("/dashboard");
+                    
+                    const defaultRoute = DEFAULT_ROLE_ROUTE[userRole] || "/dashboard";
+                    router.push(defaultRoute);
                 } else {
-                    const errorMsg = "Access denied. Only ADMINs are allowed to access this panel.";
+                    const errorMsg = "Access denied. Role not authorized for this panel.";
                     setAuthError(errorMsg);
                     toast.error(errorMsg);
                 }

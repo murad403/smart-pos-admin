@@ -245,7 +245,9 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
             <div className={gridColsClass}>
               {Array.from({ length: ({ SINGLE: 1, DOUBLE: 2, TRIPLE: 3, QUADRUPLE: 4 }[layout] || 1) }).map((_, i) => (
                 <div key={i} className="flex flex-col gap-4 rounded-[22px] border border-blue-500 bg-white p-4 shadow-sm">
-                  <div className="relative h-72 w-full overflow-hidden rounded-[18px] bg-[#E2E8F0]" />
+                  <div className={`relative w-full overflow-hidden rounded-[18px] bg-[#E2E8F0] ${
+                    layout === "SINGLE" ? "h-96 md:h-[480px]" : "h-72"
+                  }`} />
                   {/* <div className="text-center text-sm font-semibold text-slate-500 pb-1">
                     1 Large Image
                   </div> */}
@@ -310,7 +312,13 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
                     : "overflow-hidden rounded-2xl border border-slate-200 bg-white"
                 }
               >
-                <div className={isImageListLayout ? "relative h-40 overflow-hidden rounded-2xl sm:h-full w-full" : "relative h-72 overflow-hidden w-full"}>
+                <div className={
+                  isImageListLayout
+                    ? "relative h-40 overflow-hidden rounded-2xl sm:h-full w-full"
+                    : layout === "SINGLE"
+                    ? "relative h-96 md:h-[480px] overflow-hidden w-full"
+                    : "relative h-72 overflow-hidden w-full"
+                }>
                   <Image
                     src={item.imageUrl || imageMap[item.imageType]}
                     alt={item.itemName}

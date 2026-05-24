@@ -16,7 +16,8 @@ type DayConfig = {
   endTime: string;
 };
 
-const normalizeTimeValue = (value: string) => {
+const normalizeTimeValue = (value: string | null | undefined) => {
+  if (!value) return "";
   const trimmedValue = value.trim();
   if (!trimmedValue) return "";
 
