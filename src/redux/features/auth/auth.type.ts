@@ -16,6 +16,7 @@ export interface UserData {
     otpExpiry: string | null;
     createdAt: string;
     updatedAt: string;
+    feedbackMsg: string;
 }
 
 export interface SignInResponse {

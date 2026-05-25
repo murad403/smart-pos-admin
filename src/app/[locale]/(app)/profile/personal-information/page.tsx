@@ -21,6 +21,7 @@ const profileSchema = (t: any) => z.object({
   email: z.string().email(t("invalidEmail")),
   facebook: z.string().optional(),
   instagram: z.string().optional(),
+  feedbackMsg: z.string().optional(),
   enableInventoryReport: z.boolean(),
   adminOnlyPaymentProof: z.boolean(),
 });
@@ -164,6 +165,7 @@ const ProfileInformationPage = ({ params }: { params?: Promise<{ locale: string 
       email: "",
       facebook: "",
       instagram: "",
+      feedbackMsg: "",
       enableInventoryReport: true,
       adminOnlyPaymentProof: false,
     },
@@ -181,6 +183,7 @@ const ProfileInformationPage = ({ params }: { params?: Promise<{ locale: string 
       setValue("email", user.email || "");
       setValue("facebook", user.facebookUrl || "");
       setValue("instagram", user.instagramUrl || "");
+      setValue("feedbackMsg", user.feedbackMsg || "");
       if (user.photoUrl) {
         setImagePreview(user.photoUrl);
       }
@@ -197,6 +200,7 @@ const ProfileInformationPage = ({ params }: { params?: Promise<{ locale: string 
         address: data.address,
         facebookUrl: data.facebook || undefined,
         instagramUrl: data.instagram || undefined,
+        feedbackMsg: data.feedbackMsg || null,
       };
 
       if (!imagePreview) {
@@ -227,6 +231,7 @@ const ProfileInformationPage = ({ params }: { params?: Promise<{ locale: string 
           facebookUrl: result.data.facebookUrl,
           instagramUrl: result.data.instagramUrl,
           photoUrl: result.data.photoUrl,
+          feedbackMsg: result.data.feedbackMsg,
         });
       }
     } catch (error: any) {
@@ -424,6 +429,21 @@ const ProfileInformationPage = ({ params }: { params?: Promise<{ locale: string 
           </div>
         </div>
 
+        {/* Feedback Message Section */}
+        <div className="rounded-[24px] border border-slate-100 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.02)] sm:p-8">
+          <p className="mb-6 text-[11px] font-bold uppercase tracking-widest text-slate-400">
+            {t("feedbackMsg") || "Feedback Message"}
+          </p>
+          <div className="space-y-1.5">
+            <textarea
+              {...register("feedbackMsg")}
+              rows={4}
+              placeholder="Enter feedback message..."
+              className="w-full rounded-xl border border-slate-200 bg-[#F8FAFC] px-4 py-3 text-[15px] outline-none transition-all focus:bg-white focus:ring-4 focus:ring-blue-500/10"
+            />
+          </div>
+        </div>
+
         {/* Submit Button */}
         <div className="flex justify-end">
           <Button
@@ -541,7 +561,7 @@ const ProfileInformationPage = ({ params }: { params?: Promise<{ locale: string 
       {/* Add / Edit Modal Dialog */}
       {isAdjModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-[2px]">
-          <div className="relative w-full max-w-[480px] rounded-[24px] bg-white p-8 shadow-2xl animate-in fade-in-50 zoom-in-95 duration-200">
+          <div className="relative w-full max-w-120 rounded-[24px] bg-white p-8 shadow-2xl animate-in fade-in-50 zoom-in-95 duration-200">
             <button
               type="button"
               onClick={() => setIsAdjModalOpen(false)}

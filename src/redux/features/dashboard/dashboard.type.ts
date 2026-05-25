@@ -300,6 +300,7 @@ export interface UserListItem {
     isActive: boolean;
     createdAt: string;
     updatedAt: string;
+    feedbackMsg: string;
     productionStation?: {
         id: number;
         slug: string;
