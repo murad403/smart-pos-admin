@@ -31,6 +31,19 @@ const dashboardApi = baseApi.injectEndpoints({
                 };
             },
         }),
+        getEfficiencyReports: builder.query({
+            query: (params) => {
+                const queryParams: Record<string, string> = {};
+                if (params?.startDate) queryParams.startDate = params.startDate;
+                if (params?.endDate) queryParams.endDate = params.endDate;
+
+                return {
+                    url: "/reports/efficiency",
+                    method: "GET",
+                    params: queryParams,
+                };
+            },
+        }),
         getPayments: builder.query<GetPaymentsResponse, GetPaymentsQueryParams | void>({
             query: (params) => {
                 const queryParams: Record<string, string> = {};
@@ -235,4 +248,5 @@ export const {
     useGetOperatingHoursQuery,
     useUpdateOperatingHoursMutation,
     useUpdateUserMutation,
+    useGetEfficiencyReportsQuery,
 } = dashboardApi;

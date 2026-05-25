@@ -23,6 +23,7 @@ export const ROLE_ALLOWED_ROUTES: Record<string, string[]> = {
     "/production-station",
     // "/order",
     "/view-all",
+   "/efficiency-report"
   ]
 };
 

@@ -702,5 +702,30 @@
     "skipped": "Dilewati",
     "verified": "Diverifikasi",
     "notVerified": "Tidak Diverifikasi"
+  },
+  "EfficiencyReport": {
+    "title": "Laporan Efisiensi",
+    "startDate": "Tanggal Mulai",
+    "endDate": "Tanggal Selesai",
+    "exportPdf": "Ekspor ke PDF",
+    "exportExcel": "Ekspor ke Excel",
+    "averageWaitTime": "Rata-rata Waktu Tunggu",
+    "mostPopularItems": "Item Terpopuler - {station} (Top 5)",
+    "longestPrepTime": "Item dengan Waktu Persiapan Terlama",
+    "detailedReport": "Laporan Rinci",
+    "numberHeader": "#",
+    "orderTimeHeader": "Waktu pesanan",
+    "orderNumberHeader": "Pesanan #",
+    "totalItemsHeader": "Total jumlah item",
+    "collectionHeader": "Pengambilan",
+    "deliveryTimeHeader": "Waktu Pengiriman",
+    "waitTimeHeader": "Waktu Tunggu",
+    "summary": "Ringkasan",
+    "totalOrders": "Total # Pesanan",
+    "totalItems": "Total Jumlah Item",
+    "avgStationTime": "Rata-rata Waktu {station}",
+    "avgCollectionTime": "Rata-rata Waktu Pengambilan",
+    "avgWaitTime": "Rata-rata Waktu Tunggu",
+    "footnote": "* Waktu Pengiriman = Waktu Pesanan + {stations} + Pengambilan"
   }
 }

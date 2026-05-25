@@ -700,5 +700,30 @@
     "skipped": "Skipped",
     "verified": "Verified",
     "notVerified": "Not Verified"
+  },
+  "EfficiencyReport": {
+    "title": "Efficiency Report",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "exportPdf": "Export as PDF",
+    "exportExcel": "Export as Excel",
+    "averageWaitTime": "Average Wait Time",
+    "mostPopularItems": "Most Popular Items - {station} (Top 5)",
+    "longestPrepTime": "Items with Longest Prep Time",
+    "detailedReport": "Detailed Report",
+    "numberHeader": "#",
+    "orderTimeHeader": "Order time",
+    "orderNumberHeader": "Order #",
+    "totalItemsHeader": "Total number of items",
+    "collectionHeader": "Collection",
+    "deliveryTimeHeader": "Delivery Time",
+    "waitTimeHeader": "Wait Time",
+    "summary": "Summary",
+    "totalOrders": "Total # of Orders",
+    "totalItems": "Total Number of Items",
+    "avgStationTime": "Average {station} Time",
+    "avgCollectionTime": "Average Collection Time",
+    "avgWaitTime": "Average Wait Time",
+    "footnote": "* Delivery Time = Order Time + {stations} + Collection"
   }
 }
