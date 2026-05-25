@@ -55,6 +55,10 @@ function AppSidebar({ windowWidth }: { windowWidth?: number }) {
   const isMobileView = windowWidth !== undefined ? windowWidth < 768 : (typeof window !== "undefined" ? window.innerWidth < 768 : false);
 
   const navigationItems = [
+    ...(!isMobileView ? [
+      { label: t("dashboard"), icon: LayoutDashboard, href: "/dashboard" }
+    ] : []),
+    { label: t("salesReports"), icon: ReceiptText, href: "/reports" },
     { label: t("menu"), icon: Calculator, href: "/menu" },
     { label: t("collection"), icon: BellDot, href: "/collection" },
     { label: t("inventoryReport"), icon: Package, href: "/inventory-report" },
@@ -67,10 +71,6 @@ function AppSidebar({ windowWidth }: { windowWidth?: number }) {
     ...(user?.role?.toUpperCase() === "OWNER" && isMobileView ? [
       { label: t("dashboard"), icon: LayoutDashboard, href: "/mobile-owner-layout" }
     ] : []),
-    ...(!isMobileView ? [
-      { label: t("dashboard"), icon: LayoutDashboard, href: "/dashboard" }
-    ] : []),
-    { label: t("salesReports"), icon: ReceiptText, href: "/reports" },
     { label: t("orderLifeCycle"), icon: Repeat, href: "/order-life-cycle" },
     // { label: t("item"), icon: Utensils, href: "/item" },
     { label: t("productionStation"), icon: Fuel, href: "/production-station" },

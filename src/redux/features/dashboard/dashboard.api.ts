@@ -145,7 +145,7 @@ const dashboardApi = baseApi.injectEndpoints({
             },
             providesTags: ["users"]
         }),
-        addUser: builder.mutation<AddUserResponse, AddUserBody>({
+        addUser: builder.mutation<AddUserResponse, FormData>({
             query: (data) => {
                 return {
                     url: `/users`,

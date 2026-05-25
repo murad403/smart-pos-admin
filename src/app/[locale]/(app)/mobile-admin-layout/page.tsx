@@ -54,12 +54,18 @@ const MobileAdminLayoutPage = () => {
           <p className="text-slate-400 font-medium text-base">Hello</p>
           <h2 className="text-3xl font-extrabold text-[#1E3A8A] mt-1">{userName}</h2>
         </div>
-        <div className="size-16 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-sm">
-          <img
-            src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150"
-            alt="User profile"
-            className="h-full w-full object-cover"
-          />
+        <div className="size-16 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-sm flex items-center justify-center">
+          {user?.photoUrl ? (
+            <img
+              src={user.photoUrl}
+              alt="User profile"
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="size-full flex items-center justify-center bg-[#1A56DB]/10 text-[#1A56DB] font-extrabold text-2xl">
+              {userName.charAt(0).toUpperCase() || "U"}
+            </div>
+          )}
         </div>
       </div>
 

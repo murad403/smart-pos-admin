@@ -291,7 +291,7 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
 
             {/* Floating bottom bar for Cart preview */}
             {cartItems.length > 0 && (
-                <div className="fixed bottom-0 left-0 right-0 md:left-[var(--sidebar-width,16rem)] bg-white border-t border-slate-205 px-6 py-4 flex justify-between items-center z-40 shadow-[0_-10px_35px_rgba(15,23,42,0.06)] animate-in slide-in-from-bottom duration-300 pb-safe">
+                <div className="fixed bottom-0 left-0 right-0 md:left-(--sidebar-width,16rem) bg-white border-t border-slate-205 px-6 py-4 flex justify-between items-center z-40 shadow-[0_-10px_35px_rgba(15,23,42,0.06)] animate-in slide-in-from-bottom duration-300 pb-safe">
                     <div className="flex items-center gap-3">
                         <span className="flex size-7 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-650">
                             {cartItems.reduce((acc, ci) => acc + ci.quantity, 0)}

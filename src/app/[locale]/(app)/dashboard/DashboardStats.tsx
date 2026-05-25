@@ -18,7 +18,7 @@ const DashboardStats = ({ overview, orderTypeBreakdown, isLoading }: DashboardSt
                 {[...Array(4)].map((_, i) => (
                     <div
                         key={i}
-                        className={`animate-pulse rounded-xl h-[134px] border border-slate-100 bg-white p-5 shadow-sm`}
+                        className={`animate-pulse rounded-xl h-33.5 border border-slate-100 bg-white p-5 shadow-sm`}
                     />
                 ))}
             </div>

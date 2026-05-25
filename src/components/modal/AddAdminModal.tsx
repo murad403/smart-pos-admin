@@ -21,6 +21,8 @@ const AddAdminModal: React.FC<Props> = ({ open, onClose }) => {
   const tv = useTranslations("Validation");
   const [addUser, { isLoading: isSubmitting }] = useAddUserMutation();
   const [showPass, setShowPass] = React.useState(false);
+  const [photoFile, setPhotoFile] = React.useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
 
   const { data: stationsRes } = useGetAllProductionStationQuery({ limit: 100 });
   const stations = stationsRes?.data ?? [];
@@ -50,9 +52,33 @@ const AddAdminModal: React.FC<Props> = ({ open, onClose }) => {
 
   const selectedRole = watch("role");
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+      setPhotoFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const handleRemoveFile = () => {
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setPhotoFile(null);
+    setPreviewUrl(null);
+  };
+
   React.useEffect(() => {
     if (!open) {
       reset(defaultValues);
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+      setPhotoFile(null);
+      setPreviewUrl(null);
     }
   }, [open, reset, defaultValues]);
 
@@ -70,7 +96,14 @@ const AddAdminModal: React.FC<Props> = ({ open, onClose }) => {
       } else {
         delete payload.productionStationId;
       }
-      const response = await addUser(payload).unwrap();
+
+      const formData = new FormData();
+      formData.append("data", JSON.stringify(payload));
+      if (photoFile) {
+        formData.append("photo", photoFile);
+      }
+
+      const response = await addUser(formData).unwrap();
       toast.success(response.message || "User added successfully");
       reset(defaultValues);
       setShowPass(false);
@@ -111,6 +144,42 @@ const AddAdminModal: React.FC<Props> = ({ open, onClose }) => {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* Photo Upload Section */}
+          <div className="flex flex-col items-center justify-center pb-4">
+            <div className="relative group">
+              <div className="size-24 rounded-full overflow-hidden bg-slate-100 border-2 border-dashed border-slate-200 flex items-center justify-center transition-all group-hover:border-blue-400 group-hover:bg-slate-50 shadow-inner">
+                {previewUrl ? (
+                  <img src={previewUrl} alt="Avatar Preview" className="h-full w-full object-cover" />
+                ) : (
+                  <User className="size-10 text-slate-400" />
+                )}
+              </div>
+              <label className="absolute bottom-0 right-0 size-8 rounded-full bg-blue-600 text-white flex items-center justify-center cursor-pointer shadow-md hover:bg-blue-700 transition active:scale-95">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
+                </svg>
+              </label>
+              {previewUrl && (
+                <button
+                  type="button"
+                  onClick={handleRemoveFile}
+                  className="absolute -top-1 -right-1 size-6 rounded-full bg-red-500 text-white flex items-center justify-center shadow-md hover:bg-red-650 transition active:scale-95"
+                  title="Remove photo"
+                >
+                  <X className="size-3.5" />
+                </button>
+              )}
+            </div>
+            <p className="text-xs text-slate-400 mt-2 font-medium">Upload profile photo (Optional)</p>
+          </div>
+
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-1">
               <label className="text-[13px] font-bold text-slate-700">{t("name") || "Name"} <span className="text-red-500">*</span></label>
