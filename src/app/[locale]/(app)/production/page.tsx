@@ -123,7 +123,7 @@ const ProductionPage = ({ params }: { params?: Promise<{ locale: string }> }) =>
     const connectSocket = () => {
       if (!window.io) return;
 
-      socket = window.io("https://plbck79v-7956.inc1.devtunnels.ms", {
+      socket = window.io(`${process.env.NEXT_PUBLIC_SOCKET_URL}`, {
         transports: ["websocket"],
       });
 

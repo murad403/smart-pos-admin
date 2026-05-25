@@ -150,6 +150,39 @@ const OrderReceiptModal: React.FC<OrderReceiptModalProps> = ({
   };
 
   const handleDownloadPNG = () => {
+    // Calculate feedback text lines first using a dummy canvas context to set height
+    const dummyCanvas = document.createElement("canvas");
+    const dummyCtx = dummyCanvas.getContext("2d");
+    let feedbackLinesCount = 1;
+    const feedbackText = owner?.feedbackMsg || "Let's give feedback on our service!";
+
+    if (dummyCtx) {
+      dummyCtx.font = "bold 11px 'Inter', -apple-system, sans-serif";
+      const words = feedbackText.split(" ");
+      const lines: string[] = [];
+      let currentLine = "";
+      const maxWidth = 260;
+
+      for (let i = 0; i < words.length; i++) {
+        const word = words[i];
+        const testLine = currentLine ? currentLine + " " + word : word;
+        const metrics = dummyCtx.measureText(testLine);
+        if (metrics.width > maxWidth && i > 0) {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          currentLine = testLine;
+        }
+      }
+      if (currentLine) {
+        lines.push(currentLine);
+      }
+      feedbackLinesCount = Math.max(1, lines.length);
+    }
+
+    const topHalfHeight = feedbackLinesCount === 1 ? 44 : (feedbackLinesCount * 14 + 12);
+    const feedbackBoxHeight = topHalfHeight + 31;
+
     const width = 385;
     const itemCount = order.orderItems?.length || 0;
     let choiceCount = 0;
@@ -162,7 +195,7 @@ const OrderReceiptModal: React.FC<OrderReceiptModalProps> = ({
     const hasTable = order.type === "DINE_IN" && order.table;
     const baseHeight = hasTable ? 425 : 380;
     const listHeight = itemCount * 30 + choiceCount * 18;
-    const footerHeight = 240;
+    const footerHeight = 240 + (feedbackBoxHeight - 75);
     const height = baseHeight + listHeight + footerHeight;
 
     const canvas = document.createElement("canvas");
@@ -257,7 +290,7 @@ const OrderReceiptModal: React.FC<OrderReceiptModalProps> = ({
 
     ctx.fillStyle = "#64748b";
     ctx.font = "500 11px 'Inter', -apple-system, sans-serif";
-    
+
     // Split address by length to draw beautifully
     const address = owner?.address || "Store Address";
     if (address.length > 38) {
@@ -380,9 +413,8 @@ const OrderReceiptModal: React.FC<OrderReceiptModalProps> = ({
           nextY += 15;
           ctx.fillStyle = "#64748b";
           ctx.font = "500 11px 'Inter', -apple-system, sans-serif";
-          const choiceText = `${c.section}: ${c.choice}${
-            c.quantity > 1 ? ` x${c.quantity}` : ""
-          }`;
+          const choiceText = `${c.section}: ${c.choice}${c.quantity > 1 ? ` x${c.quantity}` : ""
+            }`;
           ctx.fillText(choiceText, 50, nextY);
         });
       }
@@ -447,33 +479,63 @@ const OrderReceiptModal: React.FC<OrderReceiptModalProps> = ({
     ctx.lineWidth = 1;
     ctx.beginPath();
     if (typeof (ctx as any).roundRect === "function") {
-      (ctx as any).roundRect(24, nextY, 337, 75, 12);
+      (ctx as any).roundRect(24, nextY, 337, feedbackBoxHeight, 12);
     } else {
-      ctx.rect(24, nextY, 337, 75);
+      ctx.rect(24, nextY, 337, feedbackBoxHeight);
     }
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.moveTo(24, nextY + 44);
-    ctx.lineTo(361, nextY + 44);
+    ctx.moveTo(24, nextY + topHalfHeight);
+    ctx.lineTo(361, nextY + topHalfHeight);
     ctx.stroke();
 
+    const avatarCenterY = nextY + (topHalfHeight / 2);
     ctx.fillStyle = "#fff5f0";
     ctx.beginPath();
-    ctx.arc(52, nextY + 22, 14, 0, 2 * Math.PI);
+    ctx.arc(52, avatarCenterY, 14, 0, 2 * Math.PI);
     ctx.fill();
 
     ctx.font = "14px 'Inter', -apple-system, sans-serif";
-    ctx.fillText("👍", 45, nextY + 27);
+    ctx.fillText("👍", 45, avatarCenterY + 5);
 
     ctx.fillStyle = "#1e293b";
     ctx.font = "bold 11px 'Inter', -apple-system, sans-serif";
-    ctx.fillText("Let's give feedback on our service!", 74, nextY + 26);
+
+    // Draw wrapped lines centered vertically
+    const words = feedbackText.split(" ");
+    const lines: string[] = [];
+    let currentLine = "";
+    const maxWidth = 260;
+
+    for (let i = 0; i < words.length; i++) {
+      const word = words[i];
+      const testLine = currentLine ? currentLine + " " + word : word;
+      const metrics = ctx.measureText(testLine);
+      if (metrics.width > maxWidth && i > 0) {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    }
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+
+    if (lines.length === 1) {
+      ctx.fillText(lines[0], 74, nextY + (topHalfHeight / 2) + 4);
+    } else {
+      const startY = nextY + (topHalfHeight / 2) - ((lines.length - 1) * 14 / 2) + 4;
+      lines.forEach((line, index) => {
+        ctx.fillText(line, 74, startY + (index * 14));
+      });
+    }
 
     ctx.textAlign = "center";
     ctx.fillStyle = "#000000";
     ctx.font = "bold 12px 'Inter', -apple-system, sans-serif";
-    ctx.fillText("Give Feedback", 192, nextY + 60);
+    ctx.fillText("Give Feedback", 192, nextY + topHalfHeight + 20);
 
     try {
       const pngUrl = canvas.toDataURL("image/png");
@@ -572,7 +634,7 @@ const OrderReceiptModal: React.FC<OrderReceiptModalProps> = ({
                 <span className="text-sm font-extrabold text-slate-900">
                   {order.type === "DINE_IN" ? "Dine In" : "Takeaway"}
                 </span>
-                <span className="bg-green-600 rounded-full text-white size-[18px] flex items-center justify-center shadow-sm">
+                <span className="bg-green-600 rounded-full text-white size-4.5 flex items-center justify-center shadow-sm">
                   <Check size={11} strokeWidth={3} />
                 </span>
               </div>
@@ -645,7 +707,7 @@ const OrderReceiptModal: React.FC<OrderReceiptModalProps> = ({
               {order.orderItems?.map((item) => (
                 <div key={item.id} className="flex justify-between items-start">
                   <div className="flex items-start gap-2.5 max-w-[72%]">
-                    <span className="font-extrabold text-slate-950 text-sm min-w-[24px]">
+                    <span className="font-extrabold text-slate-950 text-sm min-w-6">
                       {item.quantity}x
                     </span>
                     <div className="flex flex-col">
@@ -724,7 +786,7 @@ const OrderReceiptModal: React.FC<OrderReceiptModalProps> = ({
                   👍
                 </div>
                 <div className="text-xs font-bold text-slate-800 leading-snug">
-                  Let's give feedback on our service!
+                  {owner?.feedbackMsg || "Let's give feedback on our service!"}
                 </div>
               </div>
               <button

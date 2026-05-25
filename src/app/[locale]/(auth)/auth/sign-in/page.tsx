@@ -37,7 +37,7 @@ export default function SignInPage({ params }: { params?: Promise<{ locale: stri
 
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<SignInFormValues>({
         resolver: zodResolver(signInSchema),
-        defaultValues: { email: "mdmurad.dev2004@gmail.com", password: "12345%%murad", rememberMe: true },
+        defaultValues: { email: "", password: "", rememberMe: true },
     });
 
     const onSubmit = async (values: SignInFormValues) => {

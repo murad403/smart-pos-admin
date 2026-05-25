@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import React from "react";
 import { X, ShoppingBag, CreditCard, Clock, MapPin, ClipboardList, Printer, Download } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useGetOrderDetailsQuery } from "@/redux/features/order/order.api";
+import { useGetOrderDetailsQuery, useGetOwnerDetailsForReceiptQuery } from "@/redux/features/order/order.api";
 import { Order } from "@/redux/features/order/order.type";
+
+
 
 interface OrderDetailsModalProps {
   orderId: number | null;
@@ -20,7 +21,8 @@ const formatCurrency = (value: string | number) => {
 const formatInvoiceCurrency = (value: string | number) => {
   const numericValue = typeof value === "string" ? parseFloat(value) : value;
   if (isNaN(numericValue)) return "Rp0";
-  const parts = Math.round(numericValue).toString().split(".");
+  const formattedStr = Number(numericValue.toFixed(2)).toString();
+  const parts = formattedStr.split(".");
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   return `Rp${parts.join(",")}`;
 };
@@ -36,7 +38,14 @@ const formatInvoiceDate = (dateStr: string) => {
   return `${day} ${month} ${year}, ${hours}:${minutes}`;
 };
 
-const generateInvoiceInnerHtml = (order: Order) => {
+const generateInvoiceInnerHtml = (order: Order, owner: any) => {
+  const ownerName = owner?.name || "Smart POS";
+  const ownerPhoto = owner?.photoUrl || "";
+  const ownerAddress = owner?.address || "";
+  const ownerPhone = owner?.phone || "";
+  const ownerEmail = owner?.email || "";
+  const feedbackMsg = owner?.feedbackMsg || "Everything is working well. The system looks clean and easy to use.,";
+
   const subtotal = Number(order.subtotal);
   const total = Number(order.totalAmount);
   const difference = total - subtotal;
@@ -60,7 +69,7 @@ const generateInvoiceInnerHtml = (order: Order) => {
 
   const menuCount = order.orderItems?.length || 0;
   const menuSuffix = menuCount === 1 ? "1 menu" : `${menuCount} menu`;
-  const paymentMethod = order.payment?.[0]?.method || "QRIS";
+  const paymentMethod = order.payment?.[0]?.method || "CASH";
 
   const itemsHtml = order.orderItems?.map(item => {
     const priceVal = Number(item.promoPrice || item.unitPrice) * item.quantity;
@@ -80,7 +89,7 @@ const generateInvoiceInnerHtml = (order: Order) => {
         <div class="item-left">
           <span class="item-qty">${item.quantity}x</span>
           <div class="item-name-details">
-            <span class="item-name">${item.itemName}</span>
+            <span class="item-name">${item.itemName.toUpperCase()}</span>
             ${choicesHtml}
           </div>
         </div>
@@ -92,6 +101,7 @@ const generateInvoiceInnerHtml = (order: Order) => {
   return `
     <div class="header">
       <div class="logo-container">
+        ${ownerPhoto ? `<img class="logo-image" src="${ownerPhoto}" alt="Logo" />` : `
         <div class="logo-circle">
           <svg viewBox="0 0 24 24" fill="none" stroke="#2d3748" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width: 32px; height: 32px;">
             <path d="M17 8h1a4 4 0 1 1 0 8h-1"></path>
@@ -101,12 +111,13 @@ const generateInvoiceInnerHtml = (order: Order) => {
             <line x1="14" y1="2" x2="14" y2="4"></line>
           </svg>
         </div>
+        `}
       </div>
-      <div class="brand-name">COMMON SPACE</div>
+      <div class="brand-name">${ownerName.toUpperCase()}</div>
       <div class="address-info">
-        Jl. Sudirman No. 22, Jakarta, Indonesia<br/>
-        +62 812-3456-7890<br/>
-        info@commonspace.id
+        ${ownerAddress}<br/>
+        ${ownerPhone}<br/>
+        ${ownerEmail}
       </div>
     </div>
     
@@ -128,17 +139,17 @@ const generateInvoiceInnerHtml = (order: Order) => {
     
     <div class="meta-grid">
       <div>
-        <div class="meta-label">Date</div>
+        <div class="meta-label">DATE</div>
         <div class="meta-value">${formatInvoiceDate(order.createdAt)}</div>
       </div>
       <div>
-        <div class="meta-label">Order Number</div>
+        <div class="meta-label">ORDER NUMBER</div>
         <div class="order-num-value">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px; color: #94a3b8;">
             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
           </svg>
-          ${order.slug}
+          ${order.slug.toUpperCase()}
         </div>
       </div>
       ${order.table ? `
@@ -181,7 +192,7 @@ const generateInvoiceInnerHtml = (order: Order) => {
       </div>
       <div class="totals-row">
         <span>Payment Method</span>
-        <span style="font-weight: 700; color: #000000;">${paymentMethod}</span>
+        <span style="font-weight: 700; color: #000000;">${paymentMethod.toUpperCase()}</span>
       </div>
       <div class="dashed-divider" style="margin: 8px 0;"></div>
       <div class="totals-row total-amount">
@@ -193,14 +204,14 @@ const generateInvoiceInnerHtml = (order: Order) => {
     <div class="feedback-box">
       <div class="feedback-top">
         <div class="feedback-emoji-container">👍</div>
-        <div class="feedback-text">Let's give feedback on our service!</div>
+        <div class="feedback-text">${feedbackMsg}</div>
       </div>
       <div class="feedback-button">Give Feedback</div>
     </div>
   `;
 };
 
-const generateInvoiceHtml = (order: Order) => {
+const generateInvoiceHtml = (order: Order, owner: any) => {
   return `
     <!DOCTYPE html>
     <html>
@@ -231,6 +242,12 @@ const generateInvoiceHtml = (order: Order) => {
         }
         .header { text-align: center; margin-bottom: 16px; }
         .logo-container { display: flex; justify-content: center; margin-bottom: 8px; }
+        .logo-image {
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          object-fit: cover;
+        }
         .logo-circle {
           width: 56px;
           height: 56px;
@@ -264,6 +281,7 @@ const generateInvoiceHtml = (order: Order) => {
           font-family: Georgia, serif;
           font-size: 22px;
           font-weight: 700;
+          font-style: italic;
           text-align: center;
           color: #000000;
           margin: 8px 0;
@@ -359,7 +377,7 @@ const generateInvoiceHtml = (order: Order) => {
     </head>
     <body>
       <div class="receipt-container">
-        ${generateInvoiceInnerHtml(order)}
+        ${generateInvoiceInnerHtml(order, owner)}
       </div>
     </body>
     </html>
@@ -368,6 +386,8 @@ const generateInvoiceHtml = (order: Order) => {
 
 const OrderDetailsModal = ({ orderId, onClose }: OrderDetailsModalProps) => {
   const t = useTranslations("Order");
+  const { data: ownerRes } = useGetOwnerDetailsForReceiptQuery(undefined);
+  const owner = ownerRes?.data;
 
   const { data: detailsRes, isLoading } = useGetOrderDetailsQuery(
     orderId,
@@ -411,7 +431,7 @@ const OrderDetailsModal = ({ orderId, onClose }: OrderDetailsModalProps) => {
       document.body.appendChild(iframe);
     }
 
-    const htmlContent = generateInvoiceHtml(order);
+    const htmlContent = generateInvoiceHtml(order, owner);
     const doc = iframe.contentDocument || iframe.contentWindow?.document;
     if (doc) {
       doc.open();
@@ -428,340 +448,395 @@ const OrderDetailsModal = ({ orderId, onClose }: OrderDetailsModalProps) => {
   const handleDownload = () => {
     if (!order) return;
 
-    const width = 380;
-    const itemCount = order.orderItems?.length || 0;
-    let choiceCount = 0;
-    order.orderItems?.forEach(item => {
-      if (item.packetChoices) {
-        choiceCount += item.packetChoices.length;
+    const ownerName = owner?.name || "Smart POS";
+    const ownerPhoto = owner?.photoUrl || "";
+    const ownerAddress = owner?.address || "";
+    const ownerPhone = owner?.phone || "";
+    const ownerEmail = owner?.email || "";
+    const feedbackMsg = owner?.feedbackMsg || "Everything is working well. The system looks clean and easy to use.,";
+
+    const drawAll = (logoImg?: HTMLImageElement) => {
+      const width = 380;
+      const itemCount = order.orderItems?.length || 0;
+      let choiceCount = 0;
+      order.orderItems?.forEach(item => {
+        if (item.packetChoices) {
+          choiceCount += item.packetChoices.length;
+        }
+      });
+
+      const hasTable = !!order.table;
+      const baseHeight = hasTable ? 405 : 365;
+      const listHeight = (itemCount * 28) + (choiceCount * 16);
+      const footerHeight = 225;
+      const height = baseHeight + listHeight + footerHeight;
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+
+      if (!ctx) return;
+
+      // 1. Draw Background
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, width, height);
+
+      // Helper: Draw Dashed Line
+      const drawDashedLine = (y: number) => {
+        ctx.strokeStyle = "#cbd5e1";
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(20, y);
+        ctx.lineTo(360, y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      };
+
+      // Helper: Draw Stool/Table Icon
+      const drawTableIcon = (x: number, y: number) => {
+        ctx.strokeStyle = "#0f172a";
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.ellipse(x + 10, y + 5, 8, 3, 0, 0, 2 * Math.PI);
+        ctx.moveTo(x + 10, y + 8);
+        ctx.lineTo(x + 10, y + 17);
+        ctx.moveTo(x + 5, y + 17);
+        ctx.lineTo(x + 15, y + 17);
+        ctx.stroke();
+      };
+
+      // Helper: Draw Coffee Cup Outline Logo
+      const drawLogoFallback = (x: number, y: number) => {
+        ctx.strokeStyle = "#2d3748";
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.arc(x, y, 26, 0, 2 * Math.PI);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(x + 7, y + 2, 4, -Math.PI / 2, Math.PI / 2);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(x - 11, y - 4);
+        ctx.lineTo(x + 7, y - 4);
+        ctx.lineTo(x + 7, y + 6);
+        ctx.arcTo(x + 7, y + 11, x - 11, y + 11, 4);
+        ctx.lineTo(x - 11, y + 6);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(x - 6, y - 8);
+        ctx.lineTo(x - 6, y - 11);
+        ctx.moveTo(x - 1, y - 8);
+        ctx.lineTo(x - 1, y - 11);
+        ctx.moveTo(x + 4, y - 8);
+        ctx.lineTo(x + 4, y - 11);
+        ctx.stroke();
+      };
+
+      // 2. Logo and Header details
+      if (logoImg) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(190, 60, 30, 0, 2 * Math.PI);
+        ctx.clip();
+        ctx.drawImage(logoImg, 160, 30, 60, 60);
+        ctx.restore();
+      } else {
+        drawLogoFallback(190, 60);
       }
-    });
 
-    const hasTable = !!order.table;
-    const baseHeight = hasTable ? 405 : 365;
-    const listHeight = (itemCount * 28) + (choiceCount * 16);
-    const footerHeight = 225;
-    const height = baseHeight + listHeight + footerHeight;
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#000000";
+      ctx.font = "bold 20px 'Inter', -apple-system, sans-serif";
+      ctx.fillText(ownerName.toUpperCase(), 190, 112);
 
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext("2d");
-
-    if (!ctx) return;
-
-    // 1. Draw Background
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, width, height);
-
-    // Helper: Draw Dashed Line
-    const drawDashedLine = (y: number) => {
-      ctx.strokeStyle = "#cbd5e1";
-      ctx.lineWidth = 1;
-      ctx.setLineDash([4, 4]);
-      ctx.beginPath();
-      ctx.moveTo(20, y);
-      ctx.lineTo(360, y);
-      ctx.stroke();
-      ctx.setLineDash([]);
-    };
-
-    // Helper: Draw Stool/Table Icon
-    const drawTableIcon = (x: number, y: number) => {
-      ctx.strokeStyle = "#0f172a";
-      ctx.lineWidth = 1.8;
-      ctx.beginPath();
-      ctx.ellipse(x + 10, y + 5, 8, 3, 0, 0, 2 * Math.PI);
-      ctx.moveTo(x + 10, y + 8);
-      ctx.lineTo(x + 10, y + 17);
-      ctx.moveTo(x + 5, y + 17);
-      ctx.lineTo(x + 15, y + 17);
-      ctx.stroke();
-    };
-
-    // Helper: Draw Coffee Cup Outline Logo
-    const drawLogo = (x: number, y: number) => {
-      ctx.strokeStyle = "#2d3748";
-      ctx.lineWidth = 1.8;
-      ctx.beginPath();
-      ctx.arc(x, y, 26, 0, 2 * Math.PI);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.arc(x + 7, y + 2, 4, -Math.PI / 2, Math.PI / 2);
-      ctx.stroke();
-      
-      ctx.beginPath();
-      ctx.moveTo(x - 11, y - 4);
-      ctx.lineTo(x + 7, y - 4);
-      ctx.lineTo(x + 7, y + 6);
-      ctx.arcTo(x + 7, y + 11, x - 11, y + 11, 4);
-      ctx.lineTo(x - 11, y + 6);
-      ctx.closePath();
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(x - 6, y - 8);
-      ctx.lineTo(x - 6, y - 11);
-      ctx.moveTo(x - 1, y - 8);
-      ctx.lineTo(x - 1, y - 11);
-      ctx.moveTo(x + 4, y - 8);
-      ctx.lineTo(x + 4, y - 11);
-      ctx.stroke();
-    };
-
-    // 2. Logo and Header details
-    drawLogo(190, 60);
-
-    ctx.textAlign = "center";
-    ctx.fillStyle = "#000000";
-    ctx.font = "bold 20px 'Inter', -apple-system, sans-serif";
-    ctx.fillText("COMMON SPACE", 190, 112);
-
-    ctx.fillStyle = "#64748b";
-    ctx.font = "500 11px 'Inter', -apple-system, sans-serif";
-    ctx.fillText("Jl. Sudirman No. 22, Jakarta, Indonesia", 190, 130);
-    ctx.fillText("+62 812-3456-7890", 190, 144);
-    ctx.fillText("info@commonspace.id", 190, 158);
-
-    // 3. Receipt section
-    drawDashedLine(175);
-    ctx.fillStyle = "#000000";
-    ctx.font = "bold italic 22px 'Georgia', serif";
-    ctx.fillText("Receipt", 190, 198);
-    drawDashedLine(212);
-
-    // 4. Order Type container
-    ctx.fillStyle = "#f1f5f9";
-    ctx.strokeStyle = "#e2e8f0";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    if (typeof ctx.roundRect === "function") {
-      ctx.roundRect(20, 226, 340, 40, 8);
-    } else {
-      ctx.rect(20, 226, 340, 40);
-    }
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.textAlign = "left";
-    ctx.fillStyle = "#64748b";
-    ctx.font = "500 12px 'Inter', -apple-system, sans-serif";
-    ctx.fillText("Order Type", 34, 250);
-
-    ctx.textAlign = "right";
-    ctx.fillStyle = "#000000";
-    ctx.font = "bold 13px 'Inter', -apple-system, sans-serif";
-    const typeVal = order.type === 'DINE_IN' ? 'Dine In' : order.type === 'TAKEAWAY' ? 'Takeaway' : order.type;
-    ctx.fillText(typeVal, 324, 250);
-
-    ctx.fillStyle = "#22c55e";
-    ctx.beginPath();
-    ctx.arc(341, 246, 7, 0, 2 * Math.PI);
-    ctx.fill();
-
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = 1.8;
-    ctx.beginPath();
-    ctx.moveTo(338, 246);
-    ctx.lineTo(340, 248);
-    ctx.lineTo(344, 244);
-    ctx.stroke();
-
-    // 5. Date, Order Number, Table Number
-    ctx.textAlign = "left";
-    ctx.fillStyle = "#64748b";
-    ctx.font = "500 11px 'Inter', -apple-system, sans-serif";
-    ctx.fillText("Date", 24, 290);
-    ctx.fillText("Order Number", 210, 290);
-
-    ctx.fillStyle = "#0f172a";
-    ctx.font = "600 12px 'Inter', -apple-system, sans-serif";
-    ctx.fillText(formatInvoiceDate(order.createdAt), 24, 307);
-
-    ctx.font = "bold 12px 'Inter', -apple-system, sans-serif";
-    ctx.fillText(order.slug, 222, 307);
-
-    ctx.strokeStyle = "#94a3b8";
-    ctx.lineWidth = 1.2;
-    ctx.strokeRect(210, 299, 7, 7);
-    ctx.strokeRect(212, 301, 7, 7);
-
-    let nextY = 322;
-    if (order.table) {
-      drawTableIcon(24, nextY + 6);
-      
       ctx.fillStyle = "#64748b";
       ctx.font = "500 11px 'Inter', -apple-system, sans-serif";
-      ctx.fillText("Table Number", 48, nextY + 12);
+      ctx.fillText(ownerAddress, 190, 130);
+      ctx.fillText(ownerPhone, 190, 144);
+      ctx.fillText(ownerEmail, 190, 158);
 
+      // 3. Receipt section
+      drawDashedLine(175);
       ctx.fillStyle = "#000000";
-      ctx.font = "bold 15px 'Inter', -apple-system, sans-serif";
-      ctx.fillText(order.table.tableNumber, 48, nextY + 28);
-      nextY += 42;
-    } else {
-      nextY += 10;
-    }
+      ctx.font = "bold italic 22px 'Georgia', serif";
+      ctx.fillText("Receipt", 190, 198);
+      drawDashedLine(212);
 
-    drawDashedLine(nextY);
+      // 4. Order Type container
+      ctx.fillStyle = "#f8fafc";
+      ctx.strokeStyle = "#e2e8f0";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      if (typeof (ctx as any).roundRect === "function") {
+        (ctx as any).roundRect(20, 226, 340, 40, 8);
+      } else {
+        ctx.rect(20, 226, 340, 40);
+      }
+      ctx.fill();
+      ctx.stroke();
 
-    // 6. Ordered Items
-    nextY += 22;
-    ctx.fillStyle = "#000000";
-    ctx.font = "bold 13px 'Inter', -apple-system, sans-serif";
-    ctx.fillText("Ordered Items", 24, nextY);
+      ctx.textAlign = "left";
+      ctx.fillStyle = "#64748b";
+      ctx.font = "700 11px 'Inter', -apple-system, sans-serif";
+      ctx.fillText("ORDER TYPE", 34, 250);
 
-    nextY += 10;
-    order.orderItems?.forEach(item => {
-      nextY += 24;
+      ctx.textAlign = "right";
       ctx.fillStyle = "#000000";
       ctx.font = "bold 13px 'Inter', -apple-system, sans-serif";
-      ctx.fillText(item.quantity + "x", 24, nextY);
+      const typeVal = order.type === 'DINE_IN' ? 'Dine In' : order.type === 'TAKEAWAY' ? 'Takeaway' : order.type;
+      ctx.fillText(typeVal, 328, 250);
 
-      ctx.fillStyle = "#1e293b";
-      ctx.font = "600 12.5px 'Inter', -apple-system, sans-serif";
-      ctx.fillText(item.itemName.toUpperCase(), 50, nextY);
+      ctx.fillStyle = "#22c55e";
+      ctx.beginPath();
+      ctx.arc(344, 246, 7, 0, 2 * Math.PI);
+      ctx.fill();
 
-      const priceVal = Number(item.promoPrice || item.unitPrice) * item.quantity;
-      const formattedPrice = formatInvoiceCurrency(priceVal);
-      ctx.textAlign = "right";
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(341, 246);
+      ctx.lineTo(343, 248);
+      ctx.lineTo(347, 244);
+      ctx.stroke();
+
+      // 5. Date, Order Number, Table Number
+      ctx.textAlign = "left";
+      ctx.fillStyle = "#64748b";
+      ctx.font = "700 10px 'Inter', -apple-system, sans-serif";
+      ctx.fillText("DATE", 24, 290);
+      ctx.fillText("ORDER NUMBER", 210, 290);
+
       ctx.fillStyle = "#0f172a";
-      ctx.font = "600 13px 'Inter', -apple-system, sans-serif";
-      ctx.fillText(formattedPrice, 356, nextY);
+      ctx.font = "700 12px 'Inter', -apple-system, sans-serif";
+      ctx.fillText(formatInvoiceDate(order.createdAt), 24, 307);
+
+      // Document copy icon next to order slug
+      ctx.strokeStyle = "#94a3b8";
+      ctx.lineWidth = 1.2;
+      ctx.strokeRect(210, 299, 6, 6);
+      ctx.strokeRect(212, 301, 6, 6);
+
+      ctx.fillText(order.slug.toUpperCase(), 224, 307);
+
+      let nextY = 322;
+      if (order.table) {
+        drawTableIcon(24, nextY + 6);
+
+        ctx.fillStyle = "#64748b";
+        ctx.font = "700 10px 'Inter', -apple-system, sans-serif";
+        ctx.fillText("TABLE NUMBER", 48, nextY + 12);
+
+        ctx.fillStyle = "#000000";
+        ctx.font = "bold 15px 'Inter', -apple-system, sans-serif";
+        ctx.fillText(order.table.tableNumber, 48, nextY + 28);
+        nextY += 42;
+      } else {
+        nextY += 10;
+      }
+
+      drawDashedLine(nextY);
+
+      // 6. Ordered Items
+      nextY += 22;
+      ctx.fillStyle = "#000000";
+      ctx.font = "bold 13px 'Inter', -apple-system, sans-serif";
+      ctx.fillText("Ordered Items", 24, nextY);
+
+      nextY += 10;
+      order.orderItems?.forEach(item => {
+        nextY += 24;
+        ctx.fillStyle = "#000000";
+        ctx.font = "bold 13px 'Inter', -apple-system, sans-serif";
+        ctx.fillText(item.quantity + "x", 24, nextY);
+
+        ctx.fillStyle = "#1e293b";
+        ctx.font = "700 12.5px 'Inter', -apple-system, sans-serif";
+        ctx.fillText(item.itemName.toUpperCase(), 50, nextY);
+
+        const priceVal = Number(item.promoPrice || item.unitPrice) * item.quantity;
+        const formattedPrice = formatInvoiceCurrency(priceVal);
+        ctx.textAlign = "right";
+        ctx.fillStyle = "#000000";
+        ctx.font = "700 13px 'Inter', -apple-system, sans-serif";
+        ctx.fillText(formattedPrice, 356, nextY);
+        ctx.textAlign = "left";
+
+        if (item.packetChoices && item.packetChoices.length > 0) {
+          item.packetChoices.forEach(c => {
+            nextY += 15;
+            ctx.fillStyle = "#64748b";
+            ctx.font = "500 10.5px 'Inter', -apple-system, sans-serif";
+            const choiceText = `${c.section}: ${c.choice}${c.quantity > 1 ? ` x${c.quantity}` : ''}`;
+            ctx.fillText(choiceText, 50, nextY);
+          });
+        }
+      });
+
+      nextY += 15;
+      drawDashedLine(nextY);
+
+      // 7. Calculation summary
+      const subtotal = Number(order.subtotal);
+      const total = Number(order.totalAmount);
+      const difference = total - subtotal;
+
+      let platformFee = 0;
+      let otherFees = 0;
+
+      if (difference > 0) {
+        if (difference >= 1800) {
+          platformFee = 1800;
+          otherFees = difference - 1800;
+        } else {
+          otherFees = difference;
+        }
+      }
+
+      const formattedSubtotal = formatInvoiceCurrency(subtotal);
+      const formattedPlatformFee = formatInvoiceCurrency(platformFee);
+      const formattedOtherFees = formatInvoiceCurrency(otherFees);
+      const formattedTotal = formatInvoiceCurrency(total);
+
+      const menuSuffix = itemCount === 1 ? "1 menu" : `${itemCount} menu`;
+      const paymentMethod = order.payment?.[0]?.method || "CASH";
+
+      nextY += 22;
+      ctx.fillStyle = "#475569";
+      ctx.font = "500 12.5px 'Inter', -apple-system, sans-serif";
+      ctx.fillText(`Subtotal (${menuSuffix})`, 24, nextY);
+      ctx.textAlign = "right";
+      ctx.fillText(formattedSubtotal, 356, nextY);
       ctx.textAlign = "left";
 
-      if (item.packetChoices && item.packetChoices.length > 0) {
-        item.packetChoices.forEach(c => {
-          nextY += 15;
-          ctx.fillStyle = "#64748b";
-          ctx.font = "500 10.5px 'Inter', -apple-system, sans-serif";
-          const choiceText = `${c.section}: ${c.choice}${c.quantity > 1 ? ` x${c.quantity}` : ''}`;
-          ctx.fillText(choiceText, 50, nextY);
-        });
-      }
-    });
+      nextY += 18;
+      ctx.fillStyle = "#475569";
+      ctx.font = "500 12.5px 'Inter', -apple-system, sans-serif";
+      ctx.fillText("Platform Fee", 24, nextY);
+      ctx.textAlign = "right";
+      ctx.fillText(formattedPlatformFee, 356, nextY);
+      ctx.textAlign = "left";
 
-    nextY += 15;
-    drawDashedLine(nextY);
+      nextY += 18;
+      ctx.fillStyle = "#475569";
+      ctx.font = "500 12.5px 'Inter', -apple-system, sans-serif";
+      ctx.fillText("Other fees", 24, nextY);
+      ctx.textAlign = "right";
+      ctx.fillText(formattedOtherFees, 356, nextY);
+      ctx.textAlign = "left";
 
-    // 7. Calculation summary
-    const subtotal = Number(order.subtotal);
-    const total = Number(order.totalAmount);
-    const difference = total - subtotal;
-    
-    let platformFee = 0;
-    let otherFees = 0;
-    
-    if (difference > 0) {
-      if (difference >= 1800) {
-        platformFee = 1800;
-        otherFees = difference - 1800;
+      nextY += 18;
+      ctx.fillStyle = "#475569";
+      ctx.font = "500 12.5px 'Inter', -apple-system, sans-serif";
+      ctx.fillText("Payment Method", 24, nextY);
+      ctx.textAlign = "right";
+      ctx.fillStyle = "#000000";
+      ctx.font = "bold 12.5px 'Inter', -apple-system, sans-serif";
+      ctx.fillText(paymentMethod.toUpperCase(), 356, nextY);
+      ctx.textAlign = "left";
+
+      nextY += 12;
+      drawDashedLine(nextY);
+
+      nextY += 24;
+      ctx.fillStyle = "#000000";
+      ctx.font = "bold 15px 'Inter', -apple-system, sans-serif";
+      ctx.fillText("Total", 24, nextY);
+      ctx.textAlign = "right";
+      ctx.font = "bold 15px 'Inter', -apple-system, sans-serif";
+      ctx.fillText(formattedTotal, 356, nextY);
+      ctx.textAlign = "left";
+
+      nextY += 16;
+      drawDashedLine(nextY);
+
+      // 8. Feedback card representation
+      nextY += 18;
+      ctx.strokeStyle = "#e2e8f0";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      if (typeof (ctx as any).roundRect === "function") {
+        (ctx as any).roundRect(24, nextY, 332, 80, 12);
       } else {
-        otherFees = difference;
+        ctx.rect(24, nextY, 332, 80);
       }
-    }
-    
-    const formattedSubtotal = formatInvoiceCurrency(subtotal);
-    const formattedPlatformFee = formatInvoiceCurrency(platformFee);
-    const formattedOtherFees = formatInvoiceCurrency(otherFees);
-    const formattedTotal = formatInvoiceCurrency(total);
-    
-    const menuSuffix = itemCount === 1 ? "1 menu" : `${itemCount} menu`;
-    const paymentMethod = order.payment?.[0]?.method || "QRIS";
+      ctx.stroke();
 
-    nextY += 22;
-    ctx.fillStyle = "#475569";
-    ctx.font = "500 12.5px 'Inter', -apple-system, sans-serif";
-    ctx.fillText(`Subtotal (${menuSuffix})`, 24, nextY);
-    ctx.textAlign = "right";
-    ctx.fillText(formattedSubtotal, 356, nextY);
-    ctx.textAlign = "left";
+      ctx.beginPath();
+      ctx.moveTo(24, nextY + 46);
+      ctx.lineTo(356, nextY + 46);
+      ctx.stroke();
 
-    nextY += 18;
-    ctx.fillStyle = "#475569";
-    ctx.font = "500 12.5px 'Inter', -apple-system, sans-serif";
-    ctx.fillText("Platform Fee", 24, nextY);
-    ctx.textAlign = "right";
-    ctx.fillText(formattedPlatformFee, 356, nextY);
-    ctx.textAlign = "left";
+      ctx.fillStyle = "#fff6f0";
+      ctx.beginPath();
+      ctx.arc(52, nextY + 23, 16, 0, 2 * Math.PI);
+      ctx.fill();
 
-    nextY += 18;
-    ctx.fillStyle = "#475569";
-    ctx.font = "500 12.5px 'Inter', -apple-system, sans-serif";
-    ctx.fillText("Other fees", 24, nextY);
-    ctx.textAlign = "right";
-    ctx.fillText(formattedOtherFees, 356, nextY);
-    ctx.textAlign = "left";
+      ctx.font = "16px 'Inter', -apple-system, sans-serif";
+      ctx.fillText("👍", 44, nextY + 28);
 
-    nextY += 18;
-    ctx.fillStyle = "#475569";
-    ctx.font = "500 12.5px 'Inter', -apple-system, sans-serif";
-    ctx.fillText("Payment Method", 24, nextY);
-    ctx.textAlign = "right";
-    ctx.fillStyle = "#000000";
-    ctx.font = "bold 12.5px 'Inter', -apple-system, sans-serif";
-    ctx.fillText(paymentMethod, 356, nextY);
-    ctx.textAlign = "left";
+      ctx.fillStyle = "#1e293b";
+      ctx.font = "600 11.5px 'Inter', -apple-system, sans-serif";
 
-    nextY += 12;
-    drawDashedLine(nextY);
+      // Wrap the text dynamically
+      const maxFeedbackWidth = 250;
+      const words = feedbackMsg.split(" ");
+      let line = "";
+      let feedbackLines = [];
+      for (let n = 0; n < words.length; n++) {
+        let testLine = line + words[n] + " ";
+        let metrics = ctx.measureText(testLine);
+        if (metrics.width > maxFeedbackWidth && n > 0) {
+          feedbackLines.push(line);
+          line = words[n] + " ";
+        } else {
+          line = testLine;
+        }
+      }
+      feedbackLines.push(line);
 
-    nextY += 24;
-    ctx.fillStyle = "#000000";
-    ctx.font = "bold 15px 'Inter', -apple-system, sans-serif";
-    ctx.fillText("Total", 24, nextY);
-    ctx.textAlign = "right";
-    ctx.font = "bold 15px 'Inter', -apple-system, sans-serif";
-    ctx.fillText(formattedTotal, 356, nextY);
-    ctx.textAlign = "left";
+      if (feedbackLines.length === 1) {
+        ctx.fillText(feedbackLines[0], 78, nextY + 27);
+      } else {
+        ctx.fillText(feedbackLines[0], 78, nextY + 20);
+        ctx.fillText(feedbackLines[1], 78, nextY + 33);
+      }
 
-    nextY += 16;
-    drawDashedLine(nextY);
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#000000";
+      ctx.font = "bold 12px 'Inter', -apple-system, sans-serif";
+      ctx.fillText("Give Feedback", 190, nextY + 65);
 
-    // 8. Feedback card representation
-    nextY += 18;
-    ctx.strokeStyle = "#e2e8f0";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    if (typeof ctx.roundRect === "function") {
-      ctx.roundRect(24, nextY, 332, 80, 12);
+      try {
+        const pngUrl = canvas.toDataURL("image/png");
+        const downloadLink = document.createElement("a");
+        downloadLink.href = pngUrl;
+        downloadLink.download = `Invoice-${order.slug}.png`;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      } catch (err) {
+        console.error("Canvas export failed", err);
+      }
+    };
+
+    if (ownerPhoto) {
+      const logoImg = new Image();
+      logoImg.crossOrigin = "anonymous";
+      logoImg.src = ownerPhoto;
+      logoImg.onload = () => {
+        drawAll(logoImg);
+      };
+      logoImg.onerror = () => {
+        drawAll();
+      };
     } else {
-      ctx.rect(24, nextY, 332, 80);
-    }
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(24, nextY + 46);
-    ctx.lineTo(356, nextY + 46);
-    ctx.stroke();
-
-    ctx.fillStyle = "#fff6f0";
-    ctx.beginPath();
-    ctx.arc(52, nextY + 23, 16, 0, 2 * Math.PI);
-    ctx.fill();
-
-    ctx.font = "16px 'Inter', -apple-system, sans-serif";
-    ctx.fillText("👍", 44, nextY + 28);
-
-    ctx.fillStyle = "#1e293b";
-    ctx.font = "600 11.5px 'Inter', -apple-system, sans-serif";
-    ctx.fillText("Let's give feedback on our service!", 78, nextY + 27);
-
-    ctx.textAlign = "center";
-    ctx.fillStyle = "#000000";
-    ctx.font = "bold 12px 'Inter', -apple-system, sans-serif";
-    ctx.fillText("Give Feedback", 190, nextY + 65);
-
-    try {
-      const pngUrl = canvas.toDataURL("image/png");
-      const downloadLink = document.createElement("a");
-      downloadLink.href = pngUrl;
-      downloadLink.download = `Invoice-${order.slug}.png`;
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-    } catch (err) {
-      console.error("Canvas export failed", err);
+      drawAll();
     }
   };
 
