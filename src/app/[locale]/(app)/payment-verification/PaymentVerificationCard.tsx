@@ -31,9 +31,8 @@ const PaymentVerificationCard = ({ item, onViewDetails, onVerify }: PaymentVerif
   const imgSrc = item.image;
 
   return (
-    <article className={`rounded-xl border bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${
-      item.markAsMissMatch ? "border-red-500" : "border-blue-500"
-    }`}>
+    <article className={`rounded-xl border bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${item.markAsMissMatch ? "border-red-500" : "border-blue-500"
+      }`}>
       <div className="relative mb-3 overflow-hidden rounded-lg">
         {imgSrc ? (
           <img
@@ -92,15 +91,14 @@ const PaymentVerificationCard = ({ item, onViewDetails, onVerify }: PaymentVerif
         >
           {t("viewDetails")}
         </button>
-        {!item.isVerified && (
-          <button
-            type="button"
-            onClick={() => onVerify(item)}
-            className="w-full rounded-md border border-slate-200 bg-blue-500 cursor-pointer py-2 text-xs font-semibold text-white transition hover:bg-blue-600"
-          >
-            {t("verify")}
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => onVerify(item)}
+          className="w-full rounded-md border border-slate-200 bg-blue-500 cursor-pointer py-2 text-xs font-semibold text-white transition hover:bg-blue-600"
+        >
+          {t("verify")}
+        </button>
+
       </div>
     </article>
   );

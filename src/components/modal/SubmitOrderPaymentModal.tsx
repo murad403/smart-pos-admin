@@ -9,6 +9,7 @@ import Image from "next/image";
 import { useSubmitOrderPaymentMutation } from "@/redux/features/order/order.api";
 import { Order, PaymentMethod } from "@/redux/features/order/order.type";
 import { Button } from "@/components/ui/button";
+import { getUserData } from "@/utils/auth";
 
 interface SelectedProofImage {
   file: File;
@@ -40,6 +41,7 @@ const SubmitOrderPaymentModal = ({ order, onClose }: SubmitOrderPaymentModalProp
   const selectedProofImagesRef = useRef<SelectedProofImage[]>([]);
 
   const [method, setMethod] = useState<PaymentMethod>("CASH");
+  const [cashReceived, setCashReceived] = useState<number | null>(null);
   const [selectedProofImages, setSelectedProofImages] = useState<SelectedProofImage[]>([]);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -198,6 +200,19 @@ const SubmitOrderPaymentModal = ({ order, onClose }: SubmitOrderPaymentModalProp
   };
 
   const handleSubmit = async () => {
+    if (cashReceived === null || Number.isNaN(cashReceived)) {
+      toast.error("Cash received is required.");
+      return;
+    }
+
+    const userData = getUserData();
+    const cashierId = userData?.id;
+
+    if (!cashierId) {
+      toast.error("Unable to determine cashier account.");
+      return;
+    }
+
     if (selectedProofImages.length === 0) {
       toast.error(tPending("proofRequired") || "Please add at least one proof image.");
       return;
@@ -207,6 +222,8 @@ const SubmitOrderPaymentModal = ({ order, onClose }: SubmitOrderPaymentModalProp
       await submitOrderPayment({
         orderId: order.id,
         method,
+        cashierId,
+        cashReceived: cashReceived,
         proofImages: selectedProofImages.map((image) => image.file),
       }).unwrap();
 
@@ -278,6 +295,21 @@ const SubmitOrderPaymentModal = ({ order, onClose }: SubmitOrderPaymentModalProp
                 </option>
               ))}
             </select>
+          </label>
+
+          <label className="space-y-2">
+            <span className="text-sm font-semibold text-slate-700">Cash Received</span>
+            <input
+              type="number"
+              min="0"
+              value={cashReceived ?? ""}
+              onChange={(event) => {
+                const v = event.target.value;
+                setCashReceived(v === "" ? null : Number(v));
+              }}
+              className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none transition focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
+              placeholder="e.g. 50000"
+            />
           </label>
 
           <div className="space-y-2">

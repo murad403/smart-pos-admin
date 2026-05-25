@@ -11,6 +11,9 @@ import { Order } from "@/redux/features/order/order.type";
 import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
 
+
+
+
 const PendingPaymentsPage = ({ params }: { params?: Promise<{ locale: string }> }) => {
   if (params) React.use(params);
   const tOrder = useTranslations("Order");

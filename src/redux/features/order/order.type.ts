@@ -110,6 +110,8 @@ export interface GetOrderDetailsResponse {
 export interface SubmitOrderPaymentRequest {
     orderId: number;
     method: PaymentMethod;
+    cashierId: number;
+    cashReceived: number;
     proofImages?: File[];
 }
 
