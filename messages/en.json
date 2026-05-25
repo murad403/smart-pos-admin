@@ -123,6 +123,7 @@
   "Common": {
     "dashboard": "Dashboard",
     "salesReports": "Sales Reports",
+    "salesReportsOwner": "Reports",
     "efficiencyReport": "Efficiency",
     "hello": "Hello",
     "quickActions": "Quick Actions",

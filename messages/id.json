@@ -123,6 +123,7 @@
   "Common": {
     "dashboard": "Dasbor",
     "salesReports": "Laporan Penjualan",
+    "salesReportsOwner": "Laporan",
     "efficiencyReport": "Efisiensi",
     "hello": "Halo",
     "quickActions": "Tindakan Cepat",

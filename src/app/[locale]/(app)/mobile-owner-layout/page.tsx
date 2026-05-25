@@ -130,7 +130,7 @@ const MobileOwnerLayoutPage = () => {
                         <div className="flex size-12 items-center justify-center rounded-xl bg-blue-50 text-[#1A56DB] mb-3">
                             <BarChart3 className="size-6" />
                         </div>
-                        <span className="text-[13px] font-bold text-slate-700">{t("salesReports")}</span>
+                        <span className="text-[13px] font-bold text-slate-700">{t("salesReportsOwner")}</span>
                     </Link>
 
                     {/* User (Profile Users) */}
