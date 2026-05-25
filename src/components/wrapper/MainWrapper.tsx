@@ -4,7 +4,7 @@
 import React from "react"
 // Trigger MainWrapper rebuild to reload translations
 import Image from "next/image"
-import { Armchair, Boxes, CalendarRange, ChevronDown, CreditCard, Fuel, Grid2x2, HandCoins, LayoutDashboard, LogOut, Package, ReceiptText, Repeat, ShoppingBag, Speaker, User, Utensils, QrCode, Monitor, Shield, Smartphone, Calculator, BellDot, Pencil, ShieldCheck } from "lucide-react"
+import { Armchair, Boxes, CalendarRange, ChevronDown, CreditCard, Fuel, Grid2x2, HandCoins, LayoutDashboard, LogOut, Package, ReceiptText, Repeat, ShoppingBag, Speaker, User, Utensils, QrCode, Monitor, Shield, Smartphone, Calculator, BellDot, Pencil, ShieldCheck, ArrowLeft } from "lucide-react"
 import brandLogo from "@/assets/logo/logo.png"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
@@ -177,9 +177,11 @@ function AppSidebar({ windowWidth }: { windowWidth?: number }) {
 function Topbar({
   selectedDevice,
   onDeviceChange,
+  windowWidth,
 }: {
   selectedDevice: string;
   onDeviceChange: (device: string) => void;
+  windowWidth: number;
 }) {
   const t = useTranslations("Common");
   const locale = useLocale();
@@ -244,6 +246,8 @@ function Topbar({
   };
 
   const displayUser = getRoleBasedDisplay();
+  const isMobile = windowWidth < 768;
+  const isMobileAdmin = user?.role?.toUpperCase() === "ADMIN" && isMobile;
 
   return (
     <header className={cn(
@@ -252,7 +256,14 @@ function Topbar({
     )}>
       <div className="flex py-3.5 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <div className="flex min-w-0 items-center gap-3">
-          {selectedDevice !== "touchscreen" ? (
+          {isMobileAdmin ? (
+            <Link
+              href="/mobile-admin-layout"
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 cursor-pointer outline-none"
+            >
+              <ArrowLeft className="size-5" />
+            </Link>
+          ) : selectedDevice !== "touchscreen" ? (
             <SidebarTrigger className="-ml-1 text-slate-700 hover:bg-slate-100" />
           ) : (
             <Link href="/dashboard" className="flex items-center gap-3 px-1 py-0.5">
@@ -478,7 +489,7 @@ const MainWrapper = ({ children }: { children: React.ReactNode }) => {
         {selectedDevice !== "touchscreen" && <AppSidebar windowWidth={windowWidth} />}
 
         <SidebarInset className="flex min-h-screen flex-col bg-[#F7F7F7]">
-          <Topbar selectedDevice={selectedDevice} onDeviceChange={handleDeviceChange} />
+          <Topbar selectedDevice={selectedDevice} onDeviceChange={handleDeviceChange} windowWidth={windowWidth} />
           <main className={cn(
             "flex flex-1 flex-col p-4 md:p-6 lg:p-8",
             pathName === "/mobile-admin-layout" && "max-md:p-0"

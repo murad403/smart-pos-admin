@@ -14,10 +14,17 @@ const InventoryReportPage = ({ params }: { params?: Promise<{ locale: string }> 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"in" | "out">("in");
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // Fetch live inventory data from API
-  const { data: inventoryReportRes, isLoading, refetch } = useGetInventoryReportQuery();
+  // Fetch all inventory items for accurate stats card calculations
+  const { data: allInventoryRes, refetch: refetchAll } = useGetInventoryReportQuery();
+  const allItems = allInventoryRes?.data;
+
+  // Fetch paginated inventory data for the main overview table
+  const { data: inventoryReportRes, isLoading, refetch } = useGetInventoryReportQuery({ page: currentPage, limit: 10 });
   const inventoryItems = inventoryReportRes?.data;
+  const pagination = inventoryReportRes?.pagination;
+  const totalPages = pagination?.pages || 1;
 
   return (
     <div>
@@ -56,15 +63,24 @@ const InventoryReportPage = ({ params }: { params?: Promise<{ locale: string }> 
         </div>
       </div>
       
-      <InventoryReportStats items={inventoryItems} isLoading={isLoading} />
+      <InventoryReportStats items={allItems} isLoading={isLoading} />
       
-      <InventoryOverviewTable items={inventoryItems} isLoading={isLoading} />
+      <InventoryOverviewTable
+        items={inventoryItems}
+        isLoading={isLoading}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
 
       <StockAdjustModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         mode={modalMode}
-        onSuccess={() => refetch()}
+        onSuccess={() => {
+          refetch();
+          refetchAll();
+        }}
       />
 
       <InventoryLogsModal
