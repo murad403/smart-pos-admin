@@ -9,10 +9,11 @@ export const menuItemSchema = (t: any) => z.object({
   promoName: z.string().default(""),
   promoPrice: z.number().min(0).default(0),
   labels: z.array(z.string()).default([]),
+  outOfStock: z.boolean().default(false),
   maxItemsInPacket: z.number().optional(),
   choiceSections: z.number().optional(),
   sectionName: z.string().default(""),
   maxChoices: z.number().default(0),
 });
 
-export type MenuItemFormValues = z.infer<ReturnType<typeof menuItemSchema>>;
+export type MenuItemFormValues = z.input<ReturnType<typeof menuItemSchema>>;
