@@ -54,34 +54,35 @@ export const deleteCookie = (name: string) => {
 
 
 /**
- * Saves user data in a cookie
+ * Saves user data in localStorage
  */
 export const saveUserData = (userData: UserData, rememberMe: boolean = true) => {
+    if (typeof window === "undefined") return;
     const value = JSON.stringify(userData);
-    // If rememberMe is true, save for 7 days. Otherwise, let it expire in 1 day (or leave blank for session cookie).
-    const days = rememberMe ? 7 : undefined;
-    setCookie(USER_COOKIE_KEY, value, days);
+    localStorage.setItem(USER_COOKIE_KEY, value);
 };
 
 
 /**
- * Retrieves user data from the cookie
+ * Retrieves user data from localStorage
  */
 export const getUserData = (): UserData | null => {
-    const value = getCookie(USER_COOKIE_KEY);
+    if (typeof window === "undefined") return null;
+    const value = localStorage.getItem(USER_COOKIE_KEY);
     if (!value) return null;
     try {
         return JSON.parse(value) as UserData;
     } catch (e) {
-        console.error("Failed to parse user data from cookie:", e);
+        console.error("Failed to parse user data from localStorage:", e);
         return null;
     }
 };
 
 
 /**
- * Removes user data from the cookie
+ * Removes user data from localStorage
  */
 export const clearUserData = () => {
-    deleteCookie(USER_COOKIE_KEY);
+    if (typeof window === "undefined") return;
+    localStorage.removeItem(USER_COOKIE_KEY);
 };
