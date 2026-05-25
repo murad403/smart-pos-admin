@@ -59,6 +59,7 @@ function AppSidebar({ windowWidth }: { windowWidth?: number }) {
       { label: t("dashboard"), icon: LayoutDashboard, href: "/dashboard" }
     ] : []),
     { label: t("salesReports"), icon: ReceiptText, href: "/reports" },
+    { label: t("efficiencyReport"), icon: ReceiptText, href: "/efficiency-report" },
     { label: t("menu"), icon: Calculator, href: "/menu" },
     { label: t("collection"), icon: BellDot, href: "/collection" },
     { label: t("inventoryReport"), icon: Package, href: "/inventory-report" },

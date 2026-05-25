@@ -123,6 +123,10 @@
   "Common": {
     "dashboard": "Dasbor",
     "salesReports": "Laporan Penjualan",
+    "efficiencyReport": "Efisiensi",
+    "hello": "Halo",
+    "quickActions": "Tindakan Cepat",
+    "viewAll": "Lihat Semua",
     "paymentVerification": "Verifikasi Pembayaran",
     "inventoryReport": "Inventaris",
     "menu": "POS",

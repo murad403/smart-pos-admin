@@ -123,6 +123,10 @@
   "Common": {
     "dashboard": "Dashboard",
     "salesReports": "Sales Reports",
+    "efficiencyReport": "Efficiency",
+    "hello": "Hello",
+    "quickActions": "Quick Actions",
+    "viewAll": "View All",
     "paymentVerification": "Payment Verification",
     "inventoryReport": "Inventory",
     "menu": "POS",

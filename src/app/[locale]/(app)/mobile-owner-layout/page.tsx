@@ -49,7 +49,7 @@ const MobileOwnerLayoutPage = () => {
                     className="flex items-center gap-1.5 bg-white text-slate-800 px-4 py-2 rounded-xl font-bold text-sm shadow-xs transition hover:bg-slate-50"
                 >
                     <Home className="size-4 text-[#1A56DB]" />
-                    <span>Home</span>
+                    <span>{t("dashboard")}</span>
                 </Link>
                 <button
                     onClick={toggleSidebar}
@@ -62,7 +62,7 @@ const MobileOwnerLayoutPage = () => {
             {/* Hello Profile Greeting */}
             <div className="px-6 pt-8 pb-6 flex items-center justify-between">
                 <div>
-                    <p className="text-slate-400 font-medium text-base">Hello</p>
+                    <p className="text-slate-400 font-medium text-base">{t("hello")}</p>
                     <h2 className="text-3xl font-extrabold text-[#1E3A8A] mt-1">{userName}</h2>
                 </div>
                 <div className="size-16 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-sm shrink-0">
@@ -76,7 +76,7 @@ const MobileOwnerLayoutPage = () => {
 
             {/* Quick Actions Grid */}
             <div className="px-6">
-                <h3 className="text-base font-bold text-slate-850 tracking-wide mb-4">Quick Actions</h3>
+                <h3 className="text-base font-bold text-slate-850 tracking-wide mb-4">{t("quickActions")}</h3>
                 <div className="grid grid-cols-3 gap-4">
                     {/* Edit (Menu Management) */}
                     <Link
@@ -86,7 +86,7 @@ const MobileOwnerLayoutPage = () => {
                         <div className="flex size-12 items-center justify-center rounded-xl bg-blue-50 text-[#1A56DB] mb-3">
                             <Pencil className="size-6" />
                         </div>
-                        <span className="text-[13px] font-bold text-slate-700">Edit</span>
+                        <span className="text-[13px] font-bold text-slate-700">{t("menuManagement")}</span>
                     </Link>
 
                     {/* Verify (Payment Verification) */}
@@ -97,7 +97,7 @@ const MobileOwnerLayoutPage = () => {
                         <div className="flex size-12 items-center justify-center rounded-xl bg-blue-50 text-[#1A56DB] mb-3">
                             <ShieldCheck className="size-6" />
                         </div>
-                        <span className="text-[13px] font-bold text-slate-700">Verify</span>
+                        <span className="text-[13px] font-bold text-slate-700">{t("paymentVerification")}</span>
                     </Link>
 
                     {/* Inventory (Inventory Report) */}
@@ -108,18 +108,18 @@ const MobileOwnerLayoutPage = () => {
                         <div className="flex size-12 items-center justify-center rounded-xl bg-blue-50 text-[#1A56DB] mb-3">
                             <Package className="size-6" />
                         </div>
-                        <span className="text-[13px] font-bold text-slate-700">Inventory</span>
+                        <span className="text-[13px] font-bold text-slate-700">{t("inventoryReport")}</span>
                     </Link>
 
                     {/* Efficiency (Production Station) */}
                     <Link
-                        href="/production-station"
+                        href="/efficiency-report"
                         className="flex flex-col items-center justify-center bg-white rounded-2xl p-4 shadow-sm border border-slate-100/80 transition hover:shadow-md active:scale-95 duration-200"
                     >
                         <div className="flex size-12 items-center justify-center rounded-xl bg-blue-50 text-[#1A56DB] mb-3">
                             <TrendingUp className="size-6" />
                         </div>
-                        <span className="text-[13px] font-bold text-slate-700">Efficiency</span>
+                        <span className="text-[13px] font-bold text-slate-700">{t("efficiencyReport")}</span>
                     </Link>
 
                     {/* Report (Reports) */}
@@ -130,7 +130,7 @@ const MobileOwnerLayoutPage = () => {
                         <div className="flex size-12 items-center justify-center rounded-xl bg-blue-50 text-[#1A56DB] mb-3">
                             <BarChart3 className="size-6" />
                         </div>
-                        <span className="text-[13px] font-bold text-slate-700">Report</span>
+                        <span className="text-[13px] font-bold text-slate-700">{t("salesReports")}</span>
                     </Link>
 
                     {/* User (Profile Users) */}
@@ -141,16 +141,16 @@ const MobileOwnerLayoutPage = () => {
                         <div className="flex size-12 items-center justify-center rounded-xl bg-blue-50 text-[#1A56DB] mb-3">
                             <User className="size-6" />
                         </div>
-                        <span className="text-[13px] font-bold text-slate-700">User</span>
+                        <span className="text-[13px] font-bold text-slate-700">{t("users")}</span>
                     </Link>
                 </div>
             </div>
 
             {/* Dashboard Metrics */}
             <div className="px-6 mt-6">
-                <h3 className="text-base font-bold text-slate-850 tracking-wide mb-4">Dashboard</h3>
+                <h3 className="text-base font-bold text-slate-850 tracking-wide mb-4">{t("dashboard")}</h3>
                 <DashboardStats />
-                <Link className="flex justify-end mt-4 text-blue-500 text-sm hover:underline" href={"/view-all"}>View All</Link>
+                <Link className="flex justify-end mt-4 text-blue-500 text-sm hover:underline" href={"/view-all"}>{t("viewAll")}</Link>
             </div>
         </div>
     );

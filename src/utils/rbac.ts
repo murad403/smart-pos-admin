@@ -21,7 +21,7 @@ export const ROLE_ALLOWED_ROUTES: Record<string, string[]> = {
     // "/shift-workflow",
     // "/item",
     "/production-station",
-    "/order",
+    // "/order",
     "/view-all",
   ]
 };

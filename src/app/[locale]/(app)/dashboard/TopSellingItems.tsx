@@ -12,7 +12,7 @@ const TopSellingItems = ({ items, isLoading }: TopSellingItemsProps) => {
 
     if (isLoading) {
         return (
-            <div className="rounded-xl border border-slate-100 bg-white p-5 shadow-sm min-h-[200px] flex flex-col">
+            <div className="rounded-xl border border-slate-100 bg-white p-5 shadow-sm min-h-50 flex flex-col">
                 <div className="h-6 w-40 bg-slate-100 rounded mb-5 animate-pulse" />
                 <div className="space-y-4">
                     {[...Array(3)].map((_, i) => (

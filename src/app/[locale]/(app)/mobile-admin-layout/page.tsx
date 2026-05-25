@@ -31,14 +31,13 @@ const MobileAdminLayoutPage = () => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col pb-10">
-      {/* Top Header Bar */}
       <div className="bg-[#1A56DB] px-6 py-4 flex items-center justify-between shadow-md">
         <Link 
           href="/mobile-admin-layout" 
           className="flex items-center gap-1.5 bg-white text-slate-800 px-4 py-2 rounded-xl font-bold text-sm shadow-xs transition hover:bg-slate-50"
         >
           <Home className="size-4 text-[#1A56DB]" />
-          <span>Home</span>
+          <span>{t("dashboard")}</span>
         </Link>
         <button
           onClick={toggleSidebar}
@@ -51,7 +50,7 @@ const MobileAdminLayoutPage = () => {
       {/* Hello Profile Greeting */}
       <div className="px-6 pt-8 pb-6 flex items-center justify-between">
         <div>
-          <p className="text-slate-400 font-medium text-base">Hello</p>
+          <p className="text-slate-400 font-medium text-base">{t("hello")}</p>
           <h2 className="text-3xl font-extrabold text-[#1E3A8A] mt-1">{userName}</h2>
         </div>
         <div className="size-16 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-sm flex items-center justify-center">
@@ -71,7 +70,7 @@ const MobileAdminLayoutPage = () => {
 
       {/* Quick Actions Grid */}
       <div className="px-6">
-        <h3 className="text-base font-bold text-slate-850 tracking-wide mb-5">Quick Actions</h3>
+        <h3 className="text-base font-bold text-slate-850 tracking-wide mb-5">{t("quickActions")}</h3>
         <div className="grid grid-cols-3 gap-4">
           {/* POS */}
           <Link
@@ -81,7 +80,7 @@ const MobileAdminLayoutPage = () => {
             <div className="flex size-12 items-center justify-center rounded-xl bg-blue-50 text-[#1A56DB] mb-3">
               <Calculator className="size-6" />
             </div>
-            <span className="text-[13px] font-bold text-slate-700">POS</span>
+            <span className="text-[13px] font-bold text-slate-700">{t("menu")}</span>
           </Link>
 
           {/* Collect */}
@@ -95,7 +94,7 @@ const MobileAdminLayoutPage = () => {
             <div className="flex size-12 items-center justify-center rounded-xl bg-blue-50 text-[#1A56DB] mb-3">
               <BellDot className="size-6" />
             </div>
-            <span className="text-[13px] font-bold text-slate-700">Collect</span>
+            <span className="text-[13px] font-bold text-slate-700">{t("collection")}</span>
           </Link>
 
           {/* Inventory */}
@@ -106,7 +105,7 @@ const MobileAdminLayoutPage = () => {
             <div className="flex size-12 items-center justify-center rounded-xl bg-blue-50 text-[#1A56DB] mb-3">
               <Package className="size-6" />
             </div>
-            <span className="text-[13px] font-bold text-slate-700">Inventory</span>
+            <span className="text-[13px] font-bold text-slate-700">{t("inventoryReport")}</span>
           </Link>
 
           {/* Edit */}
@@ -117,7 +116,7 @@ const MobileAdminLayoutPage = () => {
             <div className="flex size-12 items-center justify-center rounded-xl bg-blue-50 text-[#1A56DB] mb-3">
               <Pencil className="size-6" />
             </div>
-            <span className="text-[13px] font-bold text-slate-700">Edit</span>
+            <span className="text-[13px] font-bold text-slate-700">{t("menuManagement")}</span>
           </Link>
 
           {/* Payment */}
@@ -128,7 +127,7 @@ const MobileAdminLayoutPage = () => {
             <div className="flex size-12 items-center justify-center rounded-xl bg-blue-50 text-[#1A56DB] mb-3">
               <CreditCard className="size-6" />
             </div>
-            <span className="text-[13px] font-bold text-slate-700">Payment</span>
+            <span className="text-[13px] font-bold text-slate-700">{t("pendingPayments")}</span>
           </Link>
 
           {/* Verify */}
@@ -139,7 +138,7 @@ const MobileAdminLayoutPage = () => {
             <div className="flex size-12 items-center justify-center rounded-xl bg-blue-50 text-[#1A56DB] mb-3">
               <ShieldCheck className="size-6" />
             </div>
-            <span className="text-[13px] font-bold text-slate-700">Verify</span>
+            <span className="text-[13px] font-bold text-slate-700">{t("paymentVerification")}</span>
           </Link>
         </div>
       </div>
