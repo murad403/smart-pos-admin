@@ -31,7 +31,7 @@ function SidebarBrand() {
   )
 }
 
-function AppSidebar() {
+function AppSidebar({ windowWidth }: { windowWidth?: number }) {
   const pathName = usePathname();
   const router = useRouter();
   const [profileOpen, setProfileOpen] = React.useState(pathName.startsWith("/profile"));
@@ -52,22 +52,27 @@ function AppSidebar() {
     router.push("/auth/welcome");
   };
 
+  const isMobileView = windowWidth !== undefined ? windowWidth < 768 : (typeof window !== "undefined" ? window.innerWidth < 768 : false);
+
   const navigationItems = [
-    { label: t("dashboard"), icon: LayoutDashboard, href: "/dashboard" },
-    { label: t("salesReports"), icon: ReceiptText, href: "/reports" },
-    { label: t("paymentVerification"), icon: ShieldCheck, href: "/payment-verification" },
+    { label: t("menu"), icon: Calculator, href: "/menu" },
+    { label: t("collection"), icon: BellDot, href: "/collection" },
     { label: t("inventoryReport"), icon: Package, href: "/inventory-report" },
     { label: t("menuManagement"), icon: Pencil, href: "/menu-management" },
-    { label: t("menu"), icon: Calculator, href: "/menu" },
+    { label: t("pendingPayments"), icon: CreditCard, href: "/pending-payments" },
+    { label: t("paymentVerification"), icon: ShieldCheck, href: "/payment-verification" },
+    ...(user?.role?.toUpperCase() === "ADMIN" && isMobileView ? [
+      { label: t("dashboard"), icon: LayoutDashboard, href: "/mobile-admin-layout" }
+    ] : []),
+    { label: t("dashboard"), icon: LayoutDashboard, href: "/dashboard" },
+    { label: t("salesReports"), icon: ReceiptText, href: "/reports" },
     { label: t("orderLifeCycle"), icon: Repeat, href: "/order-life-cycle" },
-    { label: t("item"), icon: Utensils, href: "/item" },
+    // { label: t("item"), icon: Utensils, href: "/item" },
     { label: t("productionStation"), icon: Fuel, href: "/production-station" },
-    { label: t("collection"), icon: BellDot, href: "/collection" },
     { label: t("production"), icon: Speaker, href: "/production" },
     { label: t("manageTable"), icon: Armchair, href: "/manage-table" },
     // { label: t("shiftWorkflow"), icon: CalendarRange, href: "/shift-workflow" },
     { label: t("order"), icon: ShoppingBag, href: "/order" },
-    { label: t("pendingPayments"), icon: CreditCard, href: "/pending-payments" },
   ]
 
   const profileSubItems = [
@@ -241,7 +246,10 @@ function Topbar({
   const displayUser = getRoleBasedDisplay();
 
   return (
-    <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white">
+    <header className={cn(
+      "sticky top-0 z-20 border-b border-slate-200/80 bg-white",
+      pathname === "/mobile-admin-layout" && "hidden md:block"
+    )}>
       <div className="flex py-3.5 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <div className="flex min-w-0 items-center gap-3">
           {selectedDevice !== "touchscreen" ? (
@@ -377,6 +385,8 @@ const MainWrapper = ({ children }: { children: React.ReactNode }) => {
   const [isChecking, setIsChecking] = React.useState(true);
   const [isAuthorized, setIsAuthorized] = React.useState(false);
   const [selectedDevice, setSelectedDevice] = React.useState<string>("qrcode");
+  const [windowWidth, setWindowWidth] = React.useState<number>(typeof window !== "undefined" ? window.innerWidth : 1024);
+  const prevWidthRef = React.useRef<number>(typeof window !== "undefined" ? window.innerWidth : 1024);
 
   React.useEffect(() => {
     const saved = localStorage.getItem("selectedDevice");
@@ -386,6 +396,37 @@ const MainWrapper = ({ children }: { children: React.ReactNode }) => {
       localStorage.setItem("selectedDevice", "qrcode");
     }
   }, []);
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    if (typeof window !== "undefined") {
+      setWindowWidth(window.innerWidth);
+      prevWidthRef.current = window.innerWidth;
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    const wasMobile = prevWidthRef.current < 768;
+    const isNowMobile = windowWidth < 768;
+    prevWidthRef.current = windowWidth;
+
+    if (wasMobile !== isNowMobile) {
+      const currentUser = getUserData();
+      if (currentUser && currentUser.role?.toUpperCase() === "ADMIN") {
+        if (isNowMobile) {
+          // Transitioned from desktop to mobile
+          router.push("/mobile-admin-layout");
+        } else if (pathName === "/mobile-admin-layout") {
+          // Transitioned from mobile to desktop
+          router.push("/menu");
+        }
+      }
+    }
+  }, [windowWidth, pathName, router]);
 
   const handleDeviceChange = (device: string) => {
     setSelectedDevice(device);
@@ -397,11 +438,23 @@ const MainWrapper = ({ children }: { children: React.ReactNode }) => {
     const currentUser = getUserData();
     if (currentUser) {
       const role = currentUser.role || "";
-      if (isRouteAllowed(role, pathName)) {
+      const isMobile = windowWidth < 768;
+
+      let allowed = isRouteAllowed(role, pathName);
+
+      // Prevent desktop ADMINs from accessing mobile-admin-layout
+      if (role.toUpperCase() === "ADMIN" && !isMobile && pathName === "/mobile-admin-layout") {
+        allowed = false;
+      }
+
+      if (allowed) {
         setIsAuthorized(true);
       } else {
         setIsAuthorized(false);
-        const defaultRoute = DEFAULT_ROLE_ROUTE[role.toUpperCase()] || "/auth/welcome";
+        let defaultRoute = DEFAULT_ROLE_ROUTE[role.toUpperCase()] || "/auth/welcome";
+        if (role.toUpperCase() === "ADMIN" && isMobile) {
+          defaultRoute = "/mobile-admin-layout";
+        }
         router.push(defaultRoute);
       }
     } else {
@@ -409,7 +462,7 @@ const MainWrapper = ({ children }: { children: React.ReactNode }) => {
       router.push("/auth/welcome");
     }
     setIsChecking(false);
-  }, [pathName, router]);
+  }, [pathName, router, windowWidth]);
 
   if (isChecking || !isAuthorized) {
     return (
@@ -422,11 +475,14 @@ const MainWrapper = ({ children }: { children: React.ReactNode }) => {
   return (
     <SidebarProvider defaultOpen>
       <div className="flex min-h-screen w-full bg-[#F7F7F7] text-slate-900">
-        {selectedDevice !== "touchscreen" && <AppSidebar />}
+        {selectedDevice !== "touchscreen" && <AppSidebar windowWidth={windowWidth} />}
 
         <SidebarInset className="flex min-h-screen flex-col bg-[#F7F7F7]">
           <Topbar selectedDevice={selectedDevice} onDeviceChange={handleDeviceChange} />
-          <main className="flex flex-1 flex-col p-4 md:p-6 lg:p-8">{children}</main>
+          <main className={cn(
+            "flex flex-1 flex-col p-4 md:p-6 lg:p-8",
+            pathName === "/mobile-admin-layout" && "max-md:p-0"
+          )}>{children}</main>
         </SidebarInset>
       </div>
     </SidebarProvider>

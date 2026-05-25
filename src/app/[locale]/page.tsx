@@ -24,10 +24,11 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
       const userData = getUserData();
       let route = "";
       if (userData?.role === "ADMIN") {
-        route = "/payment-verification";
+        const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+        route = isMobile ? "/mobile-admin-layout" : "/menu";
       }
       else if(userData?.role === "OWNER"){
-        route = "/payment-verification";
+        route = "/menu-management";
       }
       else if(userData?.role === "SERVICE"){
         route = "/collection";

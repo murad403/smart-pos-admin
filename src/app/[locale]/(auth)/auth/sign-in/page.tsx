@@ -56,7 +56,10 @@ export default function SignInPage({ params }: { params?: Promise<{ locale: stri
                     saveUserData(result.data, values.rememberMe);
                     toast.success(result.message || "Login successful!");
                     
-                    const defaultRoute = DEFAULT_ROLE_ROUTE[userRole];
+                    let defaultRoute = DEFAULT_ROLE_ROUTE[userRole];
+                    if (userRole === "ADMIN" && typeof window !== "undefined" && window.innerWidth < 768) {
+                        defaultRoute = "/mobile-admin-layout";
+                    }
                     router.push(defaultRoute);
                 } else {
                     const errorMsg = "Access denied. Role not authorized for this panel.";

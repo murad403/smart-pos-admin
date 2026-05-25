@@ -1,6 +1,7 @@
 export const ROLE_ALLOWED_ROUTES: Record<string, string[]> = {
   USER: ["/menu", "/order-life-cycle"],
   ADMIN: [
+    "/mobile-admin-layout",
     "/menu",
     "/collection",
     "/inventory-report",
@@ -17,7 +18,7 @@ export const ROLE_ALLOWED_ROUTES: Record<string, string[]> = {
     "/reports",
     "/profile",
     // "/shift-workflow",
-    "/item",
+    // "/item",
     "/production-station",
     "/order",
   ]
@@ -25,9 +26,9 @@ export const ROLE_ALLOWED_ROUTES: Record<string, string[]> = {
 
 export const DEFAULT_ROLE_ROUTE: Record<string, string> = {
   USER: "/menu",
-  ADMIN: "/payment-verification",
+  ADMIN: "/menu",
   SERVICE: "/production",
-  OWNER: "/payment-verification"
+  OWNER: "/menu-management" 
 };
 
 /**
