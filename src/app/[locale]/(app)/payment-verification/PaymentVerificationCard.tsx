@@ -23,7 +23,7 @@ const formatCurrency = (value: number) => `Rp ${value.toLocaleString("en-US")}`;
 
 const PaymentVerificationCard = ({ item, onViewDetails }: PaymentVerificationCardProps) => {
   const t = useTranslations("Payment");
-  
+
   const imgSrc = item.image;
   // console.log(item?.status)
 
@@ -43,9 +43,8 @@ const PaymentVerificationCard = ({ item, onViewDetails }: PaymentVerificationCar
           </div>
         )}
         <span
-          className={`absolute right-2 top-2 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-            item.status ==="paid" ? "bg-red-500 text-white" : "bg-emerald-500 text-white"
-          }`}
+          className={`absolute right-2 top-2 rounded-full px-2 py-0.5 text-[11px] font-semibold ${item.status === "paid" ? "bg-red-500 text-white" : "bg-emerald-500 text-white"
+            }`}
         >
           {item.status}
         </span>
@@ -75,9 +74,15 @@ const PaymentVerificationCard = ({ item, onViewDetails }: PaymentVerificationCar
         <button
           type="button"
           onClick={() => onViewDetails(item)}
-          className="w-full rounded-md border border-slate-200 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+          className="w-full rounded-md border border-slate-200 cursor-pointer py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
         >
           {t("viewDetails")}
+        </button>
+        <button
+          type="button"
+          className="w-full rounded-md border border-slate-200 bg-blue-500 cursor-pointer py-2 text-xs font-semibold text-white transition hover:bg-blue-600"
+        >
+          {t("verify")}
         </button>
       </div>
     </article>

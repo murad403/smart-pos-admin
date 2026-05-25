@@ -4,7 +4,7 @@
 import React from "react"
 // Trigger MainWrapper rebuild to reload translations
 import Image from "next/image"
-import { Armchair, Boxes, CalendarRange, ChevronDown, CreditCard, Fuel, Grid2x2, HandCoins, LayoutDashboard, LogOut, Package, ReceiptText, Repeat, ShoppingBag, Speaker, User, Utensils, QrCode, Monitor, Shield, Smartphone, Calculator, BellDot, Pencil, ShieldCheck, ArrowLeft } from "lucide-react"
+import { Armchair, Boxes, CalendarRange, ChevronDown, CreditCard, Fuel, Grid2x2, HandCoins, LayoutDashboard, LogOut, Package, ReceiptText, Repeat, ShoppingBag, Speaker, User, Utensils, QrCode, Monitor, Shield, Smartphone, Calculator, BellDot, Pencil, ShieldCheck, ArrowLeft, File } from "lucide-react"
 import brandLogo from "@/assets/logo/logo.png"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
@@ -25,7 +25,6 @@ function SidebarBrand() {
       </div>
       <div className="min-w-0 group-data-[collapsible=icon]:hidden">
         <p className="text-lg font-semibold tracking-tight text-slate-950">SmartPOS</p>
-        {/* <p className="text-xs text-slate-500">Admin panel</p> */}
       </div>
     </Link>
   )
@@ -58,7 +57,7 @@ function AppSidebar({ windowWidth }: { windowWidth?: number }) {
     ...(!isMobileView ? [
       { label: t("dashboard"), icon: LayoutDashboard, href: "/dashboard" }
     ] : []),
-    { label: t("salesReports"), icon: ReceiptText, href: "/reports" },
+    { label: t("salesReports"), icon: File, href: "/reports" },
     { label: t("efficiencyReport"), icon: ReceiptText, href: "/efficiency-report" },
     { label: t("menu"), icon: Calculator, href: "/menu" },
     { label: t("collection"), icon: BellDot, href: "/collection" },

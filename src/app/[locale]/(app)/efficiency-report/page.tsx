@@ -48,8 +48,141 @@ const EfficiencyReportPage = ({ params }: { params?: Promise<{ locale: string }>
   };
 
   const handleExportExcel = () => {
-    toast.success("Exporting report data to Excel...");
-    // Future expansion: generate excel sheet
+    if (!reportData) {
+      toast.error("No report data available to export");
+      return;
+    }
+
+    toast.loading("Generating Excel sheet...", { id: "excel-export-toast" });
+
+    try {
+      const rows: string[][] = [];
+      rows.push(["Efficiency Report"]);
+      rows.push([
+        "Period",
+        `${formatDateString(startDate || new Date(reportData.period?.startDate))} to ${formatDateString(endDate || new Date(reportData.period?.endDate))}`
+      ]);
+      rows.push(["Average Wait Time", reportData.averageWaitTime || ""]);
+      rows.push([]);
+
+      rows.push(["SUMMARY METRICS"]);
+      const summaryKeys = Object.keys(reportData.summary || {});
+      summaryKeys.forEach((key) => {
+        let label = key;
+        if (key === "totalOrders") label = "Total Orders";
+        else if (key === "totalItems") label = "Total Items";
+        else if (key === "avgCollectionTime") label = "Average Collection Time";
+        else if (key === "avgWaitTime") label = "Average Wait Time";
+        else if (key.startsWith("avg")) {
+          const station = key.replace(/^avg/, "").replace(/Time$/, "");
+          label = `Average ${station} Time`;
+        }
+        rows.push([label, String(reportData.summary[key])]);
+      });
+      rows.push([]);
+
+      rows.push(["MOST POPULAR ITEMS BY STATION (TOP 5)"]);
+      if (Array.isArray(reportData.mostPopularByStation)) {
+        reportData.mostPopularByStation.forEach((station: any) => {
+          rows.push([station.stationName || "Station"]);
+          rows.push(["Item Name", "Preparation Time"]);
+          if (Array.isArray(station.items)) {
+            station.items.forEach((item: any) => {
+              rows.push([item.itemName, String(item.prepTime)]);
+            });
+          }
+          rows.push([]);
+        });
+      }
+
+      rows.push(["ITEMS WITH LONGEST PREPARATION TIME"]);
+      if (Array.isArray(reportData.longestPrepTimeItems)) {
+        if (reportData.longestPrepTimeItems[0] && Array.isArray(reportData.longestPrepTimeItems[0].items)) {
+          reportData.longestPrepTimeItems.forEach((station: any) => {
+            rows.push([station.stationName || "Station"]);
+            rows.push(["Item Name", "Preparation Time"]);
+            station.items.forEach((item: any) => {
+              rows.push([item.itemName, String(item.prepTime)]);
+            });
+            rows.push([]);
+          });
+        } else {
+          rows.push(["Item Name", "Preparation Time", "Station Name"]);
+          reportData.longestPrepTimeItems.forEach((item: any) => {
+            rows.push([item.itemName, String(item.prepTime), item.stationName || ""]);
+          });
+          rows.push([]);
+        }
+      }
+
+      rows.push(["DETAILED ORDER REPORT"]);
+      const stationNames = new Set<string>();
+      if (Array.isArray(reportData.detailedReport)) {
+        reportData.detailedReport.forEach((item: any) => {
+          if (item.stationTimes) {
+            Object.keys(item.stationTimes).forEach((k) => stationNames.add(k));
+          }
+        });
+      }
+      const dynamicStations = Array.from(stationNames);
+
+      const headers = [
+        "Order time",
+        "Order #",
+        "Total number of items",
+        ...dynamicStations,
+        "Collection Time",
+        "Delivery Time",
+        "Wait Time",
+      ];
+      rows.push(headers);
+
+      if (Array.isArray(reportData.detailedReport)) {
+        reportData.detailedReport.forEach((item: any) => {
+          const row = [
+            item.orderTime,
+            `#${item.orderSlug}`,
+            String(item.totalItems),
+            ...dynamicStations.map((sName) => item.stationTimes?.[sName] || "0s"),
+            item.collectionTime,
+            item.deliveryTime,
+            item.waitTime,
+          ];
+          rows.push(row);
+        });
+      }
+
+      const csvString = rows
+        .map((row) =>
+          row
+            .map((cell) => {
+              const cleanCell = cell === null || cell === undefined ? "" : String(cell);
+              if (cleanCell.includes(",") || cleanCell.includes('"') || cleanCell.includes("\n")) {
+                return `"${cleanCell.replace(/"/g, '""')}"`;
+              }
+              return cleanCell;
+            })
+            .join(",")
+        )
+        .join("\n");
+
+      const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const filename = `efficiency_report_${formatDateString(startDate || new Date(reportData.period?.startDate))}_to_${formatDateString(endDate || new Date(reportData.period?.endDate))}.csv`;
+
+      link.setAttribute("href", url);
+      link.setAttribute("download", filename);
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast.success("Excel sheet exported successfully!", { id: "excel-export-toast" });
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to generate Excel sheet", { id: "excel-export-toast" });
+    }
   };
 
   return (
@@ -100,7 +233,7 @@ const EfficiencyReportPage = ({ params }: { params?: Promise<{ locale: string }>
 
       {/* Average Wait Time Hero Card */}
       <div className="flex">
-        <div className="bg-white rounded-3xl border border-slate-100 p-5 flex items-center gap-4 shadow-sm w-full max-w-70">
+        <div className="bg-white rounded-xl border border-slate-100 p-5 flex items-center gap-4 shadow-sm w-full max-w-70">
           <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
             <Clock className="size-6" />
           </div>
@@ -143,6 +276,47 @@ const EfficiencyReportPage = ({ params }: { params?: Promise<{ locale: string }>
       <p className="text-xs text-slate-400 mt-2 italic print:block">
         {t("footnote", { stations: "Kitchen + Bar" })}
       </p>
+
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            @media print {
+              /* Hide sidebar, headers, and print-hidden elements */
+              aside,
+              header,
+              nav,
+              [data-sidebar="sidebar"],
+              .print\\:hidden,
+              button,
+              input,
+              .sidebar-trigger {
+                display: none !important;
+              }
+              /* Reset margins and paddings for printing */
+              body, main, .print-container {
+                background: white !important;
+                color: black !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+              }
+              /* Remove sidebar layout flex wrapper constraints during print */
+              .sidebar-inset, 
+              [data-sidebar-provider="true"] {
+                display: block !important;
+                margin-left: 0 !important;
+                padding-left: 0 !important;
+              }
+              /* Enable background colors in print */
+              * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+              }
+            }
+          `,
+        }}
+      />
     </div>
   );
 };

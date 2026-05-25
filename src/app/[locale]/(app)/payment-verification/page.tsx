@@ -35,7 +35,7 @@ const PaymentVerificationPage = ({ params }: { params?: Promise<{ locale: string
   // Map API payment objects to PaymentVerificationItem structures for identical UI rendering
   const mappedRows: PaymentVerificationItem[] = useMemo(() => {
     return payments.map((item) => {
-      
+
       const displayImage = item.proofImages && item.proofImages.length > 0
         ? item.proofImages[0]
         : undefined;
@@ -70,7 +70,7 @@ const PaymentVerificationPage = ({ params }: { params?: Promise<{ locale: string
           <h1 className="text-2xl md:text-3xl font-bold text-slate-900">{t("proof")}</h1>
           <p className="mt-1 text-sm text-slate-600">{t("subtitle")}</p>
         </div>
-        
+
         <div className="flex flex-wrap items-center gap-2">
           {/* Status Dropdown */}
           <select

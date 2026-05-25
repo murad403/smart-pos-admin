@@ -68,6 +68,15 @@ const dashboardApi = baseApi.injectEndpoints({
                 };
             },
         }),
+        paymentVerify: builder.mutation({
+            query: ({ id, data }) => {
+                return {
+                    url: `/payments/${id}/verify`,
+                    method: "POST",
+                    body: data
+                };
+            },
+        }),
 
         // inventoryReport*******************************************************************
         getInventoryReport: builder.query<GetInventoryReportResponse, GetInventoryReportQueryParams | void>({
