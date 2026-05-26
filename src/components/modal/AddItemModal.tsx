@@ -4,14 +4,10 @@ import React, { useState, useRef } from "react";
 import { X, Upload, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import {
-  useGetAllProductionStationQuery,
-  useAddItemMutation,
-  useAddPacketSectionMutation,
-  useAddPacketSectionChoiceMutation,
-  useAddItemToSectionMutation,
-} from "@/redux/features/menu/menu.api";
+import { useGetAllProductionStationQuery, useAddItemMutation, useAddPacketSectionMutation, useAddPacketSectionChoiceMutation, useAddItemToSectionMutation } from "@/redux/features/menu/menu.api";
 import { toast } from "sonner";
+
+
 
 type Props = {
   open: boolean;
@@ -42,6 +38,7 @@ const AddItemModal: React.FC<Props> = ({ open, onClose, onSuccess, sectionId }) 
 
   // Basic Form States
   const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
   const [itemType, setItemType] = useState<"INDIVIDUAL" | "PACKET">("INDIVIDUAL");
   const [price, setPrice] = useState<number | "">("");
   const [productionStationId, setProductionStationId] = useState<string>("");
@@ -183,6 +180,9 @@ const AddItemModal: React.FC<Props> = ({ open, onClose, onSuccess, sectionId }) 
         hasPromo,
       };
 
+      if (slug.trim()) {
+        payload.slug = slug.trim();
+      }
       if (productionStationId) {
         payload.productionStationId = Number(productionStationId);
       }
@@ -259,6 +259,7 @@ const AddItemModal: React.FC<Props> = ({ open, onClose, onSuccess, sectionId }) 
 
       // Reset state
       setName("");
+      setSlug("");
       setItemType("INDIVIDUAL");
       setPrice("");
       setProductionStationId("");
@@ -304,7 +305,7 @@ const AddItemModal: React.FC<Props> = ({ open, onClose, onSuccess, sectionId }) 
               <h3 className="text-sm font-bold text-gray-400 tracking-wide uppercase">General Details</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Item Name */}
-                <div className="md:col-span-2">
+                <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5">Item Name *</label>
                   <input
                     type="text"
@@ -312,6 +313,18 @@ const AddItemModal: React.FC<Props> = ({ open, onClose, onSuccess, sectionId }) 
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter item name (e.g. Grilled Salmon)"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 placeholder:text-gray-400"
+                  />
+                </div>
+
+                {/* Item ID */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">Item ID</label>
+                  <input
+                    type="text"
+                    value={slug}
+                    onChange={(e) => setSlug(e.target.value)}
+                    placeholder="Enter Item ID (optional)"
                     className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 placeholder:text-gray-400"
                   />
                 </div>
@@ -441,14 +454,12 @@ const AddItemModal: React.FC<Props> = ({ open, onClose, onSuccess, sectionId }) 
                 <button
                   type="button"
                   onClick={() => setHasPromo(!hasPromo)}
-                  className={`relative w-12 h-6 rounded-full transition-colors ${
-                    hasPromo ? "bg-blue-600" : "bg-gray-300"
-                  }`}
+                  className={`relative w-12 h-6 rounded-full transition-colors ${hasPromo ? "bg-blue-600" : "bg-gray-300"
+                    }`}
                 >
                   <span
-                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                      hasPromo ? "translate-x-6" : "translate-x-0"
-                    }`}
+                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${hasPromo ? "translate-x-6" : "translate-x-0"
+                      }`}
                   />
                 </button>
               </div>
@@ -492,11 +503,10 @@ const AddItemModal: React.FC<Props> = ({ open, onClose, onSuccess, sectionId }) 
                       key={opt.key}
                       type="button"
                       onClick={() => toggleLabel(opt.key)}
-                      className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all ${
-                        isSelected
+                      className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all ${isSelected
                           ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/10 scale-95"
                           : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300"
-                      }`}
+                        }`}
                     >
                       {opt.label}
                     </button>
@@ -511,14 +521,12 @@ const AddItemModal: React.FC<Props> = ({ open, onClose, onSuccess, sectionId }) 
                 <button
                   type="button"
                   onClick={() => setIsVisible(!isVisible)}
-                  className={`relative w-12 h-6 rounded-full transition-colors ${
-                    isVisible ? "bg-blue-600" : "bg-gray-300"
-                  }`}
+                  className={`relative w-12 h-6 rounded-full transition-colors ${isVisible ? "bg-blue-600" : "bg-gray-300"
+                    }`}
                 >
                   <span
-                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                      isVisible ? "translate-x-6" : "translate-x-0"
-                    }`}
+                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${isVisible ? "translate-x-6" : "translate-x-0"
+                      }`}
                   />
                 </button>
                 <div>
@@ -531,14 +539,12 @@ const AddItemModal: React.FC<Props> = ({ open, onClose, onSuccess, sectionId }) 
                 <button
                   type="button"
                   onClick={() => setIsOutOfStock(!isOutOfStock)}
-                  className={`relative w-12 h-6 rounded-full transition-colors ${
-                    isOutOfStock ? "bg-red-500" : "bg-gray-300"
-                  }`}
+                  className={`relative w-12 h-6 rounded-full transition-colors ${isOutOfStock ? "bg-red-500" : "bg-gray-300"
+                    }`}
                 >
                   <span
-                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                      isOutOfStock ? "translate-x-6" : "translate-x-0"
-                    }`}
+                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${isOutOfStock ? "translate-x-6" : "translate-x-0"
+                      }`}
                   />
                 </button>
                 <div>

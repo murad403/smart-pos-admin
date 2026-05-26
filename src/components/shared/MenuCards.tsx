@@ -120,9 +120,8 @@ const PacketSlider = ({ packetSections }: { packetSections: any[] }) => {
                 e.stopPropagation();
                 setCurrentIndex(index);
               }}
-              className={`h-1 rounded-full transition-all duration-200 ${
-                index === currentIndex ? "w-2.5 bg-blue-500" : "w-1 bg-slate-200"
-              }`}
+              className={`h-1 rounded-full transition-all duration-200 ${index === currentIndex ? "w-2.5 bg-blue-500" : "w-1 bg-slate-200"
+                }`}
             />
           ))}
         </div>
@@ -164,12 +163,13 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
       promoPrice: item.promoPrice ? Number(item.promoPrice) : 0,
       imageType: "menu1",
       imageUrl: item.imageUrl || null,
-      badges: [item.labels?.[0] || "", item.labels?.[1] || ""],
+      badges: item?.labels || [],
       packetSections: item.packetSections || [],
       originalItem: item,
     };
   });
-  
+  // console.log(items[0]?.badges)
+
   const layoutLabel: Record<SectionLayoutType, string> = {
     SINGLE: t("1-image") || "1 Large Image",
     DOUBLE: t("2-image") || "2 Images Side-by-Side",
@@ -244,9 +244,8 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
             <div className={gridColsClass}>
               {Array.from({ length: (layout === "SINGLE" ? 1 : layout === "DOUBLE" ? 2 : layout === "TRIPLE" ? 3 : 1) }).map((_, i) => (
                 <div key={i} className="flex flex-col gap-4 rounded-[22px] border border-blue-500 bg-white p-4 shadow-sm">
-                  <div className={`relative w-full overflow-hidden rounded-[18px] bg-[#E2E8F0] ${
-                    layout === "SINGLE" ? "h-96 md:h-120" : "h-72"
-                  }`} />
+                  <div className={`relative w-full overflow-hidden rounded-[18px] bg-[#E2E8F0] ${layout === "SINGLE" ? "h-96 md:h-120" : "h-72"
+                    }`} />
                 </div>
               ))}
             </div>
@@ -330,8 +329,8 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
                   isImageListLayout
                     ? "relative h-40 overflow-hidden rounded-2xl sm:h-full w-full"
                     : layout === "SINGLE"
-                    ? "relative h-96 md:h-120 overflow-hidden w-full"
-                    : "relative h-72 overflow-hidden w-full"
+                      ? "relative h-96 md:h-120 overflow-hidden w-full"
+                      : "relative h-72 overflow-hidden w-full"
                 }>
                   <Image
                     src={item.imageUrl || imageMap[item.imageType]}
@@ -342,13 +341,20 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
                   />
 
                   <div className="absolute left-3 top-3 flex flex-wrap gap-2">
-                    <span className="rounded-lg bg-white/92 px-3 py-1 text-[11px] font-semibold text-red-500 shadow-sm backdrop-blur">
-                      {item.badges[0]}
-                    </span>
-                    <span className="rounded-lg bg-[#16A34A] px-3 py-1 text-[11px] font-semibold text-white shadow-sm">
-                      {item.badges[1]}
-                    </span>
+                    {item.badges && item.badges.map((badge, badgeIndex) => (
+                      <span key={badgeIndex} className="rounded-lg bg-white/92 px-3 py-1 text-[11px] font-semibold text-red-500 shadow-sm backdrop-blur">
+                        {badge}
+                      </span>
+                    ))}
                   </div>
+
+                  {item.promoPrice > 0 && (
+                    <div className="absolute right-3 top-3">
+                      <span className="rounded-lg bg-green-600 px-3 py-1 text-[11px] font-bold text-white shadow-sm">
+                        Promo: Rp{item.promoPrice.toLocaleString("en-US")}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <div className={isImageListLayout ? "flex flex-col justify-between gap-5 py-1 sm:pr-2" : "flex flex-col justify-between p-4"}>
@@ -367,8 +373,8 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
 
                   <div className="mt-6 flex items-end justify-between gap-4">
                     <div className="text-sm text-slate-600">
-                      <p className="text-slate-500">{t("promoPrice")}</p>
-                      <p className="font-semibold text-slate-900">Rp{item.promoPrice.toLocaleString("en-US")}</p>
+                      <p className="text-slate-500">{t("price")}</p>
+                      <p className="font-semibold text-slate-900">Rp{item.price.toLocaleString("en-US")}</p>
                     </div>
                     <div className="flex gap-2 items-center">
                       <Button
@@ -405,9 +411,8 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
                   <button
                     type="button"
                     onClick={onAddItem}
-                    className={`group relative w-full overflow-hidden rounded-[18px] bg-[#E2E8F0] hover:bg-[#D9E2EC] flex items-center justify-center transition-all duration-300 flex-1 min-h-72 ${
-                      layout === "SINGLE" ? "min-h-96 md:min-h-120" : ""
-                    }`}
+                    className={`group relative w-full overflow-hidden rounded-[18px] bg-[#E2E8F0] hover:bg-[#D9E2EC] flex items-center justify-center transition-all duration-300 flex-1 min-h-72 ${layout === "SINGLE" ? "min-h-96 md:min-h-120" : ""
+                      }`}
                   >
                     <Plus size={36} className="text-white opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300" />
                   </button>

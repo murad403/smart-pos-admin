@@ -31,6 +31,7 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
 
   // Basic Form States
   const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
   const [itemType, setItemType] = useState<"INDIVIDUAL" | "PACKET">("INDIVIDUAL");
   const [price, setPrice] = useState<number | "">("");
   const [productionStationId, setProductionStationId] = useState<string>("");
@@ -67,6 +68,7 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
   useEffect(() => {
     if (item && open) {
       setName(item.name || "");
+      setSlug(item.slug || "");
       setItemType(item.itemType || "INDIVIDUAL");
       setPrice(item.price ? Number(item.price) : "");
       setProductionStationId(item.productionStationId ? String(item.productionStationId) : "");
@@ -208,6 +210,7 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
       };
 
       // Set optional values or clear them
+      payload.slug = slug.trim() || null;
       payload.productionStationId = productionStationId ? Number(productionStationId) : undefined;
       payload.inventoryQty = inventoryQty !== "" ? Number(inventoryQty) : undefined;
       payload.labels = selectedLabels;
@@ -352,7 +355,7 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
               <h3 className="text-sm font-bold text-gray-400 tracking-wide uppercase">General Details</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Item Name */}
-                <div className="md:col-span-2">
+                <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5">Item Name *</label>
                   <input
                     type="text"
@@ -360,6 +363,18 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter item name (e.g. Grilled Salmon)"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 placeholder:text-gray-400"
+                  />
+                </div>
+
+                {/* Item ID */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">Item ID</label>
+                  <input
+                    type="text"
+                    value={slug}
+                    onChange={(e) => setSlug(e.target.value)}
+                    placeholder="Enter Item ID (optional)"
                     className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 placeholder:text-gray-400"
                   />
                 </div>

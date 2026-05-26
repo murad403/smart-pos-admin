@@ -173,7 +173,7 @@ const CustomerMenuCards = ({
       promoPrice: item.promoPrice ? Number(item.promoPrice) : 0,
       imageType: "menu1",
       imageUrl: item.imageUrl || null,
-      badges: [item.labels?.[0] || "", item.labels?.[1] || ""],
+      badges: item?.labels || [],
       packetSections: item.packetSections || [],
       maxPacketItems: item.maxPacketItems || null,
     };
@@ -232,12 +232,8 @@ const CustomerMenuCards = ({
             <div className={gridColsClass}>
               {Array.from({ length: ({ SINGLE: 1, DOUBLE: 2, TRIPLE: 3, QUADRUPLE: 4 }[layout] || 1) }).map((_, i) => (
                 <div key={i} className="flex flex-col gap-4 rounded-[22px] border border-blue-500 bg-white p-4 shadow-sm">
-                  <div className={`relative w-full overflow-hidden rounded-[18px] bg-[#E2E8F0] ${
-                    layout === "SINGLE" ? "h-96 md:h-[480px]" : "h-72"
-                  }`} />
-                  {/* <div className="text-center text-sm font-semibold text-slate-500 pb-1">
-                    1 Large Image
-                  </div> */}
+                  <div className={`relative w-full overflow-hidden rounded-[18px] bg-[#E2E8F0] ${layout === "SINGLE" ? "h-96 md:h-120" : "h-72"
+                    }`} />
                 </div>
               ))}
             </div>
@@ -313,8 +309,8 @@ const CustomerMenuCards = ({
                     isImageListLayout
                       ? "relative h-40 overflow-hidden rounded-2xl sm:h-full w-full"
                       : layout === "SINGLE"
-                      ? "relative h-96 md:h-[480px] overflow-hidden w-full"
-                      : "relative h-72 overflow-hidden w-full"
+                        ? "relative h-96 md:h-120 overflow-hidden w-full"
+                        : "relative h-72 overflow-hidden w-full"
                   }>
                     <Image
                       src={item.imageUrl || imageMap[item.imageType]}
@@ -325,13 +321,20 @@ const CustomerMenuCards = ({
                     />
 
                     <div className="absolute left-3 top-3 flex flex-wrap gap-2">
-                      <span className="rounded-lg bg-white/92 px-3 py-1 text-[11px] font-semibold text-red-500 shadow-sm backdrop-blur">
-                        {item.badges[0]}
-                      </span>
-                      <span className="rounded-lg bg-[#16A34A] px-3 py-1 text-[11px] font-semibold text-white shadow-sm">
-                        {item.badges[1]}
-                      </span>
+                      {item.badges && item.badges.map((badge, badgeIndex) => (
+                        <span key={badgeIndex} className="rounded-lg bg-white/92 px-3 py-1 text-[11px] font-semibold text-red-500 shadow-sm backdrop-blur">
+                          {badge}
+                        </span>
+                      ))}
                     </div>
+
+                    {item.promoPrice > 0 && (
+                      <div className="absolute right-3 top-3">
+                        <span className="rounded-lg bg-green-600 px-3 py-1 text-[11px] font-bold text-white shadow-sm">
+                          Promo: Rp{item.promoPrice.toLocaleString("en-US")}
+                        </span>
+                      </div>
+                    )}
 
 
                   </div>
@@ -352,12 +355,12 @@ const CustomerMenuCards = ({
 
                     <div className="mt-6 flex items-end justify-between gap-4">
                       <div className="text-sm text-slate-600">
-                        <p className="text-slate-550 text-xs">{item.promoPrice ? t("promoPrice") : t("price")}</p>
-                        <p className="font-bold text-slate-900 text-lg">Rp{(item.promoPrice || item.price).toLocaleString("en-US")}</p>
+                        <p className="text-slate-550 text-xs">{t("price")}</p>
+                        <p className="font-bold text-slate-900 text-lg">Rp{item.price.toLocaleString("en-US")}</p>
                       </div>
 
                       {isSelected && (
-                        <div 
+                        <div
                           className="flex items-center gap-2.5 bg-white border border-slate-150 rounded-xl p-1 shadow-sm shrink-0"
                           onClick={(e) => e.stopPropagation()}
                         >
