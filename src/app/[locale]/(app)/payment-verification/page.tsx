@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { File, Search } from "lucide-react";
 import PaymentVerificationCard, { PaymentVerificationItem } from "./PaymentVerificationCard";
 import PaymentVerificationModal from "@/components/modal/PaymentVerificationModal";
 import PaymentVerifyModal from "@/components/modal/PaymentVerifyModal";
@@ -87,6 +87,10 @@ const PaymentVerificationPage = ({ params }: { params?: Promise<{ locale: string
               className="h-10 w-full sm:w-64 rounded-lg border border-slate-200 bg-white pl-10 pr-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
             />
           </div>
+          <a className="flex items-center gap-1 bg-green-400 hover:bg-green-300 duration-300 transition-discrete text-white rounded-lg px-4 py-2" href={`${process.env.NEXT_PUBLIC_BASE_URL}/payments/export/today`}>
+            <File size={16} />
+            <span>Download</span>
+          </a>
         </div>
       </div>
 

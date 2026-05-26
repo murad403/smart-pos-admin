@@ -119,7 +119,7 @@ const UserManagementPage = ({ params }: { params?: Promise<{ locale: string }> }
                             <h2 className="text-[12px] font-bold uppercase tracking-wider text-blue-600">{t("userManagementTitle") || "USER & ACCESS MANAGEMENT"}</h2>
                         </div>
                         <div className="flex flex-wrap items-center gap-1.5">
-                            {(["", "OWNER", "ADMIN", "SERVICE", "USER"] as const).map((role) => (
+                            {(["", "OWNER", "ADMIN", "SERVICE"] as const).map((role) => (
                                 <button
                                     key={role}
                                     type="button"

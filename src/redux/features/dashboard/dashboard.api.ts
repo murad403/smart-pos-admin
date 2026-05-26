@@ -49,8 +49,8 @@ const dashboardApi = baseApi.injectEndpoints({
                 const queryParams: Record<string, string> = {};
                 if (params?.page) queryParams.page = String(params.page);
                 if (params?.limit) queryParams.limit = String(params.limit);
-                // if (params?.status) queryParams.status = params.status;
-                // if (params?.method) queryParams.method = params.method;
+                if (params?.status) queryParams.status = params.status;
+                if (params?.method) queryParams.method = params.method;
                 if (params?.search) queryParams.search = params.search;
 
                 return {
@@ -59,6 +59,7 @@ const dashboardApi = baseApi.injectEndpoints({
                     params: queryParams,
                 };
             },
+            providesTags: ["payments"]
         }),
         getPaymentDetails: builder.query<GetPaymentDetailsResponse, number>({
             query: (id) => {
@@ -67,6 +68,7 @@ const dashboardApi = baseApi.injectEndpoints({
                     method: "GET",
                 };
             },
+            providesTags: ["payments"]
         }),
         paymentVerify: builder.mutation({
             query: ({ cashierId, data }) => {
@@ -76,6 +78,7 @@ const dashboardApi = baseApi.injectEndpoints({
                     body: data
                 };
             },
+            invalidatesTags: ["payments"]
         }),
 
         // inventoryReport*******************************************************************
@@ -257,6 +260,9 @@ const dashboardApi = baseApi.injectEndpoints({
             },
             invalidatesTags: ["business-information"]
         }),
+
+
+        
     }),
 });
 
