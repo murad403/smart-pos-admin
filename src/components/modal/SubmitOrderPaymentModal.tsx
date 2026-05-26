@@ -28,7 +28,7 @@ const formatCurrency = (value: string | number) => {
 
   if (Number.isNaN(numericValue)) return "Rp 0";
 
-  return `Rp ${numericValue.toLocaleString("en-US")}`;
+  return `${numericValue.toLocaleString("en-US")}`;
 };
 
 const SubmitOrderPaymentModal = ({ order, onClose }: SubmitOrderPaymentModalProps) => {
@@ -42,11 +42,20 @@ const SubmitOrderPaymentModal = ({ order, onClose }: SubmitOrderPaymentModalProp
 
   const [method, setMethod] = useState<PaymentMethod>("CASH");
   const [cashReceived, setCashReceived] = useState<number | null>(null);
+  const [changeAmount, setChangeAmount] = useState<number | null>(null);
   const [selectedProofImages, setSelectedProofImages] = useState<SelectedProofImage[]>([]);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
 
   const [submitOrderPayment, { isLoading }] = useSubmitOrderPaymentMutation();
+
+  useEffect(() => {
+    if (cashReceived !== null) {
+      setChangeAmount(cashReceived - Number(order?.totalAmount || 0));
+    } else {
+      setChangeAmount(null);
+    }
+  }, [cashReceived, order?.totalAmount]);
 
   useEffect(() => {
     selectedProofImagesRef.current = selectedProofImages;
@@ -224,6 +233,7 @@ const SubmitOrderPaymentModal = ({ order, onClose }: SubmitOrderPaymentModalProp
         method,
         cashierId,
         cashReceived: cashReceived,
+        changeAmount: changeAmount !== null ? changeAmount : 0,
         proofImages: selectedProofImages.map((image) => image.file),
       }).unwrap();
 
@@ -311,6 +321,24 @@ const SubmitOrderPaymentModal = ({ order, onClose }: SubmitOrderPaymentModalProp
               placeholder="e.g. 50000"
             />
           </label>
+
+          {cashReceived !== null && (
+            <label className="space-y-2">
+              <span className="text-sm font-semibold text-slate-700">
+                {tPending("changeAmount") || "Change Amount"}
+              </span>
+              <input
+                type="number"
+                value={changeAmount ?? ""}
+                onChange={(event) => {
+                  const v = event.target.value;
+                  setChangeAmount(v === "" ? null : Number(v));
+                }}
+                className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none transition focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
+                placeholder="e.g. 0"
+              />
+            </label>
+          )}
 
           <div className="space-y-2">
             <span className="text-sm font-semibold text-slate-700">{tPending("proofImages") || "Proof Images"}</span>

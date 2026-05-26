@@ -9,7 +9,10 @@ const productionApi = baseApi.injectEndpoints({
                 return {
                     url: "/orders/production",
                     method: "GET",
-                    params: params || undefined
+                    params: {
+                        date: new Date().toISOString().split("T")[0],
+                        ...params,
+                    }
                 };
             },
             providesTags: ["productions"]

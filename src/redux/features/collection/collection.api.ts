@@ -8,7 +8,10 @@ const collectionApi = baseApi.injectEndpoints({
                 return {
                     url: "/orders",
                     method: "GET",
-                    params: params || undefined,
+                    params: {
+                        date: new Date().toISOString().split("T")[0],
+                        ...params,
+                    },
                 };
             },
             providesTags: ["collection"]

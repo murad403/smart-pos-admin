@@ -113,6 +113,7 @@ export interface SubmitOrderPaymentRequest {
     cashierId: number;
     cashReceived: number;
     proofImages?: File[];
+    changeAmount?: number;
 }
 
 export interface SubmitOrderPaymentResponse {

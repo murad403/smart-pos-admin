@@ -71,12 +71,13 @@ const orderApi = baseApi.injectEndpoints({
             invalidatesTags: ["orders"]
         }),
         submitOrderPayment: builder.mutation<SubmitOrderPaymentResponse, SubmitOrderPaymentRequest>({
-            query: ({ orderId, method, cashierId, cashReceived, proofImages }) => {
+            query: ({ orderId, method, cashierId, cashReceived, proofImages, changeAmount }) => {
                 const formData = new FormData();
 
                 formData.append("method", method);
                 formData.append("cashierId", String(cashierId));
                 formData.append("cashReceived", String(cashReceived));
+                formData.append("changeAmount", String(changeAmount));
 
                 proofImages?.forEach((proofImage) => {
                     formData.append("proofImages", proofImage);

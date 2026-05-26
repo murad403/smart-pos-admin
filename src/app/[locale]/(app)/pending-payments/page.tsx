@@ -151,7 +151,7 @@ const PendingPaymentsPage = ({ params }: { params?: Promise<{ locale: string }> 
                       <td className="px-6 py-4 text-xs font-medium text-slate-500">
                         {new Date(order.createdAt).toLocaleString()}
                       </td>
-                      <td className="px-6 py-4 text-center">
+                      <td className="px-6 py-4 text-center flex justify-center items-center">
                         <button
                           onClick={() => setSelectedOrderId(order.id)}
                           className="rounded-full p-2 text-slate-400 cursor-pointer hover:bg-blue-50 hover:text-blue-600 transition"
@@ -170,10 +170,11 @@ const PendingPaymentsPage = ({ params }: { params?: Promise<{ locale: string }> 
                         <button
                           type="button"
                           onClick={() => setSelectedPaymentOrder(order)}
-                          className="rounded-full p-2 text-slate-400 cursor-pointer hover:bg-blue-50 hover:text-blue-600 transition"
+                          className="rounded-full px-2 py-1 text-slate-400 cursor-pointer flex gap-1 items-center hover:bg-blue-50 hover:text-blue-600 transition border border-slate-200"
                           title={tPending("submitPayment") || "Submit Payment"}
                         >
                           <BadgeDollarSign size={16} />
+                          <span className="text-sm">{tOrder("pay")}</span>
                         </button>
                       </td>
                     </tr>
