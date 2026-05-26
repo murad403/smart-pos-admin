@@ -171,8 +171,16 @@ export interface PaymentDetailsOrder {
     slug: string;
     customerName: string;
     type: "DINE_IN" | "TAKE_AWAY" | string;
+    subtotal: string;
     totalAmount: string;
     orderItems: PaymentDetailsOrderItem[];
+    pricingAdjustments?: {
+        id: number;
+        type: "PERCENTAGE" | "FIXED_AMOUNT";
+        level: string;
+        percentage: number | null;
+        fixedAmount: number;
+    }[];
 }
 
 export interface PaymentDetails {

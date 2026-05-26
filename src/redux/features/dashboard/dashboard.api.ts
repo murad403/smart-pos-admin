@@ -49,8 +49,8 @@ const dashboardApi = baseApi.injectEndpoints({
                 const queryParams: Record<string, string> = {};
                 if (params?.page) queryParams.page = String(params.page);
                 if (params?.limit) queryParams.limit = String(params.limit);
-                if (params?.status) queryParams.status = params.status;
-                if (params?.method) queryParams.method = params.method;
+                // if (params?.status) queryParams.status = params.status;
+                // if (params?.method) queryParams.method = params.method;
                 if (params?.search) queryParams.search = params.search;
 
                 return {

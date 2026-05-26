@@ -7,17 +7,14 @@ import PaymentVerificationCard, { PaymentVerificationItem } from "./PaymentVerif
 import PaymentVerificationModal from "@/components/modal/PaymentVerificationModal";
 import PaymentVerifyModal from "@/components/modal/PaymentVerifyModal";
 import CustomPagination from "@/components/shared/CustomPagination";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useGetPaymentsQuery } from "@/redux/features/dashboard/dashboard.api";
 
 const PaymentVerificationPage = ({ params }: { params?: Promise<{ locale: string }> }) => {
   if (params) React.use(params);
   const t = useTranslations("Payment");
-  const locale = useLocale();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"PENDING" | "PAID" | "CANCELLED" | "">("");
-  const [methodFilter, setMethodFilter] = useState<"CASH" | "TRANSFER" | "OTHER" | "">("");
   const [selectedItem, setSelectedItem] = useState<PaymentVerificationItem | null>(null);
   const [verifyingItem, setVerifyingItem] = useState<PaymentVerificationItem | null>(null);
 
@@ -25,8 +22,6 @@ const PaymentVerificationPage = ({ params }: { params?: Promise<{ locale: string
   const { data: paymentsRes, isLoading, refetch } = useGetPaymentsQuery({
     page: currentPage,
     limit: 6,
-    status: statusFilter || undefined,
-    method: methodFilter || undefined,
     search: searchQuery.trim() || undefined,
   });
 
@@ -77,38 +72,6 @@ const PaymentVerificationPage = ({ params }: { params?: Promise<{ locale: string
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {/* Status Dropdown */}
-          <select
-            value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value as any);
-              setCurrentPage(1);
-              setSelectedItem(null);
-            }}
-            className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-600 shadow-sm outline-none transition hover:border-blue-400 focus:border-blue-400"
-          >
-            <option value="">{locale === "id" ? "Semua Status" : "All Status"}</option>
-            <option value="PENDING">PENDING</option>
-            <option value="PAID">PAID</option>
-            <option value="CANCELLED">CANCELLED</option>
-          </select>
-
-          {/* Method Dropdown */}
-          <select
-            value={methodFilter}
-            onChange={(e) => {
-              setMethodFilter(e.target.value as any);
-              setCurrentPage(1);
-              setSelectedItem(null);
-            }}
-            className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-600 shadow-sm outline-none transition hover:border-blue-400 focus:border-blue-400"
-          >
-            <option value="">{locale === "id" ? "Semua Metode" : "All Methods"}</option>
-            <option value="CASH">CASH</option>
-            <option value="TRANSFER">TRANSFER</option>
-            <option value="OTHER">OTHER</option>
-          </select>
-
           {/* Search Input */}
           <div className="relative">
             <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />

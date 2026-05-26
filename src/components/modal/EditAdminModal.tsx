@@ -119,7 +119,7 @@ const EditAdminModal: React.FC<Props> = ({ open, onClose, userId }) => {
       if (data.role === "SERVICE" && data.productionStationId) {
         payload.productionStationId = parseInt(data.productionStationId, 10);
       } else {
-        payload.productionStationId = null;
+        payload.productionStationId = undefined;
       }
 
       if (!previewUrl) {

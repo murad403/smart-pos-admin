@@ -63,9 +63,7 @@ const PaymentVerificationModal = ({ item, onClose }: PaymentVerificationModalPro
     : (details?.totalAmount ?? item.amountReceived);
   const difference = amountReceived - amount;
   
-  const changeGiven = details?.changeAmount !== null && details?.changeAmount !== undefined
-    ? details.changeAmount
-    : Math.max(0, difference);
+
 
   const paymentMethod = details?.method ?? item.paymentMethod;
   const customerName = details?.order?.customerName ?? item.personName;
@@ -173,8 +171,24 @@ const PaymentVerificationModal = ({ item, onClose }: PaymentVerificationModalPro
                 <span>Subtotal</span>
                 <span>Rp {(details.subtotal ?? 0).toLocaleString("en-US")}</span>
               </div>
-              <div className="flex justify-between">
-                <span>Charges / Tax</span>
+              {details?.order?.pricingAdjustments?.map((adj: any) => {
+                const amount = adj.type === "PERCENTAGE"
+                  ? (Number(details.order.subtotal) * Number(adj.percentage || 0)) / 100
+                  : Number(adj.fixedAmount);
+                const isNegative = amount < 0;
+                const formattedValue = `Rp ${Math.abs(amount).toLocaleString("en-US")}`;
+                return (
+                  <div key={adj.id} className="flex justify-between">
+                    <span>
+                      {adj.level}
+                      {adj.type === "PERCENTAGE" && ` (${adj.percentage}%)`}
+                    </span>
+                    <span>{isNegative ? `-${formattedValue}` : `+${formattedValue}`}</span>
+                  </div>
+                );
+              })}
+              <div className="flex justify-between font-medium text-slate-650">
+                <span>Charges / Tax Total</span>
                 <span>Rp {(details.chargesTotal ?? 0).toLocaleString("en-US")}</span>
               </div>
             </div>
@@ -182,7 +196,7 @@ const PaymentVerificationModal = ({ item, onClose }: PaymentVerificationModalPro
         )}
 
         {/* Financial Highlights */}
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-2">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           <div className="rounded-lg bg-slate-50 p-3">
             <p className="text-xs text-slate-500">{t("amount")}</p>
             <p className="text-[20px] sm:text-[24px] font-semibold leading-tight text-slate-900">{formatCurrency(amount)}</p>
@@ -190,12 +204,6 @@ const PaymentVerificationModal = ({ item, onClose }: PaymentVerificationModalPro
           <div className="rounded-lg bg-slate-50 p-3">
             <p className="text-xs text-slate-500">{t("amountReceived")}</p>
             <p className="text-[20px] sm:text-[24px] font-semibold leading-tight text-slate-900">{formatCurrency(amountReceived)}</p>
-          </div>
-          <div className="rounded-lg bg-slate-50 p-3">
-            <p className="text-xs text-slate-500">{t("changeGiven")}</p>
-            <p className="text-[20px] sm:text-[24px] font-semibold leading-tight text-slate-900">
-              {formatCurrency(changeGiven)}
-            </p>
           </div>
           <div className="rounded-lg bg-slate-50 p-3">
             <p className="text-xs text-slate-500">{t("paymentMethod")}</p>
