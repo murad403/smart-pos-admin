@@ -83,6 +83,15 @@ export interface Order {
     assignedTo: any;
     orderItems: OrderItem[];
     payment: Payment[];
+    pricingAdjustments?: PricingAdjustment[];
+}
+
+export interface PricingAdjustment {
+    id: number;
+    type: "PERCENTAGE" | "FIXED_AMOUNT";
+    level: string;
+    percentage: number | null;
+    fixedAmount: number;
 }
 
 export interface Pagination {

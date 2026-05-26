@@ -789,12 +789,12 @@ const OrderReceiptModal: React.FC<OrderReceiptModalProps> = ({
                   {owner?.feedbackMsg || "Let's give feedback on our service!"}
                 </div>
               </div>
-              <button
+              {/* <button
                 type="button"
                 className="w-full py-3 text-center text-xs font-bold text-slate-900 border-t border-slate-100 hover:bg-slate-50 transition-colors bg-white cursor-pointer"
               >
                 Give Feedback
-              </button>
+              </button> */}
             </div>
           </div>
         </div>

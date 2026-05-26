@@ -48,28 +48,29 @@ const generateInvoiceInnerHtml = (order: Order, owner: any) => {
 
   const subtotal = Number(order.subtotal);
   const total = Number(order.totalAmount);
-  const difference = total - subtotal;
-
-  let platformFee = 0;
-  let otherFees = 0;
-
-  if (difference > 0) {
-    if (difference >= 1800) {
-      platformFee = 1800;
-      otherFees = difference - 1800;
-    } else {
-      otherFees = difference;
-    }
-  }
 
   const formattedSubtotal = formatInvoiceCurrency(subtotal);
-  const formattedPlatformFee = formatInvoiceCurrency(platformFee);
-  const formattedOtherFees = formatInvoiceCurrency(otherFees);
   const formattedTotal = formatInvoiceCurrency(total);
 
   const menuCount = order.orderItems?.length || 0;
   const menuSuffix = menuCount === 1 ? "1 menu" : `${menuCount} menu`;
   const paymentMethod = order.payment?.[0]?.method || "CASH";
+
+  const adjustmentsHtml = order.pricingAdjustments?.map(adj => {
+    const amount = adj.type === "PERCENTAGE"
+      ? (subtotal * Number(adj.percentage || 0)) / 100
+      : Number(adj.fixedAmount);
+    const isNegative = amount < 0;
+    const formattedVal = formatInvoiceCurrency(Math.abs(amount));
+    const sign = isNegative ? "-" : "+";
+    const label = `${adj.level}${adj.type === "PERCENTAGE" ? ` (${adj.percentage}%)` : ""}`;
+    return `
+      <div class="totals-row">
+        <span>${label}</span>
+        <span>${sign}${formattedVal}</span>
+      </div>
+    `;
+  }).join("") || "";
 
   const itemsHtml = order.orderItems?.map(item => {
     const priceVal = Number(item.promoPrice || item.unitPrice) * item.quantity;
@@ -182,14 +183,7 @@ const generateInvoiceInnerHtml = (order: Order, owner: any) => {
         <span>Subtotal (${menuSuffix})</span>
         <span>${formattedSubtotal}</span>
       </div>
-      <div class="totals-row">
-        <span>Platform Fee</span>
-        <span>${formattedPlatformFee}</span>
-      </div>
-      <div class="totals-row">
-        <span>Other fees</span>
-        <span>${formattedOtherFees}</span>
-      </div>
+      ${adjustmentsHtml}
       <div class="totals-row">
         <span>Payment Method</span>
         <span style="font-weight: 700; color: #000000;">${paymentMethod.toUpperCase()}</span>
@@ -206,7 +200,6 @@ const generateInvoiceInnerHtml = (order: Order, owner: any) => {
         <div class="feedback-emoji-container">👍</div>
         <div class="feedback-text">${feedbackMsg}</div>
       </div>
-      <div class="feedback-button">Give Feedback</div>
     </div>
   `;
 };
@@ -468,7 +461,8 @@ const OrderDetailsModal = ({ orderId, onClose }: OrderDetailsModalProps) => {
       const hasTable = !!order.table;
       const baseHeight = hasTable ? 405 : 365;
       const listHeight = (itemCount * 28) + (choiceCount * 16);
-      const footerHeight = 225;
+      const adjustmentCount = order.pricingAdjustments?.length || 0;
+      const footerHeight = 260 + (adjustmentCount - 2) * 18;
       const height = baseHeight + listHeight + footerHeight;
 
       const canvas = document.createElement("canvas");
@@ -684,23 +678,8 @@ const OrderDetailsModal = ({ orderId, onClose }: OrderDetailsModalProps) => {
       // 7. Calculation summary
       const subtotal = Number(order.subtotal);
       const total = Number(order.totalAmount);
-      const difference = total - subtotal;
-
-      let platformFee = 0;
-      let otherFees = 0;
-
-      if (difference > 0) {
-        if (difference >= 1800) {
-          platformFee = 1800;
-          otherFees = difference - 1800;
-        } else {
-          otherFees = difference;
-        }
-      }
 
       const formattedSubtotal = formatInvoiceCurrency(subtotal);
-      const formattedPlatformFee = formatInvoiceCurrency(platformFee);
-      const formattedOtherFees = formatInvoiceCurrency(otherFees);
       const formattedTotal = formatInvoiceCurrency(total);
 
       const menuSuffix = itemCount === 1 ? "1 menu" : `${itemCount} menu`;
@@ -714,21 +693,23 @@ const OrderDetailsModal = ({ orderId, onClose }: OrderDetailsModalProps) => {
       ctx.fillText(formattedSubtotal, 356, nextY);
       ctx.textAlign = "left";
 
-      nextY += 18;
-      ctx.fillStyle = "#475569";
-      ctx.font = "500 12.5px 'Inter', -apple-system, sans-serif";
-      ctx.fillText("Platform Fee", 24, nextY);
-      ctx.textAlign = "right";
-      ctx.fillText(formattedPlatformFee, 356, nextY);
-      ctx.textAlign = "left";
+      order.pricingAdjustments?.forEach(adj => {
+        nextY += 18;
+        const amount = adj.type === "PERCENTAGE"
+          ? (subtotal * Number(adj.percentage || 0)) / 100
+          : Number(adj.fixedAmount);
+        const isNegative = amount < 0;
+        const formattedVal = formatInvoiceCurrency(Math.abs(amount));
+        const sign = isNegative ? "-" : "+";
+        const label = `${adj.level}${adj.type === "PERCENTAGE" ? ` (${adj.percentage}%)` : ""}`;
 
-      nextY += 18;
-      ctx.fillStyle = "#475569";
-      ctx.font = "500 12.5px 'Inter', -apple-system, sans-serif";
-      ctx.fillText("Other fees", 24, nextY);
-      ctx.textAlign = "right";
-      ctx.fillText(formattedOtherFees, 356, nextY);
-      ctx.textAlign = "left";
+        ctx.fillStyle = "#475569";
+        ctx.font = "500 12.5px 'Inter', -apple-system, sans-serif";
+        ctx.fillText(label, 24, nextY);
+        ctx.textAlign = "right";
+        ctx.fillText(`${sign}${formattedVal}`, 356, nextY);
+        ctx.textAlign = "left";
+      });
 
       nextY += 18;
       ctx.fillStyle = "#475569";
@@ -761,15 +742,10 @@ const OrderDetailsModal = ({ orderId, onClose }: OrderDetailsModalProps) => {
       ctx.lineWidth = 1;
       ctx.beginPath();
       if (typeof (ctx as any).roundRect === "function") {
-        (ctx as any).roundRect(24, nextY, 332, 80, 12);
+        (ctx as any).roundRect(24, nextY, 332, 48, 12);
       } else {
-        ctx.rect(24, nextY, 332, 80);
+        ctx.rect(24, nextY, 332, 48);
       }
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(24, nextY + 46);
-      ctx.lineTo(356, nextY + 46);
       ctx.stroke();
 
       ctx.fillStyle = "#fff6f0";
@@ -806,11 +782,6 @@ const OrderDetailsModal = ({ orderId, onClose }: OrderDetailsModalProps) => {
         ctx.fillText(feedbackLines[0], 78, nextY + 20);
         ctx.fillText(feedbackLines[1], 78, nextY + 33);
       }
-
-      ctx.textAlign = "center";
-      ctx.fillStyle = "#000000";
-      ctx.font = "bold 12px 'Inter', -apple-system, sans-serif";
-      ctx.fillText("Give Feedback", 190, nextY + 65);
 
       try {
         const pngUrl = canvas.toDataURL("image/png");
@@ -1029,6 +1000,22 @@ const OrderDetailsModal = ({ orderId, onClose }: OrderDetailsModalProps) => {
               <span>{t("subtotal")}</span>
               <span>{formatCurrency(order.subtotal)}</span>
             </div>
+            {order.pricingAdjustments?.map((adj) => {
+              const amount = adj.type === "PERCENTAGE"
+                ? (Number(order.subtotal) * Number(adj.percentage || 0)) / 100
+                : Number(adj.fixedAmount);
+              const isNegative = amount < 0;
+              const formattedValue = formatCurrency(Math.abs(amount));
+              return (
+                <div key={adj.id} className="flex justify-between text-slate-500">
+                  <span>
+                    {adj.level}
+                    {adj.type === "PERCENTAGE" && ` (${adj.percentage}%)`}
+                  </span>
+                  <span>{isNegative ? `-${formattedValue}` : `+${formattedValue}`}</span>
+                </div>
+              );
+            })}
             <div className="flex justify-between text-[16px] font-bold text-slate-900">
               <span>{t("total")}</span>
               <span>{formatCurrency(order.totalAmount)}</span>
