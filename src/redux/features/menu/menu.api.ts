@@ -179,7 +179,7 @@ const menuApi = baseApi.injectEndpoints({
                     body: data,
                 };
             },
-            invalidatesTags: ["item"]
+            invalidatesTags: ["item", "section"]
         }),
         deleteItem: builder.mutation<any, number>({
             query: (itemId) => {
@@ -188,7 +188,7 @@ const menuApi = baseApi.injectEndpoints({
                     method: "DELETE",
                 };
             },
-            invalidatesTags: ["item"]
+            invalidatesTags: ["item", "section"]
         }),
         addPacketSection: builder.mutation<any, { itemId: number; data: any }>({
             query: ({ data, itemId }) => {
@@ -198,7 +198,7 @@ const menuApi = baseApi.injectEndpoints({
                     body: data,
                 };
             },
-            invalidatesTags: ["item"]
+            invalidatesTags: ["item", "section"]
         }),
         updatePacketSection: builder.mutation({
             query: ({ data, sId }) => {
@@ -208,7 +208,7 @@ const menuApi = baseApi.injectEndpoints({
                     body: data,
                 };
             },
-            invalidatesTags: ["item"]
+            invalidatesTags: ["item", "section"]
         }),
         deletePacketSection: builder.mutation({
             query: ({ sId }) => {
@@ -217,7 +217,7 @@ const menuApi = baseApi.injectEndpoints({
                     method: "DELETE",
                 };
             },
-            invalidatesTags: ["item"]
+            invalidatesTags: ["item", "section"]
         }),
         addPacketSectionChoice: builder.mutation<any, { sid: number; data: any }>({
             query: ({ data, sid }) => {
@@ -227,7 +227,7 @@ const menuApi = baseApi.injectEndpoints({
                     body: data,
                 };
             },
-            invalidatesTags: ["item"]
+            invalidatesTags: ["item", "section"]
         }),
         updatePacketSectionChoice: builder.mutation({
             query: ({ data, cid }) => {
@@ -237,7 +237,7 @@ const menuApi = baseApi.injectEndpoints({
                     body: data,
                 };
             },
-            invalidatesTags: ["item"]
+            invalidatesTags: ["item", "section"]
         }),
         deletePacketSectionChoice: builder.mutation({
             query: ({ cid }) => {
@@ -246,7 +246,7 @@ const menuApi = baseApi.injectEndpoints({
                     method: "DELETE",
                 };
             },
-            invalidatesTags: ["item"]
+            invalidatesTags: ["item", "section"]
         }),
         addItemToSection: builder.mutation({
             query: ({ data, sectionId }) => {

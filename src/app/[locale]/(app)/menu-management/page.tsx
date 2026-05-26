@@ -8,6 +8,7 @@ import { Plus, SquarePen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import AddItemModal from "@/components/modal/AddItemModal";
+import EditItemModal from "@/components/modal/EditItemModal";
 import AddSectionModal, { SectionDraft } from "@/components/modal/AddSectionModal";
 import EditSectionModal from "@/components/modal/EditSectionModal";
 import AddCategoryModal from "@/components/modal/AddCategoryModal";
@@ -34,6 +35,8 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
   const [deletingSection, setDeletingSection] = React.useState<{ id: number; name: string } | null>(null);
   const [activeSectionId, setActiveSectionId] = React.useState<number | null>(null);
   const [editingSectionId, setEditingSectionId] = React.useState<number | null>(null);
+  const [isEditItemOpen, setIsEditItemOpen] = React.useState(false);
+  const [selectedItem, setSelectedItem] = React.useState<any>(null);
 
   // Find currently selected menu
   const currentMenu = React.useMemo(
@@ -240,6 +243,10 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
                 setDeletingSection({ id: section.id, name: section.name });
                 setIsDeleteSectionOpen(true);
               }}
+              onEditItem={(item) => {
+                setSelectedItem(item);
+                setIsEditItemOpen(true);
+              }}
             />
           ))}
         </div>
@@ -283,6 +290,15 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
         onConfirm={handleConfirmDeleteSection}
         sectionName={deletingSection?.name || ""}
         isLoading={isDeleting}
+      />
+
+      <EditItemModal
+        open={isEditItemOpen}
+        onClose={() => {
+          setIsEditItemOpen(false);
+          setSelectedItem(null);
+        }}
+        item={selectedItem}
       />
     </div>
   );

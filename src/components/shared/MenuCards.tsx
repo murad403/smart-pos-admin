@@ -25,6 +25,7 @@ export type MenuItemCardData = {
   imageUrl?: string | null;
   badges: [string, string];
   packetSections?: any[];
+  originalItem?: any;
 };
 
 type Props = {
@@ -35,6 +36,7 @@ type Props = {
   onAddItem: () => void;
   onEditSection: () => void;
   onDeleteSection: () => void;
+  onEditItem?: (item: any) => void;
 };
 
 const imageMap = {
@@ -129,7 +131,7 @@ const PacketSlider = ({ packetSections }: { packetSections: any[] }) => {
   );
 };
 
-const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, onEditSection, onDeleteSection }: Props) => {
+const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, onEditSection, onDeleteSection, onEditItem }: Props) => {
   const t = useTranslations("Menu");
 
   const { data: sectionDetailsRes, isLoading } = useGetAllSectionDetailsByMenuIdQuery(sectionId);
@@ -164,6 +166,7 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
       imageUrl: item.imageUrl || null,
       badges: [item.labels?.[0] || "", item.labels?.[1] || ""],
       packetSections: item.packetSections || [],
+      originalItem: item,
     };
   });
   
@@ -242,7 +245,7 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
               {Array.from({ length: (layout === "SINGLE" ? 1 : layout === "DOUBLE" ? 2 : layout === "TRIPLE" ? 3 : 1) }).map((_, i) => (
                 <div key={i} className="flex flex-col gap-4 rounded-[22px] border border-blue-500 bg-white p-4 shadow-sm">
                   <div className={`relative w-full overflow-hidden rounded-[18px] bg-[#E2E8F0] ${
-                    layout === "SINGLE" ? "h-96 md:h-[480px]" : "h-72"
+                    layout === "SINGLE" ? "h-96 md:h-120" : "h-72"
                   }`} />
                 </div>
               ))}
@@ -280,14 +283,24 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
                       {item.promoPrice ? `Rp${item.promoPrice.toLocaleString("en-US")}` : "-"}
                     </td>
                     <td className="py-4 pr-2 text-right">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => handleRemoveItem(item.id)}
-                        className="h-8 w-8 p-0 rounded-lg border-red-100 bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 transition-colors"
-                      >
-                        <Trash2 className="size-3.5" />
-                      </Button>
+                      <div className="inline-flex gap-2 justify-end items-center">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => onEditItem?.(item.originalItem)}
+                          className="h-8 w-8 p-0 rounded-lg border-blue-100 bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 transition-colors"
+                        >
+                          <SquarePen className="size-3.5" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => handleRemoveItem(item.id)}
+                          className="h-8 w-8 p-0 rounded-lg border-red-100 bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 transition-colors"
+                        >
+                          <Trash2 className="size-3.5" />
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -317,7 +330,7 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
                   isImageListLayout
                     ? "relative h-40 overflow-hidden rounded-2xl sm:h-full w-full"
                     : layout === "SINGLE"
-                    ? "relative h-96 md:h-[480px] overflow-hidden w-full"
+                    ? "relative h-96 md:h-120 overflow-hidden w-full"
                     : "relative h-72 overflow-hidden w-full"
                 }>
                   <Image
@@ -357,14 +370,24 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
                       <p className="text-slate-500">{t("promoPrice")}</p>
                       <p className="font-semibold text-slate-900">Rp{item.promoPrice.toLocaleString("en-US")}</p>
                     </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => handleRemoveItem(item.id)}
-                      className="h-9 w-9 p-0 rounded-xl border-red-100 bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 transition-colors"
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
+                    <div className="flex gap-2 items-center">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => onEditItem?.(item.originalItem)}
+                        className="h-9 w-9 p-0 rounded-xl border-blue-100 bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 transition-colors"
+                      >
+                        <SquarePen className="size-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => handleRemoveItem(item.id)}
+                        className="h-9 w-9 p-0 rounded-xl border-red-100 bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 transition-colors"
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </article>
@@ -382,8 +405,8 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
                   <button
                     type="button"
                     onClick={onAddItem}
-                    className={`group relative w-full overflow-hidden rounded-[18px] bg-[#E2E8F0] hover:bg-[#D9E2EC] flex items-center justify-center transition-all duration-300 flex-1 min-h-[18rem] ${
-                      layout === "SINGLE" ? "min-h-[24rem] md:min-h-[30rem]" : ""
+                    className={`group relative w-full overflow-hidden rounded-[18px] bg-[#E2E8F0] hover:bg-[#D9E2EC] flex items-center justify-center transition-all duration-300 flex-1 min-h-72 ${
+                      layout === "SINGLE" ? "min-h-96 md:min-h-120" : ""
                     }`}
                   >
                     <Plus size={36} className="text-white opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300" />
