@@ -71,7 +71,7 @@ const DetailedReport: React.FC<Props> = ({ reportData = [], isLoading }) => {
               {stationNames.map((sName) => (
                 <th
                   key={sName}
-                  className="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider"
+                  className="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap"
                 >
                   {sName}
                 </th>

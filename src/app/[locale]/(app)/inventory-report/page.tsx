@@ -21,7 +21,7 @@ const InventoryReportPage = ({ params }: { params?: Promise<{ locale: string }> 
   const allItems = allInventoryRes?.data;
 
   // Fetch paginated inventory data for the main overview table
-  const { data: inventoryReportRes, isLoading, refetch } = useGetInventoryReportQuery({ page: currentPage, limit: 10 });
+  const { data: inventoryReportRes, isLoading, refetch } = useGetInventoryReportQuery({ page: currentPage, limit: 15 });
   const inventoryItems = inventoryReportRes?.data;
   const pagination = inventoryReportRes?.pagination;
   const totalPages = pagination?.pages || 1;
