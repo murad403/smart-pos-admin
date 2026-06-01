@@ -4,6 +4,32 @@ import React, { useState } from "react";
 import Image from "next/image";
 import item1 from "@/assets/images/menu1.jpg";
 import item2 from "@/assets/images/menu2.png";
+import bestSellerIcon from "@/assets/label/best_seller.svg";
+import chefRecommendationIcon from "@/assets/label/chef_recomanded.svg";
+import fastServeIcon from "@/assets/label/fast_serve.svg";
+import favouriteIcon from "@/assets/label/favourite.svg";
+import kidsMenuIcon from "@/assets/label/kids_menu.svg";
+import newMenuIcon from "@/assets/label/new_menu.svg";
+import signatureMenuIcon from "@/assets/label/signature_menu.svg";
+import spicyIcon from "@/assets/label/spicy.svg";
+import vegetarianIcon from "@/assets/label/vegetarian.svg";
+
+const labelSvgMap: Record<string, any> = {
+  NEW_MENU: newMenuIcon,
+  NEW: newMenuIcon,
+  BEST_SELLER: bestSellerIcon,
+  CHEF_RECOMMENDATION: chefRecommendationIcon,
+  RECOMMENDED: chefRecommendationIcon,
+  MENU_FAVORITE: favouriteIcon,
+  FAVORITE: favouriteIcon,
+  SPICY: spicyIcon,
+  VEGETARIAN: vegetarianIcon,
+  SIGNATURE_MENU: signatureMenuIcon,
+  MUST_TRY: signatureMenuIcon,
+  KIDS_MENU: kidsMenuIcon,
+  KIDS_CHOICE: kidsMenuIcon,
+  FAST_SERVE: fastServeIcon,
+};
 import { SectionLayoutType } from "@/redux/features/menu/menu.type";
 import { useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight, Minus, Plus } from "lucide-react";
@@ -21,7 +47,7 @@ export type MenuItemCardData = {
   promoPrice: number;
   imageType: "menu1" | "menu2";
   imageUrl?: string | null;
-  badges: [string, string];
+  badges: string[];
   packetSections?: any[];
   maxPacketItems?: number | null;
 };
@@ -352,12 +378,21 @@ const CustomerMenuCards = ({
                       priority={index === 0}
                     />
 
-                    <div className="absolute left-3 top-3 flex flex-wrap gap-2">
-                      {item.badges && item.badges.map((badge, badgeIndex) => (
-                        <span key={badgeIndex} className="rounded-lg bg-white/92 px-3 py-1 text-[11px] font-semibold text-red-500 shadow-sm backdrop-blur">
-                          {badge}
-                        </span>
-                      ))}
+                    <div className="absolute left-3 top-3 flex flex-wrap gap-1.5 z-10">
+                      {item.badges && item.badges.map((badge, badgeIndex) => {
+                        const svgSrc = labelSvgMap[badge];
+                        if (!svgSrc) return null;
+                        return (
+                          <div key={badgeIndex} className="relative h-7 w-7 md:w-10 md:h-10 select-none drop-shadow-sm transition-transform hover:scale-105">
+                            <Image
+                              src={svgSrc}
+                              alt={badge}
+                              fill
+                              className="object-contain"
+                            />
+                          </div>
+                        );
+                      })}
                     </div>
 
                     {item.promoPrice > 0 && (

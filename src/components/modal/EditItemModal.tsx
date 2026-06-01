@@ -54,14 +54,15 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const LABEL_OPTIONS = [
+    { key: "NEW_MENU", label: t("newMenu") || "New Menu" },
     { key: "BEST_SELLER", label: t("bestSeller") || "Best Seller" },
-    { key: "RECOMMENDED", label: t("recommended") || "Recommended" },
-    { key: "FAVORITE", label: t("favorite") || "Favorite" },
-    { key: "MUST_TRY", label: t("mustTry") || "Must Try" },
-    { key: "NEW", label: t("new") || "New" },
-    { key: "VEGETARIAN", label: t("vegetarian") || "Vegetarian" },
-    { key: "KIDS_CHOICE", label: t("kidsChoice") || "Kids Choice" },
+    { key: "CHEF_RECOMMENDATION", label: t("chefRecommendation") || "Chef Recommendation" },
+    { key: "MENU_FAVORITE", label: t("menuFavorite") || "Menu Favorite" },
     { key: "SPICY", label: t("spicy") || "Spicy" },
+    { key: "VEGETARIAN", label: t("vegetarian") || "Vegetarian" },
+    { key: "SIGNATURE_MENU", label: t("signatureMenu") || "Signature Menu" },
+    { key: "KIDS_MENU", label: t("kidsMenu") || "Kids Menu" },
+    { key: "FAST_SERVE", label: t("fastServe") || "Fast Serve" },
   ];
 
   // Initialize form when item changes
