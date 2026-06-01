@@ -23,7 +23,7 @@ export const ROLE_ALLOWED_ROUTES: Record<string, string[]> = {
     "/production-station",
     // "/order",
     "/view-all",
-   "/efficiency-report"
+    "/efficiency-report"
   ]
 };
 
@@ -31,7 +31,7 @@ export const DEFAULT_ROLE_ROUTE: Record<string, string> = {
   USER: "/menu",
   ADMIN: "/menu",
   SERVICE: "/production",
-  OWNER: "/menu-management" 
+  OWNER: "/menu-management"
 };
 
 /**

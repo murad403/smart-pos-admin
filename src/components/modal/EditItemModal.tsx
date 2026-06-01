@@ -113,9 +113,9 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
 
   const toggleLabel = (labelKey: string) => {
     if (selectedLabels.includes(labelKey)) {
-      setSelectedLabels(selectedLabels.filter((l) => l !== labelKey));
+      setSelectedLabels([]);
     } else {
-      setSelectedLabels([...selectedLabels, labelKey]);
+      setSelectedLabels([labelKey]);
     }
   };
 

@@ -28,8 +28,25 @@ const labelSvgMap: Record<string, any> = {
   MUST_TRY: signatureMenuIcon,
   KIDS_MENU: kidsMenuIcon,
   KIDS_CHOICE: kidsMenuIcon,
-  FAST_SERVE: fastServeIcon,
 };
+
+const labelBgColorMap: Record<string, string> = {
+  NEW_MENU: "bg-blue-600",
+  NEW: "bg-blue-600",
+  BEST_SELLER: "bg-amber-500",
+  CHEF_RECOMMENDATION: "bg-purple-600",
+  RECOMMENDED: "bg-purple-600",
+  MENU_FAVORITE: "bg-rose-500",
+  FAVORITE: "bg-rose-500",
+  SPICY: "bg-red-600",
+  VEGETARIAN: "bg-emerald-600",
+  SIGNATURE_MENU: "bg-indigo-600",
+  MUST_TRY: "bg-indigo-600",
+  KIDS_MENU: "bg-sky-500",
+  KIDS_CHOICE: "bg-sky-500",
+  FAST_SERVE: "bg-amber-600",
+};
+
 import { SectionLayoutType } from "@/redux/features/menu/menu.type";
 import { useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight, Minus, Plus } from "lucide-react";
@@ -378,30 +395,36 @@ const CustomerMenuCards = ({
                       priority={index === 0}
                     />
 
-                    <div className="absolute left-3 top-3 flex flex-wrap gap-1.5 z-10">
-                      {item.badges && item.badges.map((badge, badgeIndex) => {
-                        const svgSrc = labelSvgMap[badge];
-                        if (!svgSrc) return null;
-                        return (
-                          <div key={badgeIndex} className="relative h-7 w-7 md:w-10 md:h-10 select-none drop-shadow-sm transition-transform hover:scale-105">
-                            <Image
-                              src={svgSrc}
-                              alt={badge}
-                              fill
-                              className="object-contain"
-                            />
-                          </div>
-                        );
-                      })}
-                    </div>
-
                     {item.promoPrice > 0 && (
-                      <div className="absolute right-3 bottom-3 sm:top-3 sm:bottom-auto">
-                        <span className="rounded-lg bg-green-600 px-3 py-1 text-[11px] font-bold text-white shadow-sm">
+                      <div className="absolute right-1 top-1 sm:right-3 sm:top-3 z-10">
+                        <span className="rounded-lg bg-green-600 px-2 py-0.5 sm:px-3 sm:py-1 text-[9px] sm:text-[11px] font-bold text-white shadow-sm">
                           Promo: Rp{item.promoPrice.toLocaleString("en-US")}
                         </span>
                       </div>
                     )}
+
+                    <div className="absolute right-1 bottom-1 sm:right-2 sm:bottom-2 flex flex-wrap gap-1 z-10">
+                      {item.badges && item.badges.map((badge, badgeIndex) => {
+                        const svgSrc = labelSvgMap[badge];
+                        const bgColor = labelBgColorMap[badge] || "bg-slate-600";
+                        if (!svgSrc) return null;
+                        return (
+                          <div
+                            key={badgeIndex}
+                            className={`flex items-center justify-center rounded-full border-2 border-white shadow-md p-1 ${bgColor} h-7 w-7 sm:h-9 sm:w-9 select-none transition-transform hover:scale-105`}
+                          >
+                            <div className="relative w-4.5 h-4.5 sm:w-6 sm:h-6">
+                              <Image
+                                src={svgSrc}
+                                alt={badge}
+                                fill
+                                className="object-contain brightness-0 invert"
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
 
 
                   </div>
@@ -422,33 +445,33 @@ const CustomerMenuCards = ({
                       )}
                     </div>
 
-                    <div className="mt-2.5 sm:mt-6 flex items-center justify-between gap-1 sm:gap-4">
-                      <div className="text-slate-600">
+                    <div className="mt-2.5 sm:mt-6 flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4 w-full">
+                      <div className="text-slate-605">
                         <p className="text-slate-500 text-[10px] sm:text-xs leading-none">{t("price")}</p>
                         <p className="font-bold text-slate-900 text-sm sm:text-lg">Rp{item.price.toLocaleString("en-US")}</p>
                       </div>
 
                       {isSelected && (
                         <div
-                          className="flex items-center justify-between sm:justify-start gap-2.5 bg-white border border-slate-150 rounded-xl p-1 shadow-sm shrink-0 w-full sm:w-auto"
+                          className="flex items-center justify-between sm:justify-start gap-1.5 bg-white border border-slate-150 rounded-lg p-0.5 shadow-xs shrink-0 w-full sm:w-auto"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <button
                             type="button"
                             onClick={() => handleDecrement(item)}
-                            className="size-7 rounded-lg bg-slate-100 flex items-center justify-center hover:bg-[#E2E8F0] text-slate-650 transition-colors cursor-pointer"
+                            className="size-5 sm:size-7 rounded bg-slate-100 flex items-center justify-center hover:bg-[#E2E8F0] text-slate-650 transition-colors cursor-pointer"
                           >
-                            <Minus size={13} />
+                            <Minus size={10} className="sm:size-3.5" />
                           </button>
-                          <span className="text-sm font-bold text-slate-800 w-4 text-center select-none">
+                          <span className="text-xs sm:text-sm font-bold text-slate-800 w-4 text-center select-none">
                             {totalQty}
                           </span>
                           <button
                             type="button"
                             onClick={() => handleIncrement(item)}
-                            className="size-7 rounded-lg bg-blue-600 flex items-center justify-center hover:bg-blue-700 text-white transition-colors cursor-pointer"
+                            className="size-5 sm:size-7 rounded bg-blue-600 flex items-center justify-center hover:bg-blue-700 text-white transition-colors cursor-pointer"
                           >
-                            <Plus size={13} />
+                            <Plus size={10} className="sm:size-3.5" />
                           </button>
                         </div>
                       )}

@@ -1,8 +1,8 @@
 "use client";
 import React, { useState } from "react";
-import { BadgeDollarSign, Eye, SquarePen } from "lucide-react";
+import { BadgeDollarSign, ClipboardClock, Eye, SquarePen } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/routing";
+import { Link, useRouter } from "@/i18n/routing";
 import { useGetPendingPaymentOrdersQuery } from "@/redux/features/order/order.api";
 import CustomPagination from "@/components/shared/CustomPagination";
 import OrderDetailsModal from "@/components/modal/OrderDetailsModal";
@@ -67,6 +67,10 @@ const PendingPaymentsPage = ({ params }: { params?: Promise<{ locale: string }> 
             {tPending("subtitle") || "Review and process orders awaiting payment completion."}
           </p>
         </div>
+        <Link href={"/order"} className="inline-flex rounded-md bg-blue-400 py-1 px-4 items-center text-white">
+          <ClipboardClock size={16} />
+          <span className="text-sm py-1 px-4">Payments History</span>
+        </Link>  
       </div>
 
       {/* Main Content */}

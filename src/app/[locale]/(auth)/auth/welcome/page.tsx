@@ -55,7 +55,7 @@ const Welcome = () => {
                             disabled={isSigningIn}
                             onClick={handleCustomerSignIn}
                             aria-label={t("customerAria")}
-                            className="flex w-full items-center gap-2.5 rounded-xl bg-[#f5a623] px-3.5 py-4 text-[13px] font-semibold text-white transition-all duration-150 hover:-translate-y-0.5 hover:saturate-[1.1] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+                            className="flex w-full items-center gap-2.5 rounded-xl bg-[#3b6ef6] px-3.5 py-4 text-[13px] font-semibold text-white no-underline transition-all duration-150 hover:-translate-y-0.5 hover:saturate-[1.1] active:scale-[0.98]"
                         >
                             <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/20">
                                 <ShoppingCart size={17} strokeWidth={2} />
@@ -67,7 +67,7 @@ const Welcome = () => {
                         <Link
                             href="/auth/sign-in?role=staff"
                             aria-label={t("staffAria")}
-                            className="flex w-full items-center gap-2.5 rounded-xl bg-[#1db974] px-3.5 py-4 text-[13px] font-semibold text-white no-underline transition-all duration-150 hover:-translate-y-0.5 hover:saturate-[1.1] active:scale-[0.98]"
+                            className="flex w-full items-center gap-2.5 rounded-xl bg-[#3b6ef6] px-3.5 py-4 text-[13px] font-semibold text-white no-underline transition-all duration-150 hover:-translate-y-0.5 hover:saturate-[1.1] active:scale-[0.98]"
                         >
                             <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/20">
                                 <UserCog size={17} strokeWidth={2} />
@@ -94,7 +94,7 @@ const Welcome = () => {
                         <Link
                             href="/auth/sign-in?role=owner"
                             aria-label={t("ownerAria")}
-                            className="flex w-full items-center gap-2.5 rounded-xl bg-orange-500 px-3.5 py-4 text-[13px] font-semibold text-white transition-all duration-150 hover:-translate-y-0.5 hover:saturate-[1.1] active:scale-[0.98]"
+                            className="flex w-full items-center gap-2.5 rounded-xl bg-[#3b6ef6] px-3.5 py-4 text-[13px] font-semibold text-white no-underline transition-all duration-150 hover:-translate-y-0.5 hover:saturate-[1.1] active:scale-[0.98]"
                         >
                             <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/20">
                                 <BriefcaseBusiness size={17} strokeWidth={2} />

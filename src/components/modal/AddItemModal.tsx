@@ -84,9 +84,9 @@ const AddItemModal: React.FC<Props> = ({ open, onClose, onSuccess, sectionId }) 
 
   const toggleLabel = (labelKey: string) => {
     if (selectedLabels.includes(labelKey)) {
-      setSelectedLabels(selectedLabels.filter((l) => l !== labelKey));
+      setSelectedLabels([]);
     } else {
-      setSelectedLabels([...selectedLabels, labelKey]);
+      setSelectedLabels([labelKey]);
     }
   };
 
