@@ -678,6 +678,26 @@
     "cameraOpenFailed": "Unable to open the camera.",
     "closeCamera": "Close camera"
   },
+  "PaymentsHistory": {
+    "title": "Payments History",
+    "subtitle": "View history of completed and verified payments.",
+    "noPaymentsFound": "No payments history found.",
+    "back": "Back",
+    "paymentMethod": "Payment Method",
+    "status": "Status",
+    "totalAmount": "Total Amount",
+    "createdAt": "Created At",
+    "image": "Image",
+    "orderNumber": "Order #",
+    "customer": "Customer",
+    "table": "Table",
+    "source": "Source",
+    "items": "Items",
+    "actions": "Actions",
+    "allMethods": "All Methods",
+    "allSources": "All Sources",
+    "allStatus": "All Status"
+  },
   "welcome": {
     "title": "Smart POS",
     "subtitle": "Smart POS System",

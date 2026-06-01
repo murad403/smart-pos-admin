@@ -680,6 +680,26 @@
     "cameraOpenFailed": "Tidak dapat membuka kamera.",
     "closeCamera": "Tutup kamera"
   },
+  "PaymentsHistory": {
+    "title": "Riwayat Pembayaran",
+    "subtitle": "Lihat riwayat pembayaran yang telah selesai dan diverifikasi.",
+    "noPaymentsFound": "Tidak ada riwayat pembayaran ditemukan.",
+    "back": "Kembali",
+    "paymentMethod": "Metode Pembayaran",
+    "status": "Status",
+    "totalAmount": "Total Jumlah",
+    "createdAt": "Dibuat Pada",
+    "image": "Gambar",
+    "orderNumber": "Pesanan #",
+    "customer": "Pelanggan",
+    "table": "Meja",
+    "source": "Sumber",
+    "items": "Item",
+    "actions": "Aksi",
+    "allMethods": "Semua Metode",
+    "allSources": "Semua Sumber",
+    "allStatus": "Semua Status"
+  },
   "welcome": {
     "title": "Smart POS",
     "subtitle": "Sistem POS Pintar",

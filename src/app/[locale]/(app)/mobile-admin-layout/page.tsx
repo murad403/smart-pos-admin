@@ -6,6 +6,9 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { getUserData } from "@/utils/auth";
 import { useTranslations } from "next-intl";
 
+
+
+
 const MobileAdminLayoutPage = () => {
   const t = useTranslations("Common");
   const { toggleSidebar } = useSidebar();
