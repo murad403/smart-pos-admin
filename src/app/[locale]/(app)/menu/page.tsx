@@ -289,7 +289,7 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
                 </div>
             ) : (
                 <div className="space-y-3 sm:space-y-4">
-                    {filteredSections.map((section, index) => (
+                    {filteredSections.map((section: any, index: number) => (
                         <CustomerMenuCards
                             key={section.id}
                             sectionId={section.id}
