@@ -14,17 +14,15 @@ import { useLocale, useTranslations } from "next-intl"
 import { clearUserData, getUserData } from "@/utils/auth"
 import { isRouteAllowed, DEFAULT_ROLE_ROUTE } from "@/utils/rbac"
 import { toast } from "sonner"
+import logo from "@/assets/logo/logo2.png";
 
 
 
 function SidebarBrand() {
   return (
-    <Link href="/dashboard" className="flex items-center gap-3 px-3 py-2.5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:px-1">
-      <div className="flex size-11 items-center justify-center rounded-2xl bg-[#F7F7F7] shadow-sm ring-1 ring-slate-200 group-data-[collapsible=icon]:size-9">
-        <Image src={brandLogo} alt="SmartPOS" className="h-7 w-7 object-contain group-data-[collapsible=icon]:h-6 group-data-[collapsible=icon]:w-6" priority />
-      </div>
-      <div className="min-w-0 group-data-[collapsible=icon]:hidden">
-        <p className="text-lg font-semibold tracking-tight text-slate-950">SmartPOS</p>
+    <Link href="/dashboard" className="flex items-center justify-center group-data-[collapsible=icon]:py-3 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:px-1">
+      <div className="flex items-center justify-center">
+        <Image src={logo} alt="logo" className="h-16 w-30 object-contain group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:w-10" priority />
       </div>
     </Link>
   )
@@ -282,11 +280,11 @@ function Topbar({
           ) : (
             <Link href="/dashboard" className="flex items-center gap-3 px-1 py-0.5">
               <div className="flex size-11 items-center justify-center rounded-2xl bg-[#F7F7F7] shadow-sm ring-1 ring-slate-200">
-                <Image src={brandLogo} alt="SmartPOS" className="h-7 w-7 object-contain" priority />
+                <Image src={logo} alt="logo" className="h-7 w-7 object-contain" priority />
               </div>
-              <div className="min-w-0">
+              {/* <div className="min-w-0">
                 <p className="text-lg font-semibold tracking-tight text-slate-950">SmartPOS</p>
-              </div>
+              </div> */}
             </Link>
           )}
           {/* <div className="min-w-0">
