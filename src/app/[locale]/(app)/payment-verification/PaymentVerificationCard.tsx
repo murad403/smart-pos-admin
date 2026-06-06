@@ -1,5 +1,8 @@
 import { useTranslations } from "next-intl";
-import { ImageOff } from "lucide-react";
+import { ImageOff, Loader2 } from "lucide-react";
+import { useChangeVerificationStatusMutation } from "@/redux/features/dashboard/dashboard.api";
+import { getUserData } from "@/utils/auth";
+import { toast } from "sonner";
 
 export interface PaymentVerificationItem {
   id: string;
@@ -15,6 +18,7 @@ export interface PaymentVerificationItem {
   cashierName?: string;
   markAsMissMatch?: boolean;
   isVerified?: boolean;
+  verificationStatus?: "PENDING" | "MATCH" | "MISMATCH";
 }
 
 interface PaymentVerificationCardProps {
@@ -27,12 +31,40 @@ const formatCurrency = (value: number) => `Rp ${value.toLocaleString("en-US")}`;
 
 const PaymentVerificationCard = ({ item, onViewDetails, onVerify }: PaymentVerificationCardProps) => {
   const t = useTranslations("Payment");
+  const [changeVerificationStatus, { isLoading: isUpdating }] = useChangeVerificationStatusMutation();
 
+  const handleStatusChange = async (status: "MATCH" | "MISMATCH") => {
+    const userData = getUserData();
+    const verifiedById = userData?.id ?? 9;
+
+    try {
+      const response = await changeVerificationStatus({
+        paymentId: Number(item.id),
+        data: {
+          status,
+          verifiedById,
+        },
+      }).unwrap();
+
+      if (response.success) {
+        toast.success(response.message || `Payment marked as ${status} successfully`);
+      } else {
+        toast.error(response.message || "Failed to update verification status");
+      }
+    } catch (err: any) {
+      toast.error(err?.data?.message || err?.message || "Failed to update verification status");
+    }
+  };
   const imgSrc = item.image;
 
   return (
-    <article className={`rounded-xl border bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${item.markAsMissMatch ? "border-red-500" : "border-blue-500"
-      }`}>
+    <article className={`rounded-xl border bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${
+      item.verificationStatus === "MATCH"
+        ? "border-green-500"
+        : item.verificationStatus === "MISMATCH" || item.markAsMissMatch
+        ? "border-red-500"
+        : "border-blue-500"
+    }`}>
       <div className="relative mb-3 overflow-hidden rounded-lg">
         {imgSrc ? (
           <img
@@ -46,9 +78,14 @@ const PaymentVerificationCard = ({ item, onViewDetails, onVerify }: PaymentVerif
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">No Image Proof</span>
           </div>
         )}
-        {item.markAsMissMatch && (
+        {(item.verificationStatus === "MISMATCH" || item.markAsMissMatch) && (
           <span className="absolute left-2 top-2 rounded-full bg-red-600 px-2 py-0.5 text-[11px] font-semibold text-white uppercase tracking-wider">
             {t("mismatch")}
+          </span>
+        )}
+        {item.verificationStatus === "MATCH" && (
+          <span className="absolute left-2 top-2 rounded-full bg-green-600 px-2 py-0.5 text-[11px] font-semibold text-white uppercase tracking-wider">
+            {t("match") || "Match"}
           </span>
         )}
         <span
@@ -87,14 +124,20 @@ const PaymentVerificationCard = ({ item, onViewDetails, onVerify }: PaymentVerif
       <div className="mt-2 space-y-2">
         <button
           type="button"
-          className="w-full rounded-md border border-slate-200 bg-green-500 cursor-pointer py-2 text-xs font-semibold text-white transition hover:bg-green-600"
+          onClick={() => handleStatusChange("MATCH")}
+          disabled={isUpdating}
+          className="w-full rounded-md border border-slate-200 bg-green-500 cursor-pointer py-2 text-xs font-semibold text-white transition hover:bg-green-600 disabled:opacity-50 flex items-center justify-center gap-1.5"
         >
+          {isUpdating && <Loader2 size={12} className="animate-spin" />}
           {t("match")}
         </button>
         <button
           type="button"
-          className="w-full rounded-md border border-slate-200 bg-red-500 cursor-pointer py-2 text-xs font-semibold text-white transition hover:bg-red-600"
+          onClick={() => handleStatusChange("MISMATCH")}
+          disabled={isUpdating}
+          className="w-full rounded-md border border-slate-200 bg-red-500 cursor-pointer py-2 text-xs font-semibold text-white transition hover:bg-red-600 disabled:opacity-50 flex items-center justify-center gap-1.5"
         >
+          {isUpdating && <Loader2 size={12} className="animate-spin" />}
           {t("mismatch")}
         </button>
       </div>

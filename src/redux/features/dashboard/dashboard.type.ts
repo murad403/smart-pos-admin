@@ -130,6 +130,7 @@ export interface PaymentItem {
     order: PaymentOrder;
     markAsMissMatch: boolean;
     isVerified: boolean;
+    verificationStatus?: "PENDING" | "MATCH" | "MISMATCH";
     cashier: {
         id: number;
         name: string;
