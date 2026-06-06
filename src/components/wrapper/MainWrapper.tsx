@@ -252,7 +252,7 @@ function Topbar({
   const isMobile = windowWidth < 768;
   const isMobileAdmin = user?.role?.toUpperCase() === "ADMIN" && isMobile;
   const isMobileOwner = user?.role?.toUpperCase() === "OWNER" && isMobile;
-  const path = user?.role?.toLowerCase() === "ADMIN" ? "/mobile-admin-layout" : "/mobile-owner-layout" ;
+  const path = user?.role?.toLowerCase() === "ADMIN" ? "/mobile-admin-layout" : "/mobile-owner-layout";
 
   return (
     <header className={cn(
@@ -278,13 +278,10 @@ function Topbar({
           ) : selectedDevice !== "touchscreen" ? (
             <SidebarTrigger className="-ml-1 text-slate-700 hover:bg-slate-100" />
           ) : (
-            <Link href="/dashboard" className="flex items-center gap-3 px-1 py-0.5">
-              <div className="flex size-11 items-center justify-center rounded-2xl bg-[#F7F7F7] shadow-sm ring-1 ring-slate-200">
-                <Image src={logo} alt="logo" className="h-7 w-7 object-contain" priority />
+            <Link href="/dashboard" className="flex items-center justify-center group-data-[collapsible=icon]:py-3 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:px-1">
+              <div className="flex items-center justify-center">
+                <Image src={logo} alt="logo" className="h-16 w-30 object-contain group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:w-10" priority />
               </div>
-              {/* <div className="min-w-0">
-                <p className="text-lg font-semibold tracking-tight text-slate-950">SmartPOS</p>
-              </div> */}
             </Link>
           )}
           {/* <div className="min-w-0">
