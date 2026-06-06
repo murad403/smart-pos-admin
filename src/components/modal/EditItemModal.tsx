@@ -88,6 +88,7 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
           id: sec.id,
           name: sec.name,
           maxQty: sec.maxQty,
+          productionStationId: sec.productionStationId ? String(sec.productionStationId) : "",
           choices: (sec.choices || []).map((ch: any) => ({
             id: ch.id,
             name: ch.name,
@@ -125,6 +126,7 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
       id: crypto.randomUUID(),
       name: "",
       maxQty: 1,
+      productionStationId: "",
       choices: [{ id: crypto.randomUUID(), name: "", maxQty: 1 }],
     };
     setSections([...sections, newSection]);
@@ -134,7 +136,7 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
     setSections(sections.filter((s) => s.id !== sectionId));
   };
 
-  const handleSectionChange = (sectionId: string | number, field: "name" | "maxQty", value: any) => {
+  const handleSectionChange = (sectionId: string | number, field: "name" | "maxQty" | "productionStationId", value: any) => {
     setSections(
       sections.map((s) => {
         if (s.id === sectionId) {
@@ -269,17 +271,27 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
               data: {
                 name: sec.name,
                 maxQty: Number(sec.maxQty),
+                ...(sec.productionStationId ? { productionStationId: Number(sec.productionStationId) } : {}),
               },
             }).unwrap();
             sid = sectionRes?.data?.id;
           } else {
             const originalSec = originalSections.find((s: any) => s.id === sid);
-            if (originalSec && (originalSec.name !== sec.name || originalSec.maxQty !== sec.maxQty)) {
+            const origStationId = originalSec?.productionStationId ? String(originalSec.productionStationId) : "";
+            const currentStationId = sec.productionStationId || "";
+
+            if (
+              originalSec &&
+              (originalSec.name !== sec.name ||
+                originalSec.maxQty !== sec.maxQty ||
+                origStationId !== currentStationId)
+            ) {
               await updatePacketSection({
                 sId: sid,
                 data: {
                   name: sec.name,
                   maxQty: Number(sec.maxQty),
+                  productionStationId: sec.productionStationId ? Number(sec.productionStationId) : null,
                 },
               }).unwrap();
             }
@@ -623,7 +635,7 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
                     <div key={sec.id} className="border border-blue-100 rounded-xl p-4 bg-white shadow-sm space-y-4">
                       {/* Section Header */}
                       <div className="flex items-center justify-between gap-3">
-                        <div className="flex-1 grid grid-cols-3 gap-3">
+                        <div className="flex-1 grid grid-cols-4 gap-3">
                           <div className="col-span-2">
                             <label className="text-xs font-semibold text-gray-500">Section Name (e.g. Choose Appetizer)</label>
                             <input
@@ -643,6 +655,34 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
                               onChange={(e) => handleSectionChange(sec.id, "maxQty", Number(e.target.value))}
                               className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 text-center font-semibold"
                             />
+                          </div>
+                          <div>
+                            <label className="text-xs font-semibold text-gray-500">Product Destination</label>
+                            <div className="relative">
+                              <select
+                                value={sec.productionStationId || ""}
+                                onChange={(e) => handleSectionChange(sec.id, "productionStationId", e.target.value)}
+                                className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer text-gray-800 bg-white appearance-none pr-8"
+                              >
+                                <option value="">Select Destination...</option>
+                                {stations.map((s: any) => (
+                                  <option key={s.id} value={s.id}>
+                                    {s.name}
+                                  </option>
+                                ))}
+                              </select>
+                              <svg
+                                className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-500"
+                                width="12"
+                                height="12"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                viewBox="0 0 24 24"
+                              >
+                                <polyline points="6 9 12 15 18 9" />
+                              </svg>
+                            </div>
                           </div>
                         </div>
 
