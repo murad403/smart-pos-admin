@@ -3,50 +3,22 @@ import React, { useState } from "react";
 import Image from "next/image";
 import item1 from "@/assets/images/menu1.jpg";
 import item2 from "@/assets/images/menu2.png";
-import bestSellerIcon from "@/assets/label/best_seller.svg";
-import chefRecommendationIcon from "@/assets/label/chef_recomanded.svg";
-import fastServeIcon from "@/assets/label/fast_serve.svg";
-import favouriteIcon from "@/assets/label/favourite.svg";
-import kidsMenuIcon from "@/assets/label/kids_menu.svg";
-import newMenuIcon from "@/assets/label/new_menu.svg";
-import signatureMenuIcon from "@/assets/label/signature_menu.svg";
-import spicyIcon from "@/assets/label/spicy.svg";
-import vegetarianIcon from "@/assets/label/vegetarian.svg";
+import spicyImage from "@/assets/tag/spicy.svg";
+import mustTryImage from "@/assets/tag/must_try.svg";
+import promoImage from "@/assets/tag/promo.svg";
+import bestSellerImage from "@/assets/tag/best_saller.svg";
+import vegetarianImage from "@/assets/tag/vagetarian.svg";
 
 
 
 const labelSvgMap: Record<string, any> = {
-  NEW_MENU: newMenuIcon,
-  NEW: newMenuIcon,
-  BEST_SELLER: bestSellerIcon,
-  CHEF_RECOMMENDATION: chefRecommendationIcon,
-  RECOMMENDED: chefRecommendationIcon,
-  MENU_FAVORITE: favouriteIcon,
-  FAVORITE: favouriteIcon,
-  SPICY: spicyIcon,
-  VEGETARIAN: vegetarianIcon,
-  SIGNATURE_MENU: signatureMenuIcon,
-  MUST_TRY: signatureMenuIcon,
-  KIDS_MENU: kidsMenuIcon,
-  KIDS_CHOICE: kidsMenuIcon,
+  VEGETARIAN: vegetarianImage,
+  SPICY: spicyImage,
+  BEST_SELLER: bestSellerImage,
+  PROMO: promoImage,
+  MUST_TRY: mustTryImage,
 };
 
-const labelBgColorMap: Record<string, string> = {
-  NEW_MENU: "bg-blue-600",
-  NEW: "bg-blue-600",
-  BEST_SELLER: "bg-amber-500",
-  CHEF_RECOMMENDATION: "bg-purple-600",
-  RECOMMENDED: "bg-purple-600",
-  MENU_FAVORITE: "bg-rose-500",
-  FAVORITE: "bg-rose-500",
-  SPICY: "bg-red-600",
-  VEGETARIAN: "bg-emerald-600",
-  SIGNATURE_MENU: "bg-indigo-600",
-  MUST_TRY: "bg-indigo-600",
-  KIDS_MENU: "bg-sky-500",
-  KIDS_CHOICE: "bg-sky-500",
-  FAST_SERVE: "bg-amber-600",
-};
 
 import { SquarePen, Trash2, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -177,7 +149,6 @@ const PacketSlider = ({ packetSections }: { packetSections: any[] }) => {
 
 const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, onEditSection, onDeleteSection, onEditItem }: Props) => {
   const t = useTranslations("Menu");
-
   const { data: sectionDetailsRes, isLoading } = useGetAllSectionDetailsByMenuIdQuery(sectionId);
   const [deleteItem] = useDeleteItemMutation();
   const sectionDetails = sectionDetailsRes?.data;
@@ -307,12 +278,12 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
               {Array.from({ length: (layout === "SINGLE" ? 1 : layout === "DOUBLE" ? 2 : layout === "TRIPLE" ? 3 : layout === "QUADRUPLE" ? 4 : 1) }).map((_, i) => (
                 <div key={i} className="flex flex-col h-full overflow-hidden rounded-2xl border border-slate-200 bg-[#E2E8F0] shadow-sm animate-pulse">
                   <div className={`relative bg-[#E2E8F0] w-full ${layout === "SINGLE"
-                      ? "h-64 md:h-96 lg:h-120"
-                      : layout === "DOUBLE"
-                        ? "h-44 sm:h-64 lg:h-96"
-                        : layout === "TRIPLE"
-                          ? "h-44 sm:h-52 lg:h-72"
-                          : "h-44 sm:h-48 lg:h-60"
+                    ? "h-64 md:h-96 lg:h-120"
+                    : layout === "DOUBLE"
+                      ? "h-44 sm:h-64 lg:h-96"
+                      : layout === "TRIPLE"
+                        ? "h-44 sm:h-52 lg:h-72"
+                        : "h-44 sm:h-48 lg:h-60"
                     }`} />
                   <div className="flex-1 p-4 space-y-3">
                     <div className="h-4 bg-[#E2E8F0] rounded w-1/4" />
@@ -429,28 +400,20 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
                     </div>
                   )} */}
 
-                  <div className="absolute -right-2 -bottom-2  flex flex-wrap gap-1 z-10">
-                    {item.badges && item.badges.map((badge, badgeIndex) => {
-                      const svgSrc = labelSvgMap[badge];
-                      const bgColor = labelBgColorMap[badge] || "bg-slate-600";
-                      if (!svgSrc) return null;
-                      return (
-                        <div
-                          key={badgeIndex}
-                          className={`flex items-center justify-center rounded-full border-2 border-white shadow-md p-1 ${bgColor} h-7 w-7 sm:h-9 sm:w-9 select-none transition-transform hover:scale-105`}
-                        >
-                          <div className="relative w-4.5 h-4.5 sm:w-6 sm:h-6">
-                            <Image
-                              src={svgSrc}
-                              alt={badge}
-                              fill
-                              className="object-contain"
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                  {item.badges && item.badges.map((badge, badgeIndex) => {
+                    const svgSrc = labelSvgMap[badge];
+                    if (!svgSrc) return null;
+                    return (
+                      <div key={badgeIndex} className="absolute bottom-0 right-0 sm:w-50 sm:h-50 w-20 h-20">
+                        <Image
+                          src={svgSrc}
+                          alt={badge}
+                          fill
+                          className="object-contain object-right-bottom"
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
 
                 <div className={isImageListLayout ? "flex flex-col justify-between gap-5 py-1 sm:pr-2" : "flex-1 flex flex-col justify-between p-2 sm:p-4"}>
@@ -511,17 +474,17 @@ const MenuCards = ({ sectionId, sectionNumber, sectionName, layout, onAddItem, o
                 <div
                   key={`placeholder-${i}`}
                   className={`flex flex-col rounded-[22px] border border-blue-500 bg-white p-4 shadow-sm w-full h-full ${layout === "SINGLE" ? "min-h-72 sm:min-h-105 md:min-h-140 lg:min-h-170" :
-                      layout === "DOUBLE" ? "min-h-48 sm:min-h-85 md:min-h-110 lg:min-h-142.5" :
-                        layout === "TRIPLE" ? "min-h-40 sm:min-h-60 md:min-h-97.5 lg:min-h-117.5" :
-                          "min-h-48 sm:min-h-85 md:min-h-92.5 lg:min-h-110"
+                    layout === "DOUBLE" ? "min-h-48 sm:min-h-85 md:min-h-110 lg:min-h-142.5" :
+                      layout === "TRIPLE" ? "min-h-40 sm:min-h-60 md:min-h-97.5 lg:min-h-117.5" :
+                        "min-h-48 sm:min-h-85 md:min-h-92.5 lg:min-h-110"
                     }`}
                 >
                   <button
                     type="button"
                     onClick={onAddItem}
                     className={`group relative w-full overflow-hidden rounded-[18px] bg-[#E2E8F0] hover:bg-[#D9E2EC] flex items-center justify-center transition-all duration-300 flex-1 ${layout === "SINGLE" ? "min-h-44 sm:min-h-64 md:min-h-96 lg:min-h-120" :
-                        layout === "DOUBLE" ? "min-h-32 sm:min-h-44 md:min-h-64 lg:min-h-96" :
-                          layout === "TRIPLE" ? "min-h-20 sm:min-h-28 md:min-h-52 lg:min-h-72" : "min-h-32 sm:min-h-44 md:min-h-48 lg:min-h-60"
+                      layout === "DOUBLE" ? "min-h-32 sm:min-h-44 md:min-h-64 lg:min-h-96" :
+                        layout === "TRIPLE" ? "min-h-20 sm:min-h-28 md:min-h-52 lg:min-h-72" : "min-h-32 sm:min-h-44 md:min-h-48 lg:min-h-60"
                       }`}
                   >
                     <Plus size={36} className="text-white opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300" />

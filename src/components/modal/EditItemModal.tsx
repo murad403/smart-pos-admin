@@ -54,15 +54,11 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const LABEL_OPTIONS = [
-    { key: "NEW_MENU", label: t("newMenu") || "New Menu" },
     { key: "BEST_SELLER", label: t("bestSeller") || "Best Seller" },
-    { key: "CHEF_RECOMMENDATION", label: t("chefRecommendation") || "Chef Recommendation" },
-    { key: "MENU_FAVORITE", label: t("menuFavorite") || "Menu Favorite" },
+    { key: "MUST_TRY", label: t("mustTry") || "Must Try" },
+    { key: "PROMO", label: t("promo") || "Promo" },
     { key: "SPICY", label: t("spicy") || "Spicy" },
-    { key: "VEGETARIAN", label: t("vegetarian") || "Vegetarian" },
-    { key: "SIGNATURE_MENU", label: t("signatureMenu") || "Signature Menu" },
-    { key: "KIDS_MENU", label: t("kidsMenu") || "Kids Menu" },
-    { key: "FAST_SERVE", label: t("fastServe") || "Fast Serve" },
+    { key: "VEGETARIAN", label: t("vegetarian") || "Vegetarian" }
   ];
 
   // Initialize form when item changes
@@ -567,8 +563,8 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
                       type="button"
                       onClick={() => toggleLabel(opt.key)}
                       className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all ${isSelected
-                          ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/10 scale-95"
-                          : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300"
+                        ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/10 scale-95"
+                        : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300"
                         }`}
                     >
                       {opt.label}

@@ -34,7 +34,7 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
   const [isDeleteSectionOpen, setIsDeleteSectionOpen] = React.useState(false);
   const [deletingSection, setDeletingSection] = React.useState<{ id: number; name: string } | null>(null);
   const [activeSectionId, setActiveSectionId] = React.useState<number | null>(null);
-  const [editingSectionId, setEditingSectionId] = React.useState<number | null>(null);
+  const [editingSectionId, setEditingSectionId] = React.useState<number | null>(null); 
   const [isEditItemOpen, setIsEditItemOpen] = React.useState(false);
   const [selectedItem, setSelectedItem] = React.useState<any>(null);
 

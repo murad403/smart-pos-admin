@@ -3,44 +3,21 @@ import React, { useState } from "react";
 import Image from "next/image";
 import item1 from "@/assets/images/menu1.jpg";
 import item2 from "@/assets/images/menu2.png";
-import bestSellerIcon from "@/assets/label/best_seller.svg";
-import chefRecommendationIcon from "@/assets/label/chef_recomanded.svg";
-import fastServeIcon from "@/assets/label/fast_serve.svg";
-import favouriteIcon from "@/assets/label/favourite.svg";
-import kidsMenuIcon from "@/assets/label/kids_menu.svg";
-import newMenuIcon from "@/assets/label/new_menu.svg";
-import signatureMenuIcon from "@/assets/label/signature_menu.svg";
-import spicyIcon from "@/assets/label/spicy.svg";
-import vegetarianIcon from "@/assets/label/vegetarian.svg";
+import spicyImage from "@/assets/tag/spicy.svg";
+import mustTryImage from "@/assets/tag/must_try.svg";
+import promoImage from "@/assets/tag/promo.svg";
+import bestSellerImage from "@/assets/tag/best_saller.svg";
+import vegetarianImage from "@/assets/tag/vagetarian.svg";
 
 
 const labelSvgMap: Record<string, any> = {
-  NEW_MENU: newMenuIcon,
-  BEST_SELLER: bestSellerIcon,
-  CHEF_RECOMMENDATION: chefRecommendationIcon,
-  RECOMMENDED: chefRecommendationIcon,
-  MENU_FAVORITE: favouriteIcon,
-  FAVORITE: favouriteIcon,
-  SPICY: spicyIcon,
-  VEGETARIAN: vegetarianIcon,
-  SIGNATURE_MENU: signatureMenuIcon,
-  KIDS_MENU: kidsMenuIcon,
-  FAST_SERVE: fastServeIcon,
+  VEGETARIAN: vegetarianImage,
+  SPICY: spicyImage,
+  BEST_SELLER: bestSellerImage,
+  PROMO: promoImage,
+  MUST_TRY: mustTryImage,
 };
 
-const labelBgColorMap: Record<string, string> = {
-  NEW_MENU: "bg-blue-600",
-  BEST_SELLER: "bg-amber-500",
-  CHEF_RECOMMENDATION: "bg-purple-600",
-  RECOMMENDED: "bg-purple-600",
-  MENU_FAVORITE: "bg-rose-500",
-  FAVORITE: "bg-rose-500",
-  SPICY: "bg-red-600",
-  VEGETARIAN: "bg-emerald-600",
-  SIGNATURE_MENU: "bg-indigo-600",
-  KIDS_MENU: "bg-sky-500",
-  FAST_SERVE: "bg-amber-600",
-};
 
 import { SectionLayoutType } from "@/redux/features/menu/menu.type";
 import { useTranslations } from "next-intl";
@@ -399,28 +376,20 @@ const CustomerMenuCards = ({
                       </div>
                     )} */}
 
-                    <div className="absolute right-1 bottom-1 sm:right-2 sm:bottom-2 flex flex-wrap gap-1 z-10">
-                      {item.badges && item.badges.map((badge, badgeIndex) => {
-                        const svgSrc = labelSvgMap[badge];
-                        const bgColor = labelBgColorMap[badge] || "bg-slate-600";
-                        if (!svgSrc) return null;
-                        return (
-                          <div
-                            key={badgeIndex}
-                            className={`flex items-center justify-center rounded-full border-2 border-white shadow-md p-1 ${bgColor} h-7 w-7 sm:h-9 sm:w-9 select-none transition-transform hover:scale-105`}
-                          >
-                            <div className="relative w-4.5 h-4.5 sm:w-6 sm:h-6">
-                              <Image
-                                src={svgSrc}
-                                alt={badge}
-                                fill
-                                className="object-contain"
-                              />
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
+                    {item.badges && item.badges.map((badge, badgeIndex) => {
+                      const svgSrc = labelSvgMap[badge];
+                      if (!svgSrc) return null;
+                      return (
+                        <div key={badgeIndex} className="absolute bottom-0 right-0 sm:w-50 sm:h-50 w-20 h-20">
+                          <Image
+                            src={svgSrc}
+                            alt={badge}
+                            fill
+                            className="object-contain object-right-bottom"
+                          />
+                        </div>
+                      );
+                    })}
 
 
                   </div>
