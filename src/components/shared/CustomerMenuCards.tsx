@@ -40,6 +40,7 @@ export type MenuItemCardData = {
   badges: string[];
   packetSections?: any[];
   maxPacketItems?: number | null;
+  productionStationId?: number | null;
 };
 
 type Props = {
@@ -193,6 +194,7 @@ const CustomerMenuCards = ({
       badges: item?.labels || [],
       packetSections: item.packetSections || [],
       maxPacketItems: item.maxPacketItems || null,
+      productionStationId: item.productionStationId || null,
     };
   });
 

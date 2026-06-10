@@ -79,6 +79,7 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
                 quantity: oi.quantity,
                 imageUrl: oi.item?.imageUrl || null,
                 packetChoices: oi.packetChoices || null,
+                productionStationId: oi.productionStationId || null,
             }));
             setCartItems(mapped);
         }
@@ -102,6 +103,7 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
                         price: item.promoPrice || item.price,
                         quantity: 1,
                         imageUrl: item.imageUrl,
+                        productionStationId: item.productionStationId || null,
                     },
                 ];
             });
@@ -133,6 +135,7 @@ const Page = ({ params }: { params?: Promise<{ locale: string }> }) => {
                     quantity: 1,
                     imageUrl: selectedPacketItem.imageUrl,
                     packetChoices: sortedChoices,
+                    productionStationId: selectedPacketItem.productionStationId || null,
                 },
             ];
         });

@@ -15,10 +15,12 @@ type CartItem = {
     price: number;
     quantity: number;
     imageUrl?: string | null;
+    productionStationId?: number | null;
     packetChoices?: Array<{
         section: string;
         choice: string;
         quantity: number;
+        productionStationId?: number | null
     }>;
 };
 
@@ -76,6 +78,7 @@ const EditOrderModal: React.FC<Props> = ({
             items: cartItems.map((item) => ({
                 itemId: item.itemId,
                 quantity: item.quantity,
+                productionStationId: item.productionStationId || null,
                 ...(item.packetChoices && item.packetChoices.length > 0
                     ? { packetChoices: item.packetChoices }
                     : {}),

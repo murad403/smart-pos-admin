@@ -16,6 +16,7 @@ type PacketSection = {
   name: string;
   maxQty: number;
   choices: Choice[];
+  productionStationId?: number | null;
 };
 
 type Props = {
@@ -28,7 +29,7 @@ type Props = {
     imageUrl?: string | null;
     packetSections?: PacketSection[];
   } | null;
-  onConfirm: (choices: Array<{ section: string; choice: string; quantity: number }>) => void;
+  onConfirm: (choices: Array<{ section: string; choice: string; quantity: number; productionStationId?: number | null }>) => void;
 };
 
 const SelectPacketChoicesModal: React.FC<Props> = ({ open, onClose, item, onConfirm }) => {
@@ -174,15 +175,19 @@ const SelectPacketChoicesModal: React.FC<Props> = ({ open, onClose, item, onConf
     e.preventDefault();
     if (!isAllValid) return;
 
-    const formattedChoices: Array<{ section: string; choice: string; quantity: number }> = [];
+    const formattedChoices: Array<{ section: string; choice: string; quantity: number; productionStationId?: number | null }> = [];
 
     Object.entries(selections).forEach(([sectionName, sectionChoices]) => {
+      const matchingSection = sections.find((s) => s.name === sectionName);
+      const productionStationId = matchingSection?.productionStationId || null;
+
       Object.entries(sectionChoices).forEach(([choiceName, qty]) => {
         if (qty > 0) {
           formattedChoices.push({
             section: sectionName,
             choice: choiceName,
             quantity: qty,
+            productionStationId,
           });
         }
       });
