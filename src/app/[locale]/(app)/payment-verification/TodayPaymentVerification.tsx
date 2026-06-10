@@ -80,6 +80,9 @@ const TodayPaymentVerification = () => {
                 setActualAmount("");
                 setRemark("");
                 handleRemoveFile();
+                if (res.data?.whatsappUrl) {
+                    window.location.href = res.data.whatsappUrl;
+                }
             } else {
                 toast.error(res.message || "Failed to verify payment");
             }
