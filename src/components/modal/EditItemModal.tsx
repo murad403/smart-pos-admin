@@ -210,7 +210,7 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
 
       // Set optional values or clear them
       payload.slug = slug.trim() || null;
-      payload.productionStationId = productionStationId ? Number(productionStationId) : undefined;
+      payload.productionStationId = (itemType !== "PACKET" && productionStationId) ? Number(productionStationId) : null;
       payload.inventoryQty = inventoryQty !== "" ? Number(inventoryQty) : undefined;
       payload.labels = selectedLabels;
       payload.promoName = hasPromo && promoName.trim() ? promoName : undefined;
@@ -428,38 +428,40 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
                 </div>
 
                 {/* Production Station */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">Production Destination</label>
-                  <div className="relative">
-                    <select
-                      value={productionStationId}
-                      onChange={(e) => setProductionStationId(e.target.value)}
-                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-800 appearance-none cursor-pointer pr-8"
-                    >
-                      <option value="">Select Production Station...</option>
-                      {isStationsLoading ? (
-                        <option disabled>Loading stations...</option>
-                      ) : (
-                        stations.map((s: any) => (
-                          <option key={s.id} value={s.id}>
-                            {s.name}
-                          </option>
-                        ))
-                      )}
-                    </select>
-                    <svg
-                      className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-                      width="14"
-                      height="14"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                    >
-                      <polyline points="6 9 12 15 18 9" />
-                    </svg>
+                {itemType !== "PACKET" && (
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Production Destination</label>
+                    <div className="relative">
+                      <select
+                        value={productionStationId}
+                        onChange={(e) => setProductionStationId(e.target.value)}
+                        className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-800 appearance-none cursor-pointer pr-8"
+                      >
+                        <option value="">Select Production Station...</option>
+                        {isStationsLoading ? (
+                          <option disabled>Loading stations...</option>
+                        ) : (
+                          stations.map((s: any) => (
+                            <option key={s.id} value={s.id}>
+                              {s.name}
+                            </option>
+                          ))
+                        )}
+                      </select>
+                      <svg
+                        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                        width="14"
+                        height="14"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <polyline points="6 9 12 15 18 9" />
+                      </svg>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Inventory Qty */}
                 <div>
