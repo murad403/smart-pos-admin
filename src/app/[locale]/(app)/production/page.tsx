@@ -3,6 +3,7 @@ import React, { useMemo, useState } from "react";
 import { CheckCircle2, Eye, Loader2, Package2, ShoppingBag, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { getUserData } from "@/utils/auth";
 import { useAcceptOrderMutation, useCancelOrderMutation, useGetAllProductionsQuery, usePickupOrderMutation, useReadyOrderMutation } from "@/redux/features/production/production.api";
 import { ProductionOrder, ProductionOrderStatus, ProductionSource } from "@/redux/features/production/production.type";
 import { Button } from "@/components/ui/button";
@@ -186,15 +187,53 @@ const ProductionPage = ({ params }: { params?: Promise<{ locale: string }> }) =>
     };
   }, []);
 
+  const filteredOrders = useMemo(() => {
+    const user = getUserData() as any;
+    const stationId = user?.productionStationId;
+
+    if (!stationId) {
+      return localOrders;
+    }
+
+    return localOrders
+      .map((order) => {
+        const filteredItems = order.orderItems
+          .map((item) => {
+            if (item.packetChoices && item.packetChoices.length > 0) {
+              const filteredChoices = item.packetChoices.filter(
+                (choice) => choice.productionStationId === stationId
+              );
+              return {
+                ...item,
+                packetChoices: filteredChoices,
+              };
+            }
+            return item;
+          })
+          .filter((item) => {
+            if (item.packetChoices && item.packetChoices.length > 0) {
+              return true;
+            }
+            return item.productionStationId === stationId;
+          });
+
+        return {
+          ...order,
+          orderItems: filteredItems,
+        };
+      })
+      .filter((order) => order.orderItems.length > 0);
+  }, [localOrders]);
+
   const sortedOrders = useMemo(() => {
-    return [...localOrders].sort((left, right) => {
+    return [...filteredOrders].sort((left, right) => {
       const statusDiff = statusPriority[left.status] - statusPriority[right.status];
 
       if (statusDiff !== 0) return statusDiff;
 
       return new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime();
     });
-  }, [localOrders]);
+  }, [filteredOrders]);
 
   const groupedOrders = useMemo(() => {
     const groups: Record<ProductionOrderStatus, ProductionOrder[]> = {
