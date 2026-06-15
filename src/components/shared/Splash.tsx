@@ -16,8 +16,7 @@ const Splash = () => {
                     width={260}
                     height={240}
                     priority
-                    sizes="260px"
-                    className="h-full w-full object-contain"
+                    className="object-contain"
                 />
             </div>
         </section>
