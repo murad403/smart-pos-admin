@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useRef, useEffect } from "react";
-import { X, Upload, Plus, Trash2 } from "lucide-react";
+import { X, Upload, Plus, Trash2, ChevronDown } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { useGetAllProductionStationQuery, useUpdateItemMutation, useAddPacketSectionMutation, useUpdatePacketSectionMutation, useDeletePacketSectionMutation, useAddPacketSectionChoiceMutation, useUpdatePacketSectionChoiceMutation, useDeletePacketSectionChoiceMutation } from "@/redux/features/menu/menu.api";
+import { useGetAllProductionStationQuery, useUpdateItemMutation, useAddPacketSectionMutation, useUpdatePacketSectionMutation, useDeletePacketSectionMutation, useAddPacketSectionChoiceMutation, useUpdatePacketSectionChoiceMutation, useDeletePacketSectionChoiceMutation, useGetAllItemsQuery } from "@/redux/features/menu/menu.api";
 import { toast } from "sonner";
+import SearchableItemDropdown from "../shared/SearchableItemDropdown";
+
 
 type Props = {
   open: boolean;
@@ -19,6 +21,10 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
   // Fetch production stations with limit 100
   const { data: stationsRes, isLoading: isStationsLoading } = useGetAllProductionStationQuery({ limit: 100 });
   const stations = stationsRes?.data ?? [];
+
+  // Fetch items for selection with limit 100 (excluding current item)
+  const { data: itemsRes } = useGetAllItemsQuery({ limit: 100 });
+  const itemsList = (itemsRes?.data ?? []).filter((i: any) => i.id !== item?.id);
 
   // Mutations
   const [updateItem, { isLoading: isUpdating }] = useUpdateItemMutation();
@@ -87,7 +93,7 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
           productionStationId: sec.productionStationId ? String(sec.productionStationId) : "",
           choices: (sec.choices || []).map((ch: any) => ({
             id: ch.id,
-            name: ch.name,
+            itemId: ch.itemId ?? null,
             maxQty: ch.maxQty,
           })),
         }));
@@ -123,7 +129,7 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
       name: "",
       maxQty: 1,
       productionStationId: "",
-      choices: [{ id: crypto.randomUUID(), name: "", maxQty: 1 }],
+      choices: [{ id: crypto.randomUUID(), itemId: null, maxQty: 1 }],
     };
     setSections([...sections, newSection]);
   };
@@ -149,7 +155,7 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
         if (s.id === sectionId) {
           return {
             ...s,
-            choices: [...s.choices, { id: crypto.randomUUID(), name: "", maxQty: 1 }],
+            choices: [...s.choices, { id: crypto.randomUUID(), itemId: null, maxQty: 1 }],
           };
         }
         return s;
@@ -171,7 +177,7 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
     );
   };
 
-  const handleChoiceChange = (sectionId: string | number, choiceId: string | number, field: "name" | "maxQty", value: any) => {
+  const handleChoiceChange = (sectionId: string | number, choiceId: string | number, field: "itemId" | "maxQty", value: any) => {
     setSections(
       sections.map((s) => {
         if (s.id === sectionId) {
@@ -210,7 +216,7 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
 
       // Set optional values or clear them
       payload.slug = slug.trim() || null;
-      payload.productionStationId = (itemType !== "PACKET" && productionStationId) ? Number(productionStationId) : null;
+      payload.productionStationId = (itemType !== "PACKET" && productionStationId) ? Number(productionStationId) : undefined;
       payload.inventoryQty = inventoryQty !== "" ? Number(inventoryQty) : undefined;
       payload.labels = selectedLabels;
       payload.promoName = hasPromo && promoName.trim() ? promoName : undefined;
@@ -295,7 +301,7 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
 
           if (sid) {
             for (const choice of sec.choices) {
-              if (!choice.name.trim()) continue;
+              if (!choice.itemId) continue;
 
               const isNewChoice = typeof choice.id === "string";
 
@@ -303,7 +309,7 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
                 await addPacketSectionChoice({
                   sid,
                   data: {
-                    name: choice.name,
+                    itemId: Number(choice.itemId),
                     maxQty: Number(choice.maxQty),
                   },
                 }).unwrap();
@@ -314,11 +320,11 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
                   originalChoice = (originalSec.choices || []).find((c: any) => c.id === choice.id);
                 }
 
-                if (originalChoice && (originalChoice.name !== choice.name || originalChoice.maxQty !== choice.maxQty)) {
+                if (originalChoice && (originalChoice.itemId !== choice.itemId || originalChoice.maxQty !== choice.maxQty)) {
                   await updatePacketSectionChoice({
                     cid: choice.id,
                     data: {
-                      name: choice.name,
+                      itemId: Number(choice.itemId),
                       maxQty: Number(choice.maxQty),
                     },
                   }).unwrap();
@@ -698,12 +704,10 @@ const EditItemModal: React.FC<Props> = ({ open, onClose, onSuccess, item }) => {
                         <span className="text-xs font-bold text-gray-600 block mb-1">Choice Options</span>
                         {sec.choices.map((choice: any) => (
                           <div key={choice.id} className="flex items-center gap-2">
-                            <input
-                              type="text"
-                              value={choice.name}
-                              onChange={(e) => handleChoiceChange(sec.id, choice.id, "name", e.target.value)}
-                              placeholder="Option name (e.g. French Fries)"
-                              className="flex-1 border border-gray-200 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            <SearchableItemDropdown
+                              items={itemsList}
+                              selectedId={choice.itemId}
+                              onChange={(id) => handleChoiceChange(sec.id, choice.id, "itemId", id)}
                             />
                             <input
                               type="number"
